@@ -1,1 +1,2 @@
-# webrtc-media-core
+# webrtc-core
+Handles the webrtc core functionality
