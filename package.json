@@ -1,7 +1,7 @@
 {
   "name": "webrtc-media-core",
   "version": "1.0.0",
-  "main": "./build/bundle.js",
+  "main": "./build/build.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-media-core.git",
