@@ -5,13 +5,13 @@ export default {
   output: [
     {
       format: 'umd',
-      file: 'build/build.js',
+      file: 'build/bundle.js',
       indent: '\t',
       name: 'Build',
     },
     {
       format: 'umd',
-      file: 'build/build.min.js',
+      file: 'build/bundle.min.js',
       name: 'Build',
       plugins: [
         terser(),
