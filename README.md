@@ -1,10 +1,10 @@
 # webrtc-media-core
-Handles the webrtc core functionality
 
-Commands 
+Handles the WebRTC core functionality.
 
-Steps: 
-1) fork and do `yarn install`
-2) run `yarn build`
-3) run `yarn server`
-4) open  http://localhost:8080/
+## Development:
+
+1. Run `yarn install`
+1. Run `yarn dev:bootstrap`
+1. Run `yarn dev`
+1. Open http://localhost:3000/

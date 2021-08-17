@@ -1,29 +1,29 @@
 {
-    "apiReport": {
-      "enabled": true,
-      "reportFileName": "<unscopedPackageName>.api.md",
-      "reportFolder": "<projectFolder>/docs/temp/",
-      "reportTempFolder": "<projectFolder>/docs/temp/"
-    },
-    "compiler": {
-      "tsconfigFilePath": "./tsconfig.json"
-    },
-    "docModel": {
-      "enabled": true,
-      "apiJsonFilePath": "<projectFolder>/docs/temp/<unscopedPackageName>.api.json"
-    },
-    "dtsRollup": {
-      "enabled": true,
-      "untrimmedFilePath": "<projectFolder>/docs/temp/<unscopedPackageName>.d.ts"
-    },
-    "mainEntryPointFilePath": "./dist/index.d.ts",
-    "projectFolder": ".",
+  "apiReport": {
+    "enabled": true,
+    "reportFileName": "<unscopedPackageName>.api.md",
+    "reportFolder": "<projectFolder>/docs/temp/",
+    "reportTempFolder": "<projectFolder>/docs/temp/"
+  },
+  "compiler": {
+    "tsconfigFilePath": "./tsconfig.json"
+  },
+  "docModel": {
+    "enabled": true,
+    "apiJsonFilePath": "<projectFolder>/docs/temp/<unscopedPackageName>.api.json"
+  },
+  "dtsRollup": {
+    "enabled": true,
+    "untrimmedFilePath": "<projectFolder>/docs/temp/<unscopedPackageName>.d.ts"
+  },
+  "mainEntryPointFilePath": "./dist/index.d.ts",
+  "projectFolder": ".",
 
-    "messages": {
-      "extractorMessageReporting": {
-        "ae-missing-release-tag": {
-          "logLevel": "none"
-        }
+  "messages": {
+    "extractorMessageReporting": {
+      "ae-missing-release-tag": {
+        "logLevel": "none"
       }
     }
   }
+}

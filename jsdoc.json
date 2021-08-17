@@ -1,18 +1,17 @@
-
 {
-    "source": {
-      "include": ["src"],
-      "includePattern": ".ts$",
-      "excludePattern": "(node_modules/|docs)"
-    },
-    "plugins": ["plugins/markdown"],
-    "templates": {
-      "cleverLinks": true,
-      "monospaceLinks": true
-    },
-    "opts": {
-      "recurse": true,
-      "destination": "./docs-jsdoc/",
-      "readme": "./readme.md"
-    }
+  "source": {
+    "include": ["src"],
+    "includePattern": ".ts$",
+    "excludePattern": "(node_modules/|docs)"
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true
+  },
+  "opts": {
+    "recurse": true,
+    "destination": "./docs-jsdoc/",
+    "readme": "./readme.md"
   }
+}
