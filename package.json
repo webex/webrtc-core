@@ -9,6 +9,7 @@
     "require": "./dist/cjs/index.js",
     "import": "./dist/esm/index.js"
   },
+  "files": ["dist/**/*"],
   "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-media-core.git",
   "author": "arungane <arungane@cisco.com>",
   "license": "MIT",
