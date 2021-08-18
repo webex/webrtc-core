@@ -2,12 +2,10 @@
 
 Handles the WebRTC core functionality.
 
-## Development:
+## Developement
 
-1. Run `yarn install`
-1. Run `yarn dev:bootstrap`
-1. Run `yarn dev`
-1. Open http://localhost:3000/
+1. `yarn`
+1. `yarn watch`
 
 ## Usage
 

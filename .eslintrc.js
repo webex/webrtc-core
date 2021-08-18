@@ -97,7 +97,7 @@ module.exports = {
     'import/resolver': {
       node: {
         extensions: ['.js', '.ts'],
-        paths: ['src', 'testbed'],
+        paths: ['src'],
       },
     },
   },
