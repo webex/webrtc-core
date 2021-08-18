@@ -16,7 +16,7 @@
     "enabled": true,
     "untrimmedFilePath": "<projectFolder>/docs/temp/<unscopedPackageName>.d.ts"
   },
-  "mainEntryPointFilePath": "./dist/index.d.ts",
+  "mainEntryPointFilePath": "./dist/types/index.d.ts",
   "projectFolder": ".",
 
   "messages": {
