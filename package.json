@@ -9,7 +9,9 @@
     "require": "./dist/cjs/index.js",
     "import": "./dist/esm/index.js"
   },
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-media-core.git",
   "author": "arungane <arungane@cisco.com>",
   "license": "MIT",
@@ -70,6 +72,7 @@
     "watch": "rollup -c ./rollup.config.js -w"
   },
   "dependencies": {
+    "events": "^3.3.0",
     "webrtc-adapter": "^8.0.0"
   },
   "lint-staged": {

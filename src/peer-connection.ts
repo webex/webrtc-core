@@ -1,3 +1,4 @@
+import { LocalTrack } from 'local-track';
 import { log } from 'util/logger';
 
 /**
@@ -18,14 +19,13 @@ class PeerConnection {
   /**
    * Adds a new media track to the set of tracks which will be transmitted to the other peer.
    *
-   * @param track - A MediaStreamTrack object representing the media track to add to the peer
-   *     connection.
+   * @param track - A LocalTrack object representing the media track to add to the peer connection.
    * @param streams - (Optional) One or more local MediaStream objects to which the track should be
    *     added.
    * @returns The RTCRtpSender object which will be used to transmit the media data.
    */
-  addTrack(track: MediaStreamTrack, ...streams: MediaStream[]): RTCRtpSender {
-    return this.pc.addTrack(track, ...streams);
+  addTrack(track: LocalTrack, ...streams: MediaStream[]): RTCRtpSender {
+    return this.pc.addTrack(track.getUnderlyingTrack(), ...streams);
   }
 
   /**
