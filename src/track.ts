@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 /**
  * Base Track class.
  */
-export class Track extends EventEmitter {
+export abstract class Track extends EventEmitter {
   /**
    * The underlying MediaStreamTrack object.
    */
