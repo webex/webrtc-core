@@ -5,6 +5,19 @@ import { Track } from './track';
  */
 export class LocalTrack extends Track {
   /**
+   * Exchange the underlying track with a new track. Emit the `track-update` event to alert
+   * listeners to an update on a new track.
+   *
+   * @param track - New underlying track.
+   * @fires LocalTrack#track-update
+   */
+  replaceUnderlyingTrack(track: MediaStreamTrack): void {
+    this.emit('track-update', this.getUnderlyingTrack().id, track);
+    this.getUnderlyingTrack().stop();
+    this.setUnderlyingTrack(track);
+  }
+
+  /**
    * Sets the track to be enabled or disabled.
    *
    * @param enabled - Whether the track should be enabled.

@@ -14,6 +14,9 @@ class PeerConnection {
     log('PeerConnection init');
 
     this.pc = new RTCPeerConnection();
+
+    // Bind event handlers.
+    this.handleTrackUpdate = this.handleTrackUpdate.bind(this);
   }
 
   /**
@@ -23,8 +26,10 @@ class PeerConnection {
    * @param streams - (Optional) One or more local MediaStream objects to which the track should be
    *     added.
    * @returns The RTCRtpSender object which will be used to transmit the media data.
+   * @listens LocalTrack#track-update
    */
   addTrack(track: LocalTrack, ...streams: MediaStream[]): RTCRtpSender {
+    track.on('track-update', this.handleTrackUpdate);
     return this.pc.addTrack(track.getUnderlyingTrack(), ...streams);
   }
 
@@ -90,6 +95,17 @@ class PeerConnection {
    */
   close(): void {
     this.pc.close();
+  }
+
+  /**
+   * Handles `track-update` event and replaces track on sender.
+   *
+   * @param oldTrackId - Id of the existing track.
+   * @param newTrack - New LocalTrack.
+   */
+  handleTrackUpdate(oldTrackId: string, newTrack: MediaStreamTrack): void {
+    const sender = this.pc.getSenders().find((s: RTCRtpSender) => s.track?.id === oldTrackId);
+    sender?.replaceTrack(newTrack);
   }
 }
 

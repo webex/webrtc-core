@@ -28,4 +28,13 @@ export abstract class Track extends EventEmitter {
   getUnderlyingTrack(): MediaStreamTrack {
     return this.track;
   }
+
+  /**
+   * Sets the underlying track.
+   *
+   * @param track - The new underlying track.
+   */
+  setUnderlyingTrack(track: MediaStreamTrack): void {
+    this.track = track;
+  }
 }
