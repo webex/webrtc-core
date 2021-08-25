@@ -4,6 +4,10 @@ import { Track } from './track';
  * A wrapper around MediaStreamTrack.
  */
 export class LocalTrack extends Track {
+  static Events = {
+    TrackUpdate: 'track-update',
+  };
+
   /**
    * Exchange the underlying track with a new track. Emit the `track-update` event to alert
    * listeners to an update on a new track.
@@ -12,7 +16,7 @@ export class LocalTrack extends Track {
    * @fires LocalTrack#track-update
    */
   replaceUnderlyingTrack(track: MediaStreamTrack): void {
-    this.emit('track-update', this.getUnderlyingTrack().id, track);
+    this.emit(LocalTrack.Events.TrackUpdate, this.getUnderlyingTrack().id, track);
     this.getUnderlyingTrack().stop();
     this.setUnderlyingTrack(track);
   }

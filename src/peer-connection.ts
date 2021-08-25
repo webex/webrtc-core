@@ -29,7 +29,7 @@ class PeerConnection {
    * @listens LocalTrack#track-update
    */
   addTrack(track: LocalTrack, ...streams: MediaStream[]): RTCRtpSender {
-    track.on('track-update', this.handleTrackUpdate);
+    track.on(LocalTrack.Events.TrackUpdate, this.handleTrackUpdate);
     return this.pc.addTrack(track.getUnderlyingTrack(), ...streams);
   }
 
