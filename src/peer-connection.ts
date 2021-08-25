@@ -26,7 +26,7 @@ class PeerConnection {
    * @param streams - (Optional) One or more local MediaStream objects to which the track should be
    *     added.
    * @returns The RTCRtpSender object which will be used to transmit the media data.
-   * @listens LocalTrack#track-update
+   * @listens LocalTrack.Events.TrackUpdate
    */
   addTrack(track: LocalTrack, ...streams: MediaStream[]): RTCRtpSender {
     track.on(LocalTrack.Events.TrackUpdate, this.handleTrackUpdate);

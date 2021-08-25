@@ -13,7 +13,7 @@ export class LocalTrack extends Track {
    * listeners to an update on a new track.
    *
    * @param track - New underlying track.
-   * @fires LocalTrack#track-update
+   * @fires LocalTrack.Events.TrackUpdate
    */
   replaceUnderlyingTrack(track: MediaStreamTrack): void {
     this.emit(LocalTrack.Events.TrackUpdate, this.getUnderlyingTrack().id, track);
