@@ -51,11 +51,7 @@
     /* Module Resolution Options */
     "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
-    "baseUrl": "./" /* Base directory to resolve non-absolute module names. */,
-    "paths": {
-      "*": ["./src/*"],
-      "src/*": ["./src/*"]
-    } /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */,
+    "baseUrl": "." /* Base directory to resolve non-absolute module names. */,
     "types": ["node"] /* Type declaration files to be included in compilation. */,
     // "typeRoots": [] /* List of folders to include type definitions from. */,
     // "rootDirs": [], /* List of root folders whose combined content represents the structure of the project at runtime. */
@@ -77,6 +73,6 @@
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules/**"]
 }

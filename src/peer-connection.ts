@@ -1,5 +1,5 @@
-import { LocalTrack } from 'local-track';
-import { log } from 'util/logger';
+import { LocalTrack } from './local-track';
+import { log } from './util/logger';
 
 /**
  * Manages a single RTCPeerConnection with the server.
