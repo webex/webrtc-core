@@ -1,4 +1,4 @@
-import { PeerConnection } from 'peer-connection';
+import { PeerConnection } from './peer-connection';
 
 /**
  * Wait until the given peer connection has finished gathering ICE candidates and, when it has,
