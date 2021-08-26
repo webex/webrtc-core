@@ -1,22 +1,34 @@
 import { LocalTrack } from './local-track';
 import { log } from './util/logger';
+import { EventEmitter } from './event-emitter';
 
 /**
  * Manages a single RTCPeerConnection with the server.
  */
-class PeerConnection {
+class PeerConnection extends EventEmitter {
+  static Events = {
+    IceGatheringStateChange: 'icegatheringstatechange',
+  };
+
   private pc: RTCPeerConnection;
 
   /**
    * Creates an instance of the RTCPeerConnection.
    */
   constructor() {
+    super();
     log('PeerConnection init');
 
     this.pc = new RTCPeerConnection();
 
     // Bind event handlers.
     this.handleTrackUpdate = this.handleTrackUpdate.bind(this);
+
+    // Subscribe to underlying PeerConnection events and emit them via the EventEmitter
+    /* eslint-disable jsdoc/require-jsdoc */
+    this.pc.onicegatheringstatechange = (ev: Event) => {
+      this.emit(PeerConnection.Events.IceGatheringStateChange, ev);
+    };
   }
 
   /**
@@ -106,6 +118,15 @@ class PeerConnection {
   handleTrackUpdate(oldTrackId: string, newTrack: MediaStreamTrack): void {
     const sender = this.pc.getSenders().find((s: RTCRtpSender) => s.track?.id === oldTrackId);
     sender?.replaceTrack(newTrack);
+  }
+
+  /**
+   * Get the local description from this PeerConnection.
+   *
+   * @returns An RTCSessionDescription representing the local description, or null if none has been set.
+   */
+  getLocalDescription(): RTCSessionDescription | null {
+    return this.pc.localDescription;
   }
 }
 
