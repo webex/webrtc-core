@@ -1,5 +1,5 @@
 {
-  "name": "webrtc-media-core",
+  "name": "webrtc-core",
   "version": "1.0.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -12,8 +12,7 @@
   "files": [
     "dist/**/*"
   ],
-  "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-media-core.git",
-  "author": "arungane <arungane@cisco.com>",
+  "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-core.git",
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
