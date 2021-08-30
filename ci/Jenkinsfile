@@ -14,7 +14,7 @@ def AWS_CREDS_ID = 'ecr:us-east-2:cpaas-aws-creds' // this uses cpaas-aws-creds 
 pipeline {
   agent any
 
-  tools {nodejs "Node v14"}
+  tools {nodejs "Node v16"}
 
   stages {
     stage('Pre Check Git') {
