@@ -20,7 +20,8 @@ pipeline {
     stage('Cloning Git') {
       steps {
         sh 'node -v'
-        sh 'git clone -b https://sqbu-github.cisco.com/CPaaS/webrtc-core.git'
+        sh 'npm -v'
+        sh 'pwd'
       }
     }
     stage('Install dependencies') {
