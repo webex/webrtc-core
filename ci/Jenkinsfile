@@ -1,0 +1,27 @@
+#!/usr/bin/groovy
+
+// Node label
+// Find more info about these:
+// https://engit.cisco.com/build/cloudbees-jenkins/documentation-central-jenkins-build-agents
+def NODE_LABEL = 'docker'
+def DOCKER_REGISTRY = '527856644868.dkr.ecr.us-east-2.amazonaws.com'
+def DOCKER_REPO = 'cpaas'
+def DOCKER_IMAGE = 'webrtc-core'
+def DOCKER_TEST_IMAGE = 'webrtc-core-test'
+def DOCKER_TAG  // Computed later
+def AWS_CREDS_ID = 'ecr:us-east-2:cpaas-aws-creds' // this uses cpaas-aws-creds from Jenkins
+
+pipeline {
+  agent any
+
+  tools {nodejs "Node v16"}
+
+  stages {
+    stage('Example') {
+      steps {
+        sh 'npm install'
+        sh 'npm config ls'
+      }
+    }
+  }
+}
