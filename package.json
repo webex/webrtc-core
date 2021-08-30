@@ -85,7 +85,6 @@
   },
   "engines": {
     "node": ">=0.12",
-    "npm": "please-use-yarn",
     "yarn": ">= 1.19.1"
   }
 }

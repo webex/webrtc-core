@@ -17,17 +17,16 @@ pipeline {
   tools {nodejs "Node v14"}
 
   stages {
-    stage('Cloning Git') {
+    stage('Pre Check Git') {
       steps {
         sh 'node -v'
         sh 'npm -v'
         sh 'pwd'
-        sh 'npm install -g yarn'
       }
     }
     stage('Install dependencies') {
       steps {
-        sh 'yarn install'
+        sh 'npm install'
       }
     }
   }
