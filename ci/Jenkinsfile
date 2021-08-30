@@ -19,7 +19,7 @@ pipeline {
   stages {
     stage('Example') {
       steps {
-        sh 'npm install'
+        sh 'yarn install'
         sh 'npm config ls'
       }
     }
