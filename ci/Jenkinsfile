@@ -17,11 +17,15 @@ pipeline {
   tools {nodejs "Node v16"}
 
   stages {
-    stage('Example') {
+    stage('Cloning Git') {
       steps {
-        sh 'npm install yarn'  
-        sh 'yarn install'
-        sh 'npm config ls'
+        sh 'node -v'
+        sh 'git clone -b https://sqbu-github.cisco.com/CPaaS/webrtc-core.git'
+      }
+    }
+    stage('Install dependencies') {
+      steps {
+        sh 'npm install'
       }
     }
   }
