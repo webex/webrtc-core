@@ -1,6 +1,7 @@
 import { LocalTrack } from './local-track';
 import { log } from './util/logger';
 import { EventEmitter } from './event-emitter';
+import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 
 /**
  * Manages a single RTCPeerConnection with the server.
@@ -19,7 +20,7 @@ class PeerConnection extends EventEmitter {
     super();
     log('PeerConnection init');
 
-    this.pc = new RTCPeerConnection();
+    this.pc = createRTCPeerConnection();
 
     // Bind event handlers.
     this.handleTrackUpdate = this.handleTrackUpdate.bind(this);
