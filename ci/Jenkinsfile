@@ -22,11 +22,12 @@ pipeline {
         sh 'node -v'
         sh 'npm -v'
         sh 'pwd'
+        sh 'npm install -g yarn'
       }
     }
     stage('Install dependencies') {
       steps {
-        sh 'npm install'
+        sh 'yarn install'
       }
     }
   }
