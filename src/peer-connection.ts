@@ -1,6 +1,6 @@
+import { EventEmitter } from './event-emitter';
 import { LocalTrack } from './local-track';
 import { log } from './util/logger';
-import { EventEmitter } from './event-emitter';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 
 /**
@@ -38,12 +38,18 @@ class PeerConnection extends EventEmitter {
    * @param track - A LocalTrack object representing the media track to add to the peer connection.
    * @param streams - (Optional) One or more local MediaStream objects to which the track should be
    *     added.
-   * @returns The RTCRtpSender object which will be used to transmit the media data.
+   * @returns The RTCRtpSender object which will be used to transmit the media data, or null if
+   *     there is no underlying track when a track is added.
    * @listens LocalTrack.Events.TrackUpdate
    */
-  addTrack(track: LocalTrack, ...streams: MediaStream[]): RTCRtpSender {
-    track.on(LocalTrack.Events.TrackUpdate, this.handleTrackUpdate);
-    return this.pc.addTrack(track.getUnderlyingTrack(), ...streams);
+  addTrack(track: LocalTrack, ...streams: MediaStream[]): RTCRtpSender | null {
+    const underlyingTrack = track.getUnderlyingTrack();
+    if (underlyingTrack) {
+      track.on(LocalTrack.Events.TrackUpdate, this.handleTrackUpdate);
+      return this.pc.addTrack(underlyingTrack, ...streams);
+    }
+
+    return null;
   }
 
   /**

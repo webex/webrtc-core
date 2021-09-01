@@ -5,19 +5,38 @@ import { EventEmitter } from './event-emitter';
  */
 export abstract class Track extends EventEmitter {
   /**
-   * The underlying MediaStreamTrack object.
+   * Enum for Track Events.
+   *
+   * @readonly
+   * @enum {string}
    */
-  private track: MediaStreamTrack;
+  static Events = {
+    /** Fired when a non-null or undefined underlying track is replaced. */
+    TrackUpdate: 'track-update',
+    /**
+     * Adds the callback handler to be notified of a track ending, this event occurs when the track
+     * will no longer provide data to the stream for any reason. Note: Handler will not fire when
+     * user calls stop() on the underlying track.
+     */
+    TrackEnded: 'track-ended',
+  };
 
   /**
-   * Constructor for the Track class. Will create an empty MediaStreamTrack if one is not provided.
+   * The underlying MediaStreamTrack object.
+   */
+  private track: MediaStreamTrack | undefined;
+
+  /**
+   * Constructor for the Track class.
    *
    * @param track - (Optional) MediaStreamTrack.
    */
   constructor(track?: MediaStreamTrack) {
     super();
 
-    this.track = track || new MediaStreamTrack();
+    if (track) {
+      this.setUnderlyingTrack(track);
+    }
   }
 
   /**
@@ -25,7 +44,7 @@ export abstract class Track extends EventEmitter {
    *
    * @returns The underlying track.
    */
-  getUnderlyingTrack(): MediaStreamTrack {
+  getUnderlyingTrack(): MediaStreamTrack | undefined {
     return this.track;
   }
 
@@ -35,6 +54,10 @@ export abstract class Track extends EventEmitter {
    * @param track - The new underlying track.
    */
   setUnderlyingTrack(track: MediaStreamTrack): void {
+    // eslint-disable-next-line no-param-reassign, jsdoc/require-jsdoc
+    track.onended = (ev: Event) => {
+      this.emit(Track.Events.TrackEnded, ev);
+    };
     this.track = track;
   }
 }
