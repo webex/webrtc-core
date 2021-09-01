@@ -76,6 +76,9 @@ class PeerConnection extends EventEmitter {
   ): RTCRtpTransceiver {
     const rtcTrackOrKind =
       trackOrKind instanceof LocalTrack ? trackOrKind.getUnderlyingTrack() : trackOrKind;
+    if (!rtcTrackOrKind) {
+      throw new Error('Tried to add track with undefined underlying track');
+    }
     return this.pc.addTransceiver(rtcTrackOrKind, init);
   }
 
