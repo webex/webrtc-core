@@ -4,6 +4,14 @@ import { log } from './util/logger';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 
 /**
+ * A type-safe form of the DOMString used in the MediaStreamTrack.kind field.
+ */
+enum MediaStreamTrackKind {
+  Audio = 'audio',
+  Video = 'video',
+}
+
+/**
  * Manages a single RTCPeerConnection with the server.
  */
 class PeerConnection extends EventEmitter {
@@ -50,6 +58,42 @@ class PeerConnection extends EventEmitter {
     }
 
     return null;
+  }
+
+  /**
+   * Creates a new RTCRtpTransceiver and adds it to the set of transceivers associated with the
+   * PeerConnection.  Each transceiver represents a bidirectional stream, with both an RTCRtpSender
+   * and an RTCRtpReceiver associated with it.
+   *
+   * @param trackOrKind - A LocalTrack to associate with the transceiver, or a string which is used
+   * as the kind of the receiver's track, and by extension the RTCRtpReceiver itself.
+   * @param init - Options that you may wish to specify when creating the new transceiver.
+   * @returns - The created RTCRtpTransceiver object.
+   */
+  addTransceiver(
+    trackOrKind: LocalTrack | MediaStreamTrackKind,
+    init?: RTCRtpTransceiverInit
+  ): RTCRtpTransceiver {
+    const rtcTrackOrKind =
+      trackOrKind instanceof LocalTrack ? trackOrKind.getUnderlyingTrack() : trackOrKind;
+    return this.pc.addTransceiver(rtcTrackOrKind, init);
+  }
+
+  /**
+   * Tell the local end of the connection to stop sending media from the specified track, without
+   * actually removing the corresponding RTCRtpSender from the list of senders as reported by
+   * RTCPeerConnection.getSenders().  If the track is already stopped, or is not in the connection's
+   * senders list, the method has no effect.
+   *
+   * If the connection has already been negotiated (signalingState is set to 'stable'), it is marked
+   * as needing to be negotiated again; the remote peer won't experience the change until this
+   * negotiation occurs.  A negotiatedneeded event is sent to the RTCPeerConnection to let the local
+   * end know this negotiation must occur.
+   *
+   * @param sender - An RTCRtpSender specifying the sender to remove from the connection.
+   */
+  removeTrack(sender: RTCRtpSender): void {
+    this.pc.removeTrack(sender);
   }
 
   /**
@@ -135,6 +179,30 @@ class PeerConnection extends EventEmitter {
   getLocalDescription(): RTCSessionDescription | null {
     return this.pc.localDescription;
   }
+
+  /**
+   * Returns an array of RTCRtpSender objects, each of which represents the RTP sender responsible
+   * for transmitting one track's data.  A sender object provides methods and properties for
+   * examining and controlling the encoding and transmission of the track's data.
+   *
+   * @returns An array of RTCRtpSender objects, one for each track on the connection.  The array is
+   * empty if there are no RTP senders on the connection.
+   */
+  getSenders(): RTCRtpSender[] {
+    return this.pc.getSenders();
+  }
+
+  /**
+   * Get the list of RTCRtpTransceiver objects being used to send and receive data on the
+   * connection.
+   *
+   * @returns - An array of the RTCRtpTransceiver objects representing the transceivers handling
+   * sending and receiving all media on the PeerConnection.  The list is in the order in which the
+   * transceivers were added to the connection.
+   */
+  getTransceivers(): RTCRtpTransceiver[] {
+    return this.pc.getTransceivers();
+  }
 }
 
-export { PeerConnection };
+export { MediaStreamTrackKind, PeerConnection };
