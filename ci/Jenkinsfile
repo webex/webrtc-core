@@ -45,7 +45,6 @@ pipeline {
       steps {
         rtNpmInstall (
           tool: NPM_TOOL, // Tool name from Jenkins configuration
-          path: "npm-example",
           resolverId: "NPM_RESOLVER"
         )
       }
@@ -55,7 +54,6 @@ pipeline {
       steps {
         rtNpmPublish (
           tool: NPM_TOOL, // Tool name from Jenkins configuration
-          path: "npm-example",
           deployerId: "NPM_DEPLOYER"
         )
       }
