@@ -30,13 +30,13 @@ pipeline {
         rtNpmResolver (
           id: "NPM_RESOLVER",
           serverId: "ARTIFACTORY_SERVER",
-          repo: "npm-remote"
+          repo: "webrtc-core-npm"
         )
 
         rtNpmDeployer (
           id: "NPM_DEPLOYER",
           serverId: "ARTIFACTORY_SERVER",
-          repo: "npm-local"
+          repo: "webrtc-core-npm-local"
         )
       }
     }
