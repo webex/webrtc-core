@@ -14,7 +14,7 @@ def AWS_CREDS_ID = 'ecr:us-east-2:cpaas-aws-creds' // this uses cpaas-aws-creds 
 def NPM_TOOL = 'Node v16'
 def SERVER_URL = 'https://engci-maven-master.cisco.com/artifactory/api/npm/webrtc-core-npm'
 def CREDENTIALS = 'Artifactory_Creds'
-def serverId = Artifactory.server '-1891791471@1433256722809'
+def serverId = '-1891791471@1433256722809'
 
 pipeline {
   agent any
