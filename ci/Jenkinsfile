@@ -27,7 +27,7 @@ pipeline {
     }
     stage('Install dependencies') {
       steps {
-        sh 'yarn install'
+        sh './node_modules/yarn yarn install'
       }
     }
     stage('Run test') {
