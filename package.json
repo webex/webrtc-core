@@ -66,6 +66,7 @@
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:spelling": "cspell \"{README.md,.github/*.md,src/**/*.ts}\"",
     "test:unit": "jest",
+    "test:coverage": "jest --coverage",
     "transpile": "tsc",
     "transpile:clean": "rimraf ./dist",
     "transpile:validate": "tsc --noemit",
