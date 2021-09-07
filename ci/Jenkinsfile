@@ -38,14 +38,25 @@ pipeline {
     }
     stage('Run test') {
       steps {
-        sh './node_modules/yarn/bin/yarn test'
-        publishHTML([allowMissing: false,
-                     alwaysLinkToLastBuild: false,
-                     keepAll: true,
-                     reportDir: 'coverage/lcov-report',
-                     reportFiles: 'index.html',
-                     reportName: 'HTML Report',
-                     reportTitles: 'All Tests'])
+        // Validate lint
+        sh './node_modules/yarn/bin/yarn test:lint'
+        //@TODO: handle lint errors (fail build??)
+
+        // Run unit test
+        if (env.includeCoverage == true) {
+          sh './node_modules/yarn/bin/yarn test:unit --coverage'
+          // publish report
+          publishHTML([allowMissing: false,
+                       alwaysLinkToLastBuild: false,
+                       keepAll: true,
+                       reportDir: 'coverage/lcov-report',
+                       reportFiles: 'index.html',
+                       reportName: 'HTML Report',
+                       reportTitles: 'All Tests'])
+        } else {
+          // Run tests without coverage
+          sh './node_modules/yarn/bin/yarn test:unit'
+        }
       }
     }
     stage('Build package') {
