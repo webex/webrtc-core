@@ -36,12 +36,14 @@ pipeline {
         sh './node_modules/yarn/bin/yarn install'
       }
     }
-    stage('Run test') {
+    stage('Validate Lint') {
       steps {
         // Validate lint
         sh './node_modules/yarn/bin/yarn test:lint'
         //@TODO: handle lint errors (fail build??)
-
+      }
+    }
+    stage('Run unit test') {
         // Run unit test
         if (env.includeCoverage == true) {
           sh './node_modules/yarn/bin/yarn test:unit --coverage'
@@ -57,7 +59,6 @@ pipeline {
           // Run tests without coverage
           sh './node_modules/yarn/bin/yarn test:unit'
         }
-      }
     }
     stage('Build package') {
       steps {
