@@ -27,8 +27,8 @@ pipeline {
         sh 'npm -v'
         sh 'npm install yarn'
         sh 'pwd'
-        echo "${env.WORKSPACE}"
-        echo "${env.includeCoverage}"
+        echo " current workspace ${env.WORKSPACE}"
+        echo " run test with coverage: ${env.includeCoverage}"
       }
     }
     stage('Install dependencies') {
@@ -44,21 +44,29 @@ pipeline {
       }
     }
     stage('Run unit test') {
-        // Run unit test
-        if (env.includeCoverage == true) {
-          sh './node_modules/yarn/bin/yarn test:unit --coverage'
-          // publish report
-          publishHTML([allowMissing: false,
-                       alwaysLinkToLastBuild: false,
-                       keepAll: true,
-                       reportDir: 'coverage/lcov-report',
-                       reportFiles: 'index.html',
-                       reportName: 'HTML Report',
-                       reportTitles: 'All Tests'])
-        } else {
-          // Run tests without coverage
-          sh './node_modules/yarn/bin/yarn test:unit'
+      parallel {
+        stage('Unit test with Coverage') {
+          when { expression { env.includeCoverage } }
+          steps {
+            sh './node_modules/yarn/bin/yarn test:unit --coverage'
+            publishHTML([
+              allowMissing: false,
+              alwaysLinkToLastBuild: false,
+              keepAll: true,
+              reportDir: 'coverage/lcov-report',
+              reportFiles: 'index.html',
+              reportName: 'HTML Report',
+              reportTitles: 'All Tests'
+            ])
+          }
         }
+        stage('Unit test without coverage') {
+          when { expression { !env.includeCoverage } }
+          steps {
+            sh './node_modules/yarn/bin/yarn test:unit'
+          }
+        }
+      }
     }
     stage('Build package') {
       steps {
