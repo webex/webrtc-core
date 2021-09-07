@@ -32,6 +32,14 @@ pipeline {
     stage('Run test') {
       steps {
         sh 'npm test'
+
+        publishHTML([allowMissing: false,
+                     alwaysLinkToLastBuild: false,
+                     keepAll: true,
+                     reportDir: 'coverage/lcov-report',
+                     reportFiles: 'index.html',
+                     reportName: 'HTML Report',
+                     reportTitles: 'All Tests'])
       }
     }
     stage('Build package') {
