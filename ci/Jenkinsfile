@@ -1,0 +1,68 @@
+#!/usr/bin/groovy
+
+// Node label
+// Find more info about these:
+// https://engit.cisco.com/build/cloudbees-jenkins/documentation-central-jenkins-build-agents
+pipeline {
+  agent any
+
+  tools {nodejs "Node v14"}
+
+  options {
+    ansiColor('xterm')
+  }
+
+  stages {
+    stage('Prerequisite Check') {
+      steps {
+        sh 'node -v'
+        sh 'npm -v'
+        sh 'npm install yarn'
+        sh 'pwd'
+        echo " current workspace ${env.WORKSPACE}"
+      }
+    }
+    stage('Install dependencies') {
+      steps {
+        sh './node_modules/yarn/bin/yarn install'
+      }
+    }
+    stage('Validate Lint') {
+      steps {
+        // Validate lint
+        sh './node_modules/yarn/bin/yarn test:lint'
+        //@TODO: handle lint errors (fail build??)
+      }
+    }
+    stage('Run unit test') {
+      steps {
+        sh './node_modules/yarn/bin/yarn test:coverage'
+        publishHTML([
+          allowMissing: false,
+          alwaysLinkToLastBuild: false,
+          keepAll: true,
+          reportDir: 'coverage/lcov-report',
+          reportFiles: 'index.html',
+          reportName: 'HTML Report',
+          reportTitles: 'All Tests'
+        ])
+      }
+    }
+    stage('Build package') {
+      steps {
+        sh './node_modules/yarn/bin/yarn build'
+      }
+    }
+//    stage('Publish to artifactory') {
+//      if (env.BRANCH_NAME == "master") {
+//          steps {
+//            sh 'npm publish'
+//        }
+//      }
+//      else {
+//        echo "Skipping publish - This build is not occurring on a publish-able branch!"
+//      }
+//    }
+
+  }
+}
