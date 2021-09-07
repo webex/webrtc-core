@@ -65,7 +65,7 @@
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:spelling": "cspell \"{README.md,.github/*.md,src/**/*.ts}\"",
-    "test:unit": "jest --coverage",
+    "test:unit": "jest",
     "transpile": "tsc",
     "transpile:clean": "rimraf ./dist",
     "transpile:validate": "tsc --noemit",

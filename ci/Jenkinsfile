@@ -16,13 +16,19 @@ pipeline {
 
   tools {nodejs "Node v14"}
 
+  options {
+    ansiColor('xterm')
+  }
+
   stages {
-    stage('Pre Check Git') {
+    stage('Prerequisite Check') {
       steps {
         sh 'node -v'
         sh 'npm -v'
         sh 'npm install yarn'
         sh 'pwd'
+        sh 'echo ${env.WORKSPACE}'
+        sh 'echo ${env.includeCoverage}'
       }
     }
     stage('Install dependencies') {
