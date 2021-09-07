@@ -21,18 +21,18 @@ pipeline {
       steps {
         sh 'node -v'
         sh 'npm -v'
+        sh 'npm install yarn'
         sh 'pwd'
       }
     }
     stage('Install dependencies') {
       steps {
-        sh 'npm install'
+        sh 'yarn install'
       }
     }
     stage('Run test') {
       steps {
         sh 'npm test'
-
         publishHTML([allowMissing: false,
                      alwaysLinkToLastBuild: false,
                      keepAll: true,
@@ -47,5 +47,16 @@ pipeline {
         sh 'npm run build'
       }
     }
+//    stage('Publish to artifactory') {
+//      if (env.BRANCH_NAME == "master") {
+//          steps {
+//            sh 'npm publish'
+//        }
+//      }
+//      else {
+//        echo "Skipping publish - This build is not occurring on a publish-able branch!"
+//      }
+//    }
+
   }
 }
