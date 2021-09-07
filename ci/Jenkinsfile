@@ -11,60 +11,32 @@ def DOCKER_TEST_IMAGE = 'webrtc-core-test'
 def DOCKER_TAG  // Computed later
 def AWS_CREDS_ID = 'ecr:us-east-2:cpaas-aws-creds' // this uses cpaas-aws-creds from Jenkins
 
-def NPM_TOOL = 'Node v16'
-def SERVER_URL = 'https://engci-maven-master.cisco.com/artifactory/api/npm/webrtc-core-npm'
-def CREDENTIALS = 'Artifactory_Creds'
-def serverId = '-1891791471@1433256722809'
-
 pipeline {
   agent any
 
+  tools {nodejs "Node v14"}
+
   stages {
-    stage ('Artifactory configuration') {
+    stage('Pre Check Git') {
       steps {
-        rtServer (
-          id: serverId,
-          url: SERVER_URL,
-          credentialsId: CREDENTIALS
-        )
-
-        rtNpmResolver (
-          id: "NPM_RESOLVER",
-          serverId: serverId,
-          repo: "webrtc-core-npm"
-        )
-
-        rtNpmDeployer (
-          id: "NPM_DEPLOYER",
-          serverId: serverId,
-          repo: "webrtc-core-npm-local"
-        )
+        sh 'node -v'
+        sh 'npm -v'
+        sh 'pwd'
       }
     }
-
-    stage ('Exec npm install') {
+    stage('Install dependencies') {
       steps {
-        rtNpmInstall (
-          tool: NPM_TOOL, // Tool name from Jenkins configuration
-          resolverId: "NPM_RESOLVER"
-        )
+        sh 'npm install'
       }
     }
-
-    stage ('Exec npm publish') {
+    stage('Run test') {
       steps {
-        rtNpmPublish (
-          tool: NPM_TOOL, // Tool name from Jenkins configuration
-          deployerId: "NPM_DEPLOYER"
-        )
+        sh 'npm install'
       }
     }
-
-    stage ('Publish build info') {
+    stage('Build package') {
       steps {
-        rtPublishBuildInfo (
-          serverId: serverId
-        )
+        sh 'npm run build'
       }
     }
   }
