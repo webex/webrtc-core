@@ -27,12 +27,12 @@ pipeline {
     }
     stage('Install dependencies') {
       steps {
-        sh './node_modules/yarn yarn install'
+        sh './node_modules/yarn/bin/yarn install'
       }
     }
     stage('Run test') {
       steps {
-        sh 'npm test'
+        sh './node_modules/yarn/bin/yarn test'
         publishHTML([allowMissing: false,
                      alwaysLinkToLastBuild: false,
                      keepAll: true,
@@ -44,7 +44,7 @@ pipeline {
     }
     stage('Build package') {
       steps {
-        sh 'npm run build'
+        sh './node_modules/yarn/bin/yarn build'
       }
     }
 //    stage('Publish to artifactory') {
