@@ -27,8 +27,8 @@ pipeline {
         sh 'npm -v'
         sh 'npm install yarn'
         sh 'pwd'
-        sh 'echo ${env.WORKSPACE}'
-        sh 'echo ${env.includeCoverage}'
+        echo "${env.WORKSPACE}"
+        echo "${env.includeCoverage}"
       }
     }
     stage('Install dependencies') {
