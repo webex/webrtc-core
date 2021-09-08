@@ -1,5 +1,4 @@
 import { EventEmitter } from './event-emitter';
-import { LocalTrack } from './local-track';
 import { log } from './util/logger';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 
@@ -30,9 +29,6 @@ class PeerConnection extends EventEmitter {
 
     this.pc = createRTCPeerConnection();
 
-    // Bind event handlers.
-    this.handleTrackUpdate = this.handleTrackUpdate.bind(this);
-
     // Subscribe to underlying PeerConnection events and emit them via the EventEmitter
     /* eslint-disable jsdoc/require-jsdoc */
     this.pc.onicegatheringstatechange = (ev: Event) => {
@@ -43,21 +39,14 @@ class PeerConnection extends EventEmitter {
   /**
    * Adds a new media track to the set of tracks which will be transmitted to the other peer.
    *
-   * @param track - A LocalTrack object representing the media track to add to the peer connection.
+   * @param track - A MediaStreamTrack object representing the media track to add to the peer connection.
    * @param streams - (Optional) One or more local MediaStream objects to which the track should be
    *     added.
    * @returns The RTCRtpSender object which will be used to transmit the media data, or null if
    *     there is no underlying track when a track is added.
-   * @listens LocalTrack.Events.TrackUpdate
    */
-  addTrack(track: LocalTrack, ...streams: MediaStream[]): RTCRtpSender | null {
-    const underlyingTrack = track.getUnderlyingTrack();
-    if (underlyingTrack) {
-      track.on(LocalTrack.Events.TrackUpdate, this.handleTrackUpdate);
-      return this.pc.addTrack(underlyingTrack, ...streams);
-    }
-
-    return null;
+  addTrack(track: MediaStreamTrack, ...streams: MediaStream[]): RTCRtpSender {
+    return this.pc.addTrack(track, ...streams);
   }
 
   /**
@@ -65,21 +54,16 @@ class PeerConnection extends EventEmitter {
    * PeerConnection.  Each transceiver represents a bidirectional stream, with both an RTCRtpSender
    * and an RTCRtpReceiver associated with it.
    *
-   * @param trackOrKind - A LocalTrack to associate with the transceiver, or a string which is used
+   * @param trackOrKind - A MediaStreamTrack to associate with the transceiver, or a string which is used
    * as the kind of the receiver's track, and by extension the RTCRtpReceiver itself.
    * @param init - Options that you may wish to specify when creating the new transceiver.
    * @returns - The created RTCRtpTransceiver object.
    */
   addTransceiver(
-    trackOrKind: LocalTrack | MediaStreamTrackKind,
+    trackOrKind: MediaStreamTrack | MediaStreamTrackKind,
     init?: RTCRtpTransceiverInit
   ): RTCRtpTransceiver {
-    const rtcTrackOrKind =
-      trackOrKind instanceof LocalTrack ? trackOrKind.getUnderlyingTrack() : trackOrKind;
-    if (!rtcTrackOrKind) {
-      throw new Error('Tried to add track with undefined underlying track');
-    }
-    return this.pc.addTransceiver(rtcTrackOrKind, init);
+    return this.pc.addTransceiver(trackOrKind, init);
   }
 
   /**
@@ -161,17 +145,6 @@ class PeerConnection extends EventEmitter {
    */
   close(): void {
     this.pc.close();
-  }
-
-  /**
-   * Handles `track-update` event and replaces track on sender.
-   *
-   * @param oldTrackId - Id of the existing track.
-   * @param newTrack - New LocalTrack.
-   */
-  handleTrackUpdate(oldTrackId: string, newTrack: MediaStreamTrack): void {
-    const sender = this.pc.getSenders().find((s: RTCRtpSender) => s.track?.id === oldTrackId);
-    sender?.replaceTrack(newTrack);
   }
 
   /**
