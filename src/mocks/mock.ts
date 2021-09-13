@@ -48,7 +48,7 @@ type MockedObjectDeep<T> = MaybeMockedConstructor<T> &
     [K in PropertyKeysOf<T>]: MaybeMockedDeep<T[K]>;
   };
 
-type MaybeMockedDeep<T> = T extends MockableFunction
+export type MaybeMockedDeep<T> = T extends MockableFunction
   ? MockedFunctionDeep<T>
   : T extends object
   ? MockedObjectDeep<T>
