@@ -64,6 +64,8 @@ pipeline {
             sh 'echo "_authToken=Y3BhYXMtamVua2lucy5nZW46QVBBMzdCUE50ZUNSM2I3VUxNQVFzZnlvRUNI" >> ~/.npmrc'
             sh 'echo "always-auth=true" >> ~/.npmrc'
             sh 'echo "email=cpaas-jenkins.gen@cisco.com" >> ~/.npmrc'
+            sh 'cat ~/.npmrc'
+            sh 'npm config ls'
             sh "npm publish"
         }
      // }
