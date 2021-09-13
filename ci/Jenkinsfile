@@ -41,9 +41,9 @@ pipeline {
           allowMissing: false,
           alwaysLinkToLastBuild: false,
           keepAll: true,
-          reportDir: 'coverage/lcov-report',
+          reportDir: 'coverage',
           reportFiles: 'index.html',
-          reportName: 'HTML Report',
+          reportName: 'Jest Coverage Report',
           reportTitles: 'All Tests'
         ])
         publishCoverage adapters:
@@ -61,11 +61,9 @@ pipeline {
     stage('Publish to artifactory') {
       //if (env.BRANCH_NAME == "enable_jenkins") {
           steps {
-            sh 'echo "_auth=Y3BhYXMtamVua2lucy5nZW46QVBBMzdCUE50ZUNSM2I3VUxNQVFzZnlvRUNI" >> ~/.npmrc'
+            sh 'echo "_auth=${env.NPM_ARTIFACTORY_TOKEN}" >> ~/.npmrc'
             sh 'echo "always-auth=true" >> ~/.npmrc'
-            sh 'echo "email=cpaas-jenkins.gen@cisco.com" >> ~/.npmrc'
-            sh 'cat ~/.npmrc'
-            sh 'npm config ls'
+            sh 'echo "email=${env.NPM_ARTIFACTORY_EMAIL}" >> ~/.npmrc'
             sh "npm publish"
         }
      // }
