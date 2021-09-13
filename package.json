@@ -1,6 +1,6 @@
 {
   "name": "webrtc-core",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "browser": "dist/umd/index.js",
@@ -12,6 +12,9 @@
   "files": [
     "dist/**/*"
   ],
+  "publishConfig":{
+    "registry":"https://engci-maven.cisco.com/artifactory/api/npm/webrtc-core-npm/"
+  },
   "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-core.git",
   "license": "MIT",
   "devDependencies": {

@@ -46,6 +46,11 @@ pipeline {
           reportName: 'HTML Report',
           reportTitles: 'All Tests'
         ])
+        publishCoverage adapters:
+          [istanbulCoberturaAdapter('coverage/cobertura-coverage.xml')],
+          calculateDiffForChangeRequests: true,
+          failBuildIfCoverageDecreasedInChangeRequest: true,
+          sourceFileResolver: sourceFiles('NEVER_STORE')
       }
     }
     stage('Build package') {
@@ -53,16 +58,15 @@ pipeline {
         sh './node_modules/yarn/bin/yarn build'
       }
     }
-//    stage('Publish to artifactory') {
-//      if (env.BRANCH_NAME == "master") {
-//          steps {
-//            sh 'npm publish'
-//        }
-//      }
-//      else {
-//        echo "Skipping publish - This build is not occurring on a publish-able branch!"
-//      }
-//    }
-
+    stage('Publish to artifactory') {
+      if (env.BRANCH_NAME == "enable_jenkins") {
+          steps {
+            sh "npm publish"
+        }
+      }
+      else {
+        echo "Skipping publish - This build is not occurring on a publish-able branch!"
+      }
+    }
   }
 }
