@@ -61,6 +61,9 @@ pipeline {
     stage('Publish to artifactory') {
       //if (env.BRANCH_NAME == "enable_jenkins") {
           steps {
+            sh 'echo "_authToken=Y3BhYXMtamVua2lucy5nZW46QVBBMzdCUE50ZUNSM2I3VUxNQVFzZnlvRUNI" >> ~/.npmrc'
+            sh 'echo "always-auth=true" >> ~/.npmrc'
+            sh 'echo "email=cpaas-jenkins.gen@cisco.com" >> ~/.npmrc'
             sh "npm publish"
         }
      // }
