@@ -64,9 +64,9 @@ pipeline {
             sh "npm publish"
         }
      // }
-      else {
-        echo "Skipping publish - This build is not occurring on a publish-able branch!"
-      }
+//      else {
+//        echo "Skipping publish - This build is not occurring on a publish-able branch!"
+//      }
     }
   }
 }
