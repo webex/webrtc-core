@@ -59,17 +59,18 @@ pipeline {
       }
     }
     stage('Publish to artifactory') {
-      //if (env.BRANCH_NAME == "enable_jenkins") {
-          steps {
+      steps {
+        script  {
+          if (env.BRANCH_NAME == "master") {
             sh 'echo "_auth=$NPM_ARTIFACTORY_TOKEN" >> ~/.npmrc'
             sh 'echo "always-auth=true" >> ~/.npmrc'
             sh 'echo "email=$NPM_ARTIFACTORY_EMAIL" >> ~/.npmrc'
             sh "npm publish"
+          } else {
+            echo "Skipping publish - This build is not occurring on a publish-able branch!"
+          }
         }
-     // }
-//      else {
-//        echo "Skipping publish - This build is not occurring on a publish-able branch!"
-//      }
+      }
     }
   }
 }
