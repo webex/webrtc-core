@@ -59,11 +59,11 @@ pipeline {
       }
     }
     stage('Publish to artifactory') {
-      if (env.BRANCH_NAME == "enable_jenkins") {
+      //if (env.BRANCH_NAME == "enable_jenkins") {
           steps {
             sh "npm publish"
         }
-      }
+     // }
       else {
         echo "Skipping publish - This build is not occurring on a publish-able branch!"
       }
