@@ -6,15 +6,16 @@ import { mocked } from './mocks/mock';
 
 jest.mock('./peer-connection');
 
+const dummyLocalDesc = {
+  type: 'offer',
+  sdp: 'sdp with candidates',
+  toJSON: () => undefined,
+} as RTCSessionDescription;
+
 describe('getLocalDescriptionWithIceCandidates', () => {
   const mockPc = mocked(new PeerConnection(), true);
   test('return the correct offer after ice gathering has finished', (done) => {
-    const localDesc = {
-      type: 'offer',
-      sdp: 'sdp with candidates',
-      toJSON: () => undefined,
-    } as RTCSessionDescription;
-    mockPc.getLocalDescription.mockReturnValueOnce(localDesc);
+    mockPc.getLocalDescription.mockReturnValueOnce(dummyLocalDesc);
 
     const promise = new PromiseHelper(
       getLocalDescriptionWithIceCandidates(mockPc as unknown as PeerConnection)
@@ -46,11 +47,12 @@ describe('getLocalDescriptionWithIceCandidates', () => {
       Promise.resolve().then(() => {
         expect(mockPc.getLocalDescription.mock.calls).toHaveLength(1);
         expect(promise.isFinished()).toBe(true);
-        expect(promise.resolvedValue).toBe(localDesc);
+        expect(promise.resolvedValue).toBe(dummyLocalDesc);
         done();
       });
     });
   });
+
   test('rejects if the local description is null', async () => {
     mockPc.getLocalDescription.mockReturnValueOnce(null);
     const promise = getLocalDescriptionWithIceCandidates(mockPc as unknown as PeerConnection);
@@ -61,6 +63,15 @@ describe('getLocalDescriptionWithIceCandidates', () => {
       },
     });
     await expect(promise).rejects.toStrictEqual(expect.any(Error));
+  });
+
+  test('resolves immediately if the ICE candidates have already been gathered', () => {
+    mockPc.getLocalDescription.mockReturnValueOnce(dummyLocalDesc);
+    Object.defineProperty(mockPc, 'iceGatheringState', {
+      get: () => 'complete',
+    });
+
+    return getLocalDescriptionWithIceCandidates(mockPc as unknown as PeerConnection);
   });
 });
 

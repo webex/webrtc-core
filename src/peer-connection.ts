@@ -179,6 +179,15 @@ class PeerConnection extends EventEmitter {
   getTransceivers(): RTCRtpTransceiver[] {
     return this.pc.getTransceivers();
   }
+
+  /**
+   * Returns a string that describes the connections' ICE gathering state.
+   *
+   * @returns - The ICE gathering state.
+   */
+  get iceGatheringState(): RTCIceGathererState {
+    return this.pc.iceGatheringState;
+  }
 }
 
 export { MediaStreamTrackKind, PeerConnection };
