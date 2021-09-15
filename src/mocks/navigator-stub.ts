@@ -1,3 +1,4 @@
+import { createPermissionStatus } from './create-permission-status';
 import { MediaStream } from './media-stream-stub';
 
 /**
@@ -27,8 +28,8 @@ const enumerateDevices = async (): Promise<MediaDeviceInfo[]> => {
  * @returns True if permissions are allowed, false if otherwise.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const permissionsQuery = (descriptor: PermissionDescriptor): Permissions[] => {
-  return [];
+const permissionsQuery = async (descriptor: PermissionDescriptor): Promise<PermissionStatus> => {
+  return createPermissionStatus('prompt');
 };
 
 const mediaDevices = {

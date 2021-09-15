@@ -1,9 +1,26 @@
 import * as media from './media';
 import { createBrowserMock } from './mocks/create-browser-mock';
+import { createPermissionStatus } from './mocks/create-permission-status';
 import { MediaStream } from './mocks/media-stream-stub';
 import { Navigator } from './mocks/navigator-stub';
 
 jest.mock('./mocks/navigator-stub');
+
+/**
+ * Create example MediaDeviceInfo objects to be used in mocks.
+ *
+ * @param kind - MediaDeviceKind.
+ * @param hasLabel - True if value will have a label, false if it will be an empty string.
+ * @returns An example MediaDeviceInfo.
+ */
+const createDeviceInfo = (kind: MediaDeviceKind, hasLabel: boolean): MediaDeviceInfo => ({
+  kind,
+  deviceId: 'example-device-id',
+  groupId: 'example-group-id',
+  label: hasLabel ? 'example-label' : '',
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, jsdoc/require-jsdoc
+  toJSON: () => {},
+});
 
 describe('getUserMedia', () => {
   it('should return a MediaStream from getUserMedia', async () => {
@@ -26,6 +43,13 @@ describe('ensureDevicePermissions', () => {
   it('should call the callback.', async () => {
     expect.assertions(2);
 
+    const mockedNavigatorStub = createBrowserMock(Navigator, 'navigator');
+
+    // mock 'granted' query response
+    mockedNavigatorStub.permissions.query
+      .mockReturnValueOnce(Promise.resolve(createPermissionStatus('granted')))
+      .mockReturnValueOnce(Promise.resolve(createPermissionStatus('granted')));
+
     const testCallbackResponse = 'Test Callback Response';
     const mockCallback = jest.fn(() => testCallbackResponse);
 
@@ -38,6 +62,30 @@ describe('ensureDevicePermissions', () => {
     expect(mockCallback).toHaveBeenCalledWith();
   });
 
+  it('should call enumerateDevices if the permissions query fails.', async () => {
+    expect.assertions(1);
+
+    const mockedNavigatorStub = createBrowserMock(Navigator, 'navigator');
+
+    mockedNavigatorStub.permissions.query.mockRejectedValueOnce(new Error('error') as never);
+
+    mockedNavigatorStub.mediaDevices.enumerateDevices.mockReturnValueOnce(
+      Promise.resolve([
+        createDeviceInfo(media.DeviceKind.AudioInput, true),
+        createDeviceInfo(media.DeviceKind.VideoInput, true),
+      ])
+    );
+
+    await media.ensureDevicePermissions(
+      [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
+      () => true
+    );
+
+    expect(mockedNavigatorStub.mediaDevices.enumerateDevices).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('ensureDevicePermissions2', () => {
   it('should call getUserMedia if permissions are not allowed', async () => {
     expect.assertions(2);
 
