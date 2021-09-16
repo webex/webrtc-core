@@ -58,14 +58,15 @@ pipeline {
         sh './node_modules/yarn/bin/yarn build'
       }
     }
-    stage('Publish to artifactory') {
+    stage('Publish release') {
       steps {
         script  {
           if (env.BRANCH_NAME == "master") {
             sh 'echo "_auth=$NPM_ARTIFACTORY_TOKEN" >> ~/.npmrc'
             sh 'echo "always-auth=true" >> ~/.npmrc'
             sh 'echo "email=$NPM_ARTIFACTORY_EMAIL" >> ~/.npmrc'
-            sh "npm publish"
+            echo 'Publishing to npm artifactory and creating release'
+            sh "npx semantic-release"
           } else {
             echo "Skipping publish - This build is not occurring on a publish-able branch!"
           }
