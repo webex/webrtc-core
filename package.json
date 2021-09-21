@@ -65,6 +65,7 @@
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
     "prepare": "run-s build && husky install",
+    "prerelease": "git add .",
     "release": "standard-version",
     "postrelease": "git push --follow-tags origin master && npm publish",
     "test": "run-s build test:*",
