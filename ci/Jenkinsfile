@@ -64,6 +64,7 @@ pipeline {
     stage('Publish release') {
       steps {
         script  {
+          sh 'git remote set-url origin "https://$GH_CRED@sqbu-github.cisco.com/CPaaS/webrtc-core.git"'
             if (env.BRANCH_NAME == "master") {
               sh 'echo "_auth=$NPM_ARTIFACTORY_TOKEN" >> ~/.npmrc'
               sh 'echo "always-auth=true" >> ~/.npmrc'

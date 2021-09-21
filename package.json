@@ -15,7 +15,7 @@
   "publishConfig": {
     "registry": "https://engci-maven.cisco.com/artifactory/api/npm/webrtc-core-npm/"
   },
-  "repository": "https://sqbu-github.cisco.com/CPaaS/webrtc-core.git",
+  "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-core.git",
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
@@ -66,7 +66,7 @@
     "fix:lint": "eslint src --ext .ts --fix",
     "prepare": "run-s build && husky install",
     "release": "standard-version",
-    "postrelease": "git push --follow-tags origin master && npm publish",
+    "postrelease": "git push --follow-tags origin enable_jenkins && npm publish",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
