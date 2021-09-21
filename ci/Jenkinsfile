@@ -66,11 +66,11 @@ pipeline {
             sh 'echo "always-auth=true" >> ~/.npmrc'
             sh 'echo "email=$NPM_ARTIFACTORY_EMAIL" >> ~/.npmrc'
             echo 'Publishing to npm artifactory and creating release'
-            sh 'yarn release'
+            sh './node_modules/yarn/bin/yarn release'
           } else {
             echo "Skipping publish - This build is not occurring on a publish-able branch!"
             echo "Release dry run!"
-            sh 'yarn release -- --dry-run'
+            sh './node_modules/yarn/bin/yarn release -- --dry-run'
           }
         }
       }
