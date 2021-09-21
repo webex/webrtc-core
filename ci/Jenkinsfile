@@ -69,6 +69,8 @@ pipeline {
             sh 'yarn release'
           } else {
             echo "Skipping publish - This build is not occurring on a publish-able branch!"
+            echo "Release dry run!"
+            sh 'yarn release -- --dry-run'
           }
         }
       }
