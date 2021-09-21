@@ -49,7 +49,7 @@ pipeline {
         publishCoverage adapters:
           [istanbulCoberturaAdapter('coverage/cobertura-coverage.xml')],
           calculateDiffForChangeRequests: true,
-          failBuildIfCoverageDecreasedInChangeRequest: true,
+          failBuildIfCoverageDecreasedInChangeRequest: false,
           sourceFileResolver: sourceFiles('NEVER_STORE')
       }
     }
