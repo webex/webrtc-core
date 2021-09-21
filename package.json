@@ -67,7 +67,7 @@
     "prepare": "run-s build && husky install",
     "prerelease": "git add .",
     "release": "standard-version",
-    "postrelease": "git push --follow-tags origin master && npm publish",
+    "postrelease": "git push --follow-tags origin master",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
