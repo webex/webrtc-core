@@ -66,7 +66,7 @@ pipeline {
             sh 'echo "always-auth=true" >> ~/.npmrc'
             sh 'echo "email=$NPM_ARTIFACTORY_EMAIL" >> ~/.npmrc'
             echo 'Publishing to npm artifactory and creating release'
-            sh "npx semantic-release"
+            sh 'yarn release'
           } else {
             echo "Skipping publish - This build is not occurring on a publish-able branch!"
           }

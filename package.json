@@ -66,6 +66,7 @@
     "fix:lint": "eslint src --ext .ts --fix",
     "prepare": "run-s build && husky install",
     "release": "standard-version",
+    "postrelease": "git push --follow-tags origin enable_jenkins && npm publish",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
