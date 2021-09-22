@@ -1,6 +1,6 @@
 {
   "name": "webrtc-core",
-  "version": "1.0.1",
+  "version": "0.0.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "browser": "dist/umd/index.js",
@@ -67,7 +67,8 @@
     "prepare": "run-s build && husky install",
     "prerelease": "git add .",
     "release": "standard-version",
-    "postrelease": "git push --follow-tags origin HEAD:enable_jenkins && npm publish",
+    "postrelease": "git push --follow-tags origin HEAD:master",
+    "publish": "npm publish",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
