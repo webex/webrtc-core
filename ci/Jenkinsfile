@@ -65,15 +65,15 @@ pipeline {
       steps {
         script  {
           sh 'git remote set-url origin "https://$GH_CRED@sqbu-github.cisco.com/CPaaS/webrtc-core.git"'
+          sh 'echo "_auth=$NPM_ARTIFACTORY_TOKEN" >> ~/.npmrc'
+          sh 'echo "always-auth=true" >> ~/.npmrc'
+          sh 'echo "email=$NPM_ARTIFACTORY_EMAIL" >> ~/.npmrc'
             if (env.BRANCH_NAME == "master") {
-              sh 'echo "_auth=$NPM_ARTIFACTORY_TOKEN" >> ~/.npmrc'
-              sh 'echo "always-auth=true" >> ~/.npmrc'
-              sh 'echo "email=$NPM_ARTIFACTORY_EMAIL" >> ~/.npmrc'
               echo 'Publishing to npm artifactory and creating release'
               sh './node_modules/yarn/bin/yarn release'
             } else {
               echo "Skipping publish - This build is not occurring on a publish-able branch!"
-              echo "Release dry run!"
+              echo "Do a dry run!"
               sh './node_modules/yarn/bin/yarn release --dry-run'
             }
         }
