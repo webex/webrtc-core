@@ -3,12 +3,19 @@
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
-    "@semantic-release/npm",
+    "@semantic-release/changelog",
+    ["@semantic-release/npm", {
+      "npmPublish": true
+    }],
     [
       "@semantic-release/git",
       {
-        "assets": ["package.json"],
-        "message": "chore(release): set `package.json` to ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        "assets": [
+         "CHANGELOG.md",
+         "docs",
+         "package.json",
+         "yarn.lock"
+        ]
       }
     ]
   ]
