@@ -1,3 +1,10 @@
+# [1.1.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.0.0...v1.1.0) (2021-09-27)
+
+
+### Features
+
+* add support for creating an rtcdatachannel ([#15](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/15)) ([66d88b2](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/66d88b244fe8b33426240ca89a34ec594894a159))
+
 # 1.0.0 (2021-09-24)
 
 
