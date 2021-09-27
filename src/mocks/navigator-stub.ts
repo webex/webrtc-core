@@ -13,6 +13,17 @@ const getUserMedia = async (constraints: MediaStreamConstraints): Promise<MediaS
 };
 
 /**
+ * A getDisplayMedia stub, returns a MediaStream with tracks according to the constraints passed in.
+ *
+ * @param constraints - MediaStreamConstraints.
+ * @returns A Promise that resolves to a MediaStream.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getDisplayMedia = async (constraints: MediaStreamConstraints): Promise<MediaStream> => {
+  return new MediaStream();
+};
+
+/**
  * An enumerateDevices stub.
  *
  * @returns A Promise that resolves to an array of DeviceInfo objects.
@@ -33,8 +44,9 @@ const permissionsQuery = async (descriptor: PermissionDescriptor): Promise<Permi
 };
 
 const mediaDevices = {
-  getUserMedia,
   enumerateDevices,
+  getDisplayMedia,
+  getUserMedia,
 };
 
 const permissions = {

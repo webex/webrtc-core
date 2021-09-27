@@ -39,6 +39,25 @@ describe('getUserMedia', () => {
   });
 });
 
+describe('getDisplayMedia', () => {
+  it('should return a MediaStream from getDisplayMedia', async () => {
+    expect.assertions(1);
+
+    const mockedNavigatorStub = createBrowserMock(Navigator, 'navigator');
+
+    mockedNavigatorStub.mediaDevices.getDisplayMedia.mockReturnValue(
+      Promise.resolve(new MediaStream())
+    );
+
+    const getDisplayMediaArgs = { video: true };
+    await media.getDisplayMedia(getDisplayMediaArgs);
+
+    expect(mockedNavigatorStub.mediaDevices.getDisplayMedia).toHaveBeenCalledWith(
+      getDisplayMediaArgs
+    );
+  });
+});
+
 describe('ensureDevicePermissions', () => {
   it('should call the callback.', async () => {
     expect.assertions(2);

@@ -20,6 +20,19 @@ export async function getUserMedia(constraints: MediaStreamConstraints): Promise
 }
 
 /**
+ * Prompts the user for permission to use a user's display media and audio. If a video track is
+ * absent from the constraints argument, one will still be provided.
+ *
+ * @param constraints - A MediaStreamConstraints object specifying the types of media to request,
+ *     along with any requirements for each type.
+ * @returns A Promise whose fulfillment handler receives a MediaStream object when the requested
+ *     media has successfully been obtained.
+ */
+export function getDisplayMedia(constraints: MediaStreamConstraints): Promise<MediaStream> {
+  return navigator.mediaDevices.getDisplayMedia(constraints);
+}
+
+/**
  * Requests a list of the available media input and output devices, such as microphones, cameras,
  * headsets, and so forth.
  *
@@ -54,11 +67,11 @@ async function checkNavigatorPermissions(
   const permissionRequests = [];
 
   if (deviceKinds.includes(DeviceKind.VideoInput)) {
-    permissionRequests.push(navigator.permissions.query({ name: 'camera' }));
+    permissionRequests.push(navigator.permissions.query({ name: 'camera' as PermissionName }));
   }
 
   if (deviceKinds.includes(DeviceKind.AudioInput)) {
-    permissionRequests.push(navigator.permissions.query({ name: 'microphone' }));
+    permissionRequests.push(navigator.permissions.query({ name: 'microphone' as PermissionName }));
   }
 
   return Promise.all(permissionRequests);
