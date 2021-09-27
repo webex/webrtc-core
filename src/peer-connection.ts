@@ -10,6 +10,15 @@ enum MediaStreamTrackKind {
   Video = 'video',
 }
 
+type RTCDataChannelOptions = {
+  ordered?: boolean;
+  maxPacketLifeTime?: number;
+  maxRetransmits?: number;
+  protocol?: string;
+  negotiated?: boolean;
+  id?: number;
+};
+
 /**
  * Manages a single RTCPeerConnection with the server.
  */
@@ -81,6 +90,17 @@ class PeerConnection extends EventEmitter {
    */
   removeTrack(sender: RTCRtpSender): void {
     this.pc.removeTrack(sender);
+  }
+
+  /**
+   * Creates a new data channel linked with the remote peer.
+   *
+   * @param label - A human-readable name for the channel.  May not be longer than 65,535 bytes.
+   * @param options - An object providing configuration options for the data channel.
+   * @returns An RTCDataChannel object.
+   */
+  createDataChannel(label: string, options: RTCDataChannelOptions): RTCDataChannel {
+    return this.pc.createDataChannel(label, options);
   }
 
   /**
