@@ -1,3 +1,10 @@
+## [1.1.1](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.0...v1.1.1) (2021-10-01)
+
+
+### Bug Fixes
+
+* remove redundant git remote ([#52](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/52)) ([b6c2d33](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/b6c2d33c738f30dd2c8f6108f36f0ddfde654d6c))
+
 # [1.1.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.0.0...v1.1.0) (2021-09-27)
 
 
