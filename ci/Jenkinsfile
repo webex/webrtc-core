@@ -68,7 +68,6 @@ pipeline {
     stage('Publish release') {
       steps {
         script  {
-          sh 'git remote set-url origin "https://$GH_CRED@sqbu-github.cisco.com/CPaaS/webrtc-core.git"'
             if (env.BRANCH_NAME == "master") {
               echo 'Publishing to npm artifactory and creating release'
               sh 'echo "_auth=$NPM_ARTIFACTORY_TOKEN" >> ~/.npmrc'
