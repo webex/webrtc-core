@@ -89,9 +89,8 @@ async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolea
     if (permissions.every((permission: PermissionStatus) => permission.state === 'granted')) {
       return true;
     }
-  } catch (e: unknown) {
-    error(e);
-  }
+    // eslint-disable-next-line no-empty
+  } catch (e: unknown) {}
 
   try {
     const devices: MediaDeviceInfo[] = await enumerateDevices();
@@ -99,9 +98,8 @@ async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolea
     return devices
       .filter((device: MediaDeviceInfo) => deviceKinds.includes(device.kind as DeviceKind))
       .every((device: MediaDeviceInfo) => device.label);
-  } catch (e: unknown) {
-    error(e);
-  }
+    // eslint-disable-next-line no-empty
+  } catch (e: unknown) {}
 
   return false;
 }
