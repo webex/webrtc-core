@@ -1,3 +1,10 @@
+## [1.1.2](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.1...v1.1.2) (2021-10-08)
+
+
+### Bug Fixes
+
+* remove error logs ([#44](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/44)) ([8a3817e](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/8a3817e0d61ef7cdbc604910a8da02042a0c5e7c))
+
 ## [1.1.1](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.0...v1.1.1) (2021-10-01)
 
 
