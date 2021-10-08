@@ -4,5 +4,5 @@ module.exports = {
   testEnvironment: 'jsdom',
   // Clear mocks in between tests by default
   clearMocks: true,
-  coverageReporters: ['cobertura', 'clover', 'html', 'json', 'text'],
+  coverageReporters: ['cobertura', 'clover', 'html', 'lcov'],
 };

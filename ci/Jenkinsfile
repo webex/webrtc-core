@@ -1,7 +1,6 @@
 #!/usr/bin/groovy
 
-// Node label
-// Find more info about these:
+// Build Agent Info:
 // https://engit.cisco.com/build/cloudbees-jenkins/documentation-central-jenkins-build-agents
 pipeline {
   agent any
@@ -12,25 +11,18 @@ pipeline {
     ansiColor('xterm')
   }
   environment {
-    GH_CRED = credentials('github_creds')
     PATH="/usr/cisco/bin/:$PATH"
   }
 
   stages {
-    stage('Prerequisite Check') {
+    stage('Setup & Install Dependencies') {
       steps {
         sh 'node -v'
         sh 'npm -v'
-        sh 'npm install yarn'
-        sh 'pwd'
-        sh 'git --version'
-        sh 'which git'
+        echo 'Install local Yarn'
+        sh 'npm install yarn -D'
         echo " current workspace ${env.WORKSPACE}"
-        echo "PATH=$PATH"
-      }
-    }
-    stage('Install dependencies') {
-      steps {
+        echo 'Install dependencies (yarn install).'
         sh './node_modules/yarn/bin/yarn install'
       }
     }
@@ -41,7 +33,7 @@ pipeline {
         //@TODO: handle lint errors (fail build??)
       }
     }
-    stage('Run unit test') {
+    stage('Run Unit Test') {
       steps {
         sh './node_modules/yarn/bin/yarn test:coverage'
         publishHTML([
@@ -60,12 +52,33 @@ pipeline {
           sourceFileResolver: sourceFiles('NEVER_STORE')
       }
     }
-    stage('Build package') {
+    stage('SonarQube Analysis') {
+      environment {
+        scannerHome = tool 'sonar-scanner'
+      }
+      steps {
+        withSonarQubeEnv(credentialsId: 'sonar_login', installationName: 'BMS SonarQube') {
+          echo "PATH=$PATH"
+          sh 'env'
+          sh "${scannerHome}/bin/sonar-scanner"
+        }
+      }
+    }
+    stage('Sonar GateKeeper') {
+      steps {
+        timeout(time: 10, unit: 'MINUTES') {
+          // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+          // true = set pipeline to UNSTABLE, false = don't
+          waitForQualityGate abortPipeline: true
+        }
+      }
+    }
+    stage('Build Package') {
       steps {
         sh './node_modules/yarn/bin/yarn build'
       }
     }
-    stage('Publish release') {
+    stage('Publish Release') {
       steps {
         script  {
             if (env.BRANCH_NAME == "master") {

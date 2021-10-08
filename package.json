@@ -67,7 +67,7 @@
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
-    "prepare": "run-s build && husky install",
+    "prepare": "husky install",
     "release": "semantic-release",
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
@@ -83,8 +83,7 @@
   },
   "dependencies": {
     "events": "^3.3.0",
-    "webrtc-adapter": "^8.0.0",
-    "yarn": "^1.22.15"
+    "webrtc-adapter": "^8.0.0"
   },
   "lint-staged": {
     "*.ts": [
