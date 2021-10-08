@@ -1,3 +1,10 @@
+## [1.1.3](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.2...v1.1.3) (2021-10-08)
+
+
+### Bug Fixes
+
+* enable sonar with quality gate check as part of build ([#54](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/54)) ([ae10580](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/ae1058046346b791bd666b5e4a7f35934c0c7adc))
+
 ## [1.1.2](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.1...v1.1.2) (2021-10-08)
 
 
