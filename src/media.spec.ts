@@ -70,7 +70,7 @@ describe('ensureDevicePermissions', () => {
       .mockReturnValueOnce(Promise.resolve(createPermissionStatus('granted')));
 
     const testCallbackResponse = 'Test Callback Response';
-    const mockCallback = jest.fn(() => testCallbackResponse);
+    const mockCallback = jest.fn(async () => testCallbackResponse);
 
     const callbackResponse = await media.ensureDevicePermissions(
       [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
@@ -97,7 +97,7 @@ describe('ensureDevicePermissions', () => {
 
     await media.ensureDevicePermissions(
       [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
-      () => true
+      () => Promise.resolve(true)
     );
 
     expect(mockedNavigatorStub.mediaDevices.enumerateDevices).toHaveBeenCalledTimes(1);
@@ -121,7 +121,7 @@ describe('ensureDevicePermissions2', () => {
 
     await media.ensureDevicePermissions(
       [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
-      () => true
+      () => Promise.resolve(true)
     );
 
     expect(mockedNavigatorStub.mediaDevices.getUserMedia.mock.calls).toHaveLength(1);

@@ -114,7 +114,7 @@ async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolea
  */
 export async function ensureDevicePermissions<T>(
   deviceKinds: DeviceKind[],
-  callback: () => T
+  callback: () => Promise<T>
 ): Promise<T> {
   try {
     const hasDevicePermissions = await checkDevicePermissions(deviceKinds);
