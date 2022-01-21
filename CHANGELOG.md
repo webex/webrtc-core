@@ -1,3 +1,10 @@
+## [1.1.5](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.4...v1.1.5) (2022-01-21)
+
+
+### Bug Fixes
+
+* update new npm org and registry ([#57](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/57)) ([21b16f5](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/21b16f57edf0d144a15f206170d55679755a008c))
+
 ## [1.1.4](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.3...v1.1.4) (2022-01-21)
 
 
