@@ -1,3 +1,10 @@
+# [1.2.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.5...v1.2.0) (2022-02-09)
+
+
+### Features
+
+* export the datachannel options type ([#60](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/60)) ([8c62610](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/8c62610b78088ec839f530ca7f478f81b3f959db))
+
 ## [1.1.5](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.4...v1.1.5) (2022-01-24)
 
 
