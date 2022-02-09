@@ -210,4 +210,4 @@ class PeerConnection extends EventEmitter {
   }
 }
 
-export { MediaStreamTrackKind, PeerConnection };
+export { MediaStreamTrackKind, RTCDataChannelOptions, PeerConnection };
