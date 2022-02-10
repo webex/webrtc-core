@@ -13,7 +13,8 @@
     "dist/**/*"
   ],
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org",
+    "access": "restricted"
   },
   "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-core.git",
   "license": "MIT",
