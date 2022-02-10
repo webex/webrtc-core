@@ -1,3 +1,10 @@
+## [1.2.1](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.2.0...v1.2.1) (2022-02-10)
+
+
+### Bug Fixes
+
+* dependent package vulnerability ([#62](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/62)) ([803f296](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/803f29689e19756757cb1c11f0e4163022edf4dc))
+
 # [1.2.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.1.5...v1.2.0) (2022-02-09)
 
 
