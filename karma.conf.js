@@ -24,6 +24,8 @@ module.exports = (config) => {
     screenResolution: '1600x1200',
     extendedDebugging: true,
     capturePerformance: true,
+    connectRetries: 2,
+    connectRetryTimeout: 2000,
   };
 
   const firefoxOptions = {
@@ -47,6 +49,7 @@ module.exports = (config) => {
       'ignore-gpu-blacklist',
       'test-type',
       'disable-gpu',
+      '--no-sandbox',
       '--disable-features=WebRtcHideLocalIpsWithMdns',
       '--use-fake-device-for-media-stream',
       '--use-fake-ui-for-media-stream',
@@ -54,6 +57,193 @@ module.exports = (config) => {
       '--allow-insecure-localhost',
       '--unsafely-treat-insecure-origin-as-secure',
     ],
+  };
+
+  const chromeSauceOptions = {
+    base: 'SauceLabs',
+    browserName: 'chrome',
+    'goog:chromeOptions': chromeOptions,
+    'sauce:options': {
+      ...sharedSauceOptions,
+      tags: ['w3c-chrome'],
+    },
+  };
+
+  /**
+   * Utility method to create config object of all supported chrome versions on all supported platforms.
+   *
+   * @returns Sauce lab config object for chrome browser.
+   */
+  const getChromeLaunchers = () => {
+    const chromeVersions = [
+      '80',
+      '81',
+      '83',
+      '84',
+      '85',
+      '86',
+      '87',
+      '88',
+      '89',
+      '90',
+      '91',
+      '92',
+      '93',
+      '94',
+      '95',
+      '96',
+      '97',
+    ];
+    const platforms = ['Windows 10', 'macOS 11', 'macOS 12'];
+    const chromeLaunchers = {};
+    platforms.forEach((platform) => {
+      chromeVersions.forEach((version) => {
+        chromeLaunchers[`chrome_${version}_${platform}`] = {
+          ...chromeSauceOptions,
+          browserVersion: version,
+          platformName: platform,
+        };
+      });
+    });
+    return chromeLaunchers;
+  };
+
+  const firefoxSauceOptions = {
+    base: 'SauceLabs',
+    browserName: 'firefox',
+    'moz:firefoxOptions': firefoxOptions,
+    'sauce:options': {
+      ...sharedSauceOptions,
+      tags: ['w3c-firefox'],
+    },
+  };
+
+  /**
+   * Utility method to create config object of all supported firefox versions on all supported platforms.
+   *
+   * @returns Sauce lab config object for firefox browser.
+   */
+  const getFirefoxLaunchers = () => {
+    const firefoxVersions = [
+      '70',
+      '71',
+      '72',
+      '73',
+      '74',
+      '75',
+      '76',
+      '77',
+      '78',
+      '79',
+      '80',
+      '81',
+      '82',
+      '83',
+      '84',
+      '85',
+      '86',
+      '87',
+      '88',
+      '89',
+      '90',
+      '91',
+      '92',
+      '93',
+      '94',
+      '95',
+      '96',
+    ];
+    const platforms = ['Windows 10', 'Windows 11', 'macOS 11', 'macOS 12'];
+    const firefoxLaunchers = {};
+    platforms.forEach((platform) => {
+      firefoxVersions.forEach((version) => {
+        firefoxLaunchers[`firefox_${version}_${platform}`] = {
+          ...firefoxSauceOptions,
+          browserVersion: version,
+          platformName: platform,
+        };
+      });
+    });
+    return firefoxLaunchers;
+  };
+
+  const safariSauceOptions = {
+    base: 'SauceLabs',
+    browserName: 'Safari',
+    'sauce:options': {
+      ...sharedSauceOptions,
+      tags: ['w3c-safari'],
+    },
+  };
+
+  /**
+   * Utility method to create config object of all supported safari versions on all supported platforms.
+   *
+   * @returns Sauce lab config object for safari browser.
+   */
+  const getSafariLaunchers = () => {
+    const safariLaunchers = {
+      'safari_14_macOS 11': {
+        ...safariSauceOptions,
+        browserVersion: '14',
+        platformName: 'macOS 11',
+      },
+      'safari_15_macOS 12': {
+        ...safariSauceOptions,
+        browserVersion: '15',
+        platformName: 'macOS 12',
+      },
+    };
+    return safariLaunchers;
+  };
+
+  const edgeSauceOptions = {
+    base: 'SauceLabs',
+    browserName: 'MicrosoftEdge',
+    'ms:edgeOptions': chromeOptions,
+    'sauce:options': {
+      ...sharedSauceOptions,
+      tags: ['w3c-edge'],
+    },
+  };
+
+  /**
+   * Utility method to create config object of all supported edge versions on all supported platforms.
+   *
+   * @returns Sauce lab config object for edge browser.
+   */
+  const getEdgeLaunchers = () => {
+    const edgeVersions = [
+      '80',
+      '81',
+      '83',
+      '84',
+      '85',
+      '86',
+      '87',
+      '88',
+      '89',
+      '90',
+      '91',
+      '92',
+      '93',
+      '94',
+      '95',
+      '96',
+      '97',
+    ];
+    const platforms = ['Windows 10', 'Windows 11'];
+    const edgeLaunchers = {};
+    platforms.forEach((platform) => {
+      edgeVersions.forEach((version) => {
+        edgeLaunchers[`edge_${version}_${platform}`] = {
+          ...edgeSauceOptions,
+          browserVersion: version,
+          platformName: platform,
+        };
+      });
+    });
+    return edgeLaunchers;
   };
 
   const localLaunchers = {
@@ -80,64 +270,10 @@ module.exports = (config) => {
     },
   };
 
-  const sauceLaunchers = {
-    sl_chrome_mac11: {
-      base: 'SauceLabs',
-      browserName: 'chrome',
-      browserVersion: 'latest',
-      platformName: 'macOS 11',
-      'goog:chromeOptions': chromeOptions,
-      'sauce:options': {
-        ...sharedSauceOptions,
-        tags: ['w3c-chrome'],
-      },
-    },
-    sl_chrome_win10: {
-      base: 'SauceLabs',
-      browserName: 'chrome',
-      browserVersion: 'latest',
-      platformName: 'Windows 10',
-      'goog:chromeOptions': chromeOptions,
-      'sauce:options': {
-        ...sharedSauceOptions,
-        tags: ['w3c-chrome'],
-      },
-    },
-    sl_safari_mac11: {
-      base: 'SauceLabs',
-      browserName: 'Safari',
-      browserVersion: 'latest',
-      platformName: 'macOS 11',
-      'sauce:options': {
-        ...sharedSauceOptions,
-        tags: ['w3c-safari'],
-      },
-    },
-    sl_firefox_mac11: {
-      base: 'SauceLabs',
-      browserName: 'firefox',
-      browserVersion: 'latest',
-      platformName: 'macOS 11',
-      'moz:firefoxOptions': firefoxOptions,
-      'sauce:options': {
-        ...sharedSauceOptions,
-        tags: ['w3c-firefox'],
-      },
-    },
-    sl_firefox_win10: {
-      base: 'SauceLabs',
-      browserName: 'firefox',
-      browserVersion: 'latest',
-      platformName: 'Windows 10',
-      'moz:firefoxOptions': firefoxOptions,
-      'sauce:options': {
-        ...sharedSauceOptions,
-        tags: ['w3c-firefox'],
-      },
-    },
-  };
-
-  const customLaunchers = { ...localLaunchers, ...sauceLaunchers };
+  const chromeLaunchers = getChromeLaunchers();
+  const firefoxLaunchers = getFirefoxLaunchers();
+  const safariLaunchers = getSafariLaunchers();
+  const edgeLaunchers = getEdgeLaunchers();
 
   if (useSauceConnect && !SAUCE_USERNAME && !SAUCE_ACCESS_KEY) {
     // eslint-disable-next-line no-console
@@ -159,12 +295,10 @@ module.exports = (config) => {
     port: 9876,
     logLevel: config.DEBUG,
     autoWatch: false,
-    customLaunchers,
-    browsers: useSauceConnect ? Object.keys(sauceLaunchers) : browsers,
     singleRun: true,
     concurrency: Infinity,
     timeout,
-    captureTimeout: 120000,
+    captureTimeout: 240000,
     karmaTypescriptConfig: {
       tsconfig: './tsconfig.json',
       compilerOptions: {
@@ -210,6 +344,21 @@ module.exports = (config) => {
       outputFile: 'junit.xml',
     },
   };
+
+  let sauceLaunchers = {};
+  if (useSauceConnect) {
+    if (config.chrome) {
+      sauceLaunchers = { ...chromeLaunchers };
+    } else if (config.firefox) {
+      sauceLaunchers = { ...firefoxLaunchers };
+    } else if (config.edge) {
+      sauceLaunchers = { ...edgeLaunchers };
+    } else if (config.safari) {
+      sauceLaunchers = { ...safariLaunchers };
+    }
+  }
+  karmaConfig.customLaunchers = { ...localLaunchers, ...sauceLaunchers };
+  karmaConfig.browsers = useSauceConnect ? Object.keys(sauceLaunchers) : browsers;
 
   config.set(karmaConfig);
 };

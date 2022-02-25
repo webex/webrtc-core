@@ -9,6 +9,18 @@ describe('Media integration test', () => {
       const cameraStream: MediaStream = await getUserMedia({ video: true });
       expect(cameraStream.getTracks()[0].kind).equal('video');
     });
+
+    it('should return a video stream with constraints', async () => {
+      const cameraStream = await getUserMedia({
+        video: {
+          aspectRatio: 1.777,
+          width: 1920,
+          height: 1080,
+          frameRate: 30,
+        },
+      });
+      expect(cameraStream.getTracks()[0].kind).equal('video');
+    });
   });
 
   describe('getUserMedia audio', () => {

@@ -4,8 +4,8 @@
   "language": "en",
   "words": [
     "Alboe",
-    "bitjson",
     "bitauth",
+    "bitjson",
     "cimg",
     "circleci",
     "codecov",
@@ -23,14 +23,16 @@
     "gohri",
     "libauth",
     "mkdir",
-    "rohit",
+    "negotiatedneeded",
+    "preprocessors",
     "prettierignore",
+    "rohit",
     "sandboxed",
+    "saucelabs",
     "transpiled",
     "typedoc",
     "untracked",
-    "webrtc",
-    "negotiatedneeded"
+    "webrtc"
   ],
   "flagWords": [],
   "ignorePaths": [
