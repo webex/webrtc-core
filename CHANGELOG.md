@@ -1,3 +1,11 @@
+# [1.3.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.2.1...v1.3.0) (2022-03-11)
+
+
+### Features
+
+* add getunderlyingrtcpeerconnection method on peerconnection class ([#64](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/64)) ([5abb6be](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/5abb6bec5a340df1666bd366934df5106649847d))
+* enhance browser support ([#59](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/59)) ([3e87bac](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/3e87bac0a2321b8db988355d4573a8bc81afed28))
+
 ## [1.2.1](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.2.0...v1.2.1) (2022-02-10)
 
 
