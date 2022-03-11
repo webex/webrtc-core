@@ -1,6 +1,6 @@
 import { EventEmitter } from './event-emitter';
-import { log } from './util/logger';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
+import { log } from './util/logger';
 
 /**
  * A type-safe form of the DOMString used in the MediaStreamTrack.kind field.
@@ -43,6 +43,15 @@ class PeerConnection extends EventEmitter {
     this.pc.onicegatheringstatechange = (ev: Event) => {
       this.emit(PeerConnection.Events.IceGatheringStateChange, ev);
     };
+  }
+
+  /**
+   * Get the underlying RTCPeerConnection.
+   *
+   * @returns The underlying RTCPeerConnection.
+   */
+  getUnderlyingRTCPeerConnection(): RTCPeerConnection {
+    return this.pc;
   }
 
   /**
