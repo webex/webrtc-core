@@ -1,3 +1,10 @@
+# [1.4.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.3.0...v1.4.0) (2022-04-11)
+
+
+### Features
+
+* expose checkdevicepermissions method ([#65](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/65)) ([41ed515](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/41ed51577e6548322192bd76c8a136e3b6a616da))
+
 # [1.3.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.2.1...v1.3.0) (2022-03-11)
 
 
