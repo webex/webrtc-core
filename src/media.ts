@@ -83,7 +83,7 @@ async function checkNavigatorPermissions(
  * @param deviceKinds - Array of DeviceKind items.
  * @returns True if device permissions exist, false if otherwise.
  */
-async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolean> {
+export async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolean> {
   try {
     const permissions = await checkNavigatorPermissions(deviceKinds);
     if (permissions.every((permission: PermissionStatus) => permission.state === 'granted')) {
