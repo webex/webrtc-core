@@ -1,3 +1,10 @@
+# [1.5.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.4.0...v1.5.0) (2022-04-27)
+
+
+### Features
+
+* add getter for remote description ([#66](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/66)) ([021b771](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/021b771cd7bf3a85bf327e848f1dfebd0c3a0fcc))
+
 # [1.4.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.3.0...v1.4.0) (2022-04-11)
 
 
