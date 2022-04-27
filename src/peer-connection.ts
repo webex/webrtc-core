@@ -186,6 +186,15 @@ class PeerConnection extends EventEmitter {
   }
 
   /**
+   * Get the remote description from this PeerConnection.
+   *
+   * @returns An RTCSessionDescription representing the remote description, or null if none has been set.
+   */
+  getRemoteDescription(): RTCSessionDescription | null {
+    return this.pc.remoteDescription;
+  }
+
+  /**
    * Returns an array of RTCRtpSender objects, each of which represents the RTP sender responsible
    * for transmitting one track's data.  A sender object provides methods and properties for
    * examining and controlling the encoding and transmission of the track's data.
