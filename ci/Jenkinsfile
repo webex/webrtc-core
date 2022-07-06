@@ -5,7 +5,7 @@
 pipeline {
   agent any
 
-  tools {nodejs "Node v14"}
+  tools {nodejs "Node v16"}
 
   options {
     ansiColor('xterm')
@@ -65,7 +65,7 @@ pipeline {
      stage('Run Integration Tests on Safari') {
       steps {
         withCredentials([string(credentialsId: 'SAUCE_ACCESS_KEY', variable: 'SAUCE_ACCESS_KEY')]) {
-         echo "SAUCE=$SAUCE" 
+         echo "SAUCE=$SAUCE"
          echo "SAUCE_USERNAME=$SAUCE_USERNAME"
          echo "SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY"
          sh './node_modules/yarn/bin/yarn test:integration:safari'
@@ -75,7 +75,7 @@ pipeline {
      stage('Run Integration Tests on Firefox') {
       steps {
         withCredentials([string(credentialsId: 'SAUCE_ACCESS_KEY', variable: 'SAUCE_ACCESS_KEY')]) {
-         echo "SAUCE=$SAUCE" 
+         echo "SAUCE=$SAUCE"
          echo "SAUCE_USERNAME=$SAUCE_USERNAME"
          echo "SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY"
          sh './node_modules/yarn/bin/yarn test:integration:firefox'
@@ -85,7 +85,7 @@ pipeline {
      stage('Run Integration Tests on Edge') {
       steps {
         withCredentials([string(credentialsId: 'SAUCE_ACCESS_KEY', variable: 'SAUCE_ACCESS_KEY')]) {
-         echo "SAUCE=$SAUCE" 
+         echo "SAUCE=$SAUCE"
          echo "SAUCE_USERNAME=$SAUCE_USERNAME"
          echo "SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY"
          sh './node_modules/yarn/bin/yarn test:integration:edge'
