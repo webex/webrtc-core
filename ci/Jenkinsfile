@@ -52,7 +52,7 @@ pipeline {
           sourceFileResolver: sourceFiles('NEVER_STORE')
       }
     }
-    /* stage('Run Integration Tests on Chrome') {
+    stage('Run Integration Tests on Chrome') {
       steps {
         withCredentials([string(credentialsId: 'SAUCE_ACCESS_KEY', variable: 'SAUCE_ACCESS_KEY')]) {
          echo "SAUCE=$SAUCE"
@@ -91,7 +91,7 @@ pipeline {
          sh './node_modules/yarn/bin/yarn test:integration:edge'
          }
       }
-    } */
+    }
     stage('SonarQube Analysis') {
       environment {
         scannerHome = tool 'sonar-scanner'
