@@ -1,3 +1,11 @@
+## [1.5.1](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.5.0...v1.5.1) (2022-07-06)
+
+
+### Bug Fixes
+
+* disable integration tests (temporary) ([#68](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/68)) ([75064a4](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/75064a4d38f3b10b8e1a1023bcea9ea0240578fc))
+* update node to use v16 ([#67](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/67)) ([4ea99a8](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/4ea99a8bbfb0aafe19658ff28de1d3aadaca6b6e))
+
 # [1.5.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.4.0...v1.5.0) (2022-04-27)
 
 
