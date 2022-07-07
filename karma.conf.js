@@ -296,7 +296,7 @@ module.exports = (config) => {
     logLevel: config.DEBUG,
     autoWatch: false,
     singleRun: true,
-    concurrency: Infinity,
+    concurrency: 4,
     timeout,
     captureTimeout: 240000,
     karmaTypescriptConfig: {
