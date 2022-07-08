@@ -94,7 +94,7 @@ module.exports = (config) => {
       '96',
       '97',
     ];
-    const platforms = ['Windows 10', 'macOS 11', 'macOS 12'];
+    const platforms = ['macOS 11', 'macOS 12'];
     const chromeLaunchers = {};
     platforms.forEach((platform) => {
       chromeVersions.forEach((version) => {
