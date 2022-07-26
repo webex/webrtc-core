@@ -1,3 +1,10 @@
+# [1.6.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.5.1...v1.6.0) (2022-07-26)
+
+
+### Features
+
+* import webrtc-adapter ([#69](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/69)) ([7b3834f](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/7b3834f1bec0a3917e9c049c5a009a9086655b1f))
+
 ## [1.5.1](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.5.0...v1.5.1) (2022-07-06)
 
 

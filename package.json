@@ -1,6 +1,6 @@
 {
   "name": "@webex-connect/webrtc-core",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "browser": "dist/umd/index.js",
