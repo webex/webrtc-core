@@ -1,3 +1,5 @@
+import 'webrtc-adapter';
+
 /**
  * Creates an RTCPeerConnection.
  *
