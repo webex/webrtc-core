@@ -106,7 +106,7 @@
   },
   "dependencies": {
     "events": "^3.3.0",
-    "webrtc-adapter": "^8.0.0"
+    "webrtc-adapter": "^8.1.2"
   },
   "lint-staged": {
     "*.ts": [
