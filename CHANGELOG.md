@@ -1,3 +1,10 @@
+## [1.6.1](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.6.0...v1.6.1) (2022-08-18)
+
+
+### Bug Fixes
+
+* update adapterjs ([#70](https://sqbu-github.cisco.com/CPaaS/webrtc-core/issues/70)) ([ce6a151](https://sqbu-github.cisco.com/CPaaS/webrtc-core/commit/ce6a151f0d4c0e6a97db8489bf455a2067bf872d))
+
 # [1.6.0](https://sqbu-github.cisco.com/CPaaS/webrtc-core/compare/v1.5.1...v1.6.0) (2022-07-26)
 
 
