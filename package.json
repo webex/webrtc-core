@@ -102,6 +102,7 @@
     "transpile:clean": "rimraf ./dist",
     "transpile:validate": "tsc --noemit",
     "transpile:watch": "tsc --watch",
+    "version": "echo $npm_package_version",
     "watch": "rollup -c ./rollup.config.js -w"
   },
   "dependencies": {
