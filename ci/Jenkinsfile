@@ -97,10 +97,14 @@ pipeline {
         scannerHome = tool 'sonar-scanner'
       }
       steps {
-        withSonarQubeEnv(credentialsId: 'sonar_login', installationName: 'BMS SonarQube') {
-          echo "PATH=$PATH"
-          sh 'env'
-          sh "${scannerHome}/bin/sonar-scanner"
+        script {
+          withSonarQubeEnv(credentialsId: 'sonar_login', installationName: 'BMS SonarQube') {
+            echo "PATH=$PATH"
+            sh 'env'
+            def current_version = '$(npm run version --silent)'
+            sh "echo new version from package ${current_version}"
+            sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectVersion=${current_version}"
+          }
         }
       }
     }
