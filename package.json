@@ -1,6 +1,6 @@
 {
-  "name": "@webex-connect/webrtc-core",
-  "version": "1.6.1",
+  "name": "@webex/webrtc-core",
+  "version": "1.0.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "browser": "dist/umd/index.js",
@@ -16,7 +16,7 @@
     "registry": "https://registry.npmjs.org",
     "access": "restricted"
   },
-  "repository": "git@sqbu-github.cisco.com:CPaaS/webrtc-core.git",
+  "repository": "https://github.com/webex/webrtc-core.git",
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",

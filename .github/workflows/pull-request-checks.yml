@@ -1,0 +1,13 @@
+name: pull-request-checks
+on: [pull_request]
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: yarn install
+      - run: yarn test:lint
+      - run: yarn test:coverage
