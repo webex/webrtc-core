@@ -7,10 +7,12 @@ import { MaybeMockedDeep, mocked } from './mock';
  * @param windowProperty - The property on window on which to attach the stub.
  * @returns Mocked instance of the Navigator stub.
  */
-export const createBrowserMock = <T>(stub: T, windowProperty: string): MaybeMockedDeep<T> => {
+export const createBrowserMock = <T>(stub: T, windowProperty?: string): MaybeMockedDeep<T> => {
   const mockedStub = mocked(stub, true);
 
-  Object.defineProperty(window, windowProperty, { value: mockedStub });
+  if (windowProperty) {
+    Object.defineProperty(window, windowProperty, { value: mockedStub });
+  }
 
   return mockedStub;
 };

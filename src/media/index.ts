@@ -1,4 +1,4 @@
-import { error } from './util/logger';
+import { logger } from '../util/logger';
 
 export enum DeviceKind {
   AudioInput = 'audioinput',
@@ -137,7 +137,7 @@ export async function ensureDevicePermissions<T>(
 
     return callback();
   } catch (e) {
-    error(e);
+    logger.error(e);
     throw new Error('Failed to ensure device permissions.');
   }
 }

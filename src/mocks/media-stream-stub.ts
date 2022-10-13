@@ -1,16 +1,34 @@
+/* eslint-disable */
 import './media-stream-track-stub';
 
 /**
  * This is a 'stub' implementation of MediaStream, made to reflect a browser's implementation.
  */
 class MediaStreamStub {
+  private tracks: MediaStreamTrack[];
+
+  constructor(tracks: MediaStreamTrack[] = []) {
+    this.tracks = tracks;
+  }
+
+  addTrack(track: MediaStreamTrack) {
+    this.tracks.push(track);
+  }
+
+  removeTrack(track: MediaStreamTrack) {
+    this.tracks = this.tracks.filter((t) => t !== track);
+  }
+
   /**
    * Stubbed method to return tracks that are part of this MediaStream.
    *
    * @returns An array of MediaStreamTrack objects.
    */
-  // eslint-disable-next-line class-methods-use-this
   getTracks(): MediaStreamTrack[] {
+    return this.tracks;
+  }
+
+  getVideoTracks(): MediaStreamTrack[] {
     return [];
   }
 }
@@ -23,4 +41,4 @@ Object.defineProperty(window, 'MediaStream', {
   value: MediaStreamStub,
 });
 
-export { MediaStreamStub as MediaStream };
+export default MediaStreamStub;
