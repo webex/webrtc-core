@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/webex/webrtc-core/compare/v1.6.1...v1.7.0) (2022-10-14)
+
+
+### Bug Fixes
+
+* commitlint rules for body ([17d2057](https://github.com/webex/webrtc-core/commit/17d2057a63cd32248e6b865bd268bbc34a25cd23))
+
+
+### Features
+
+* migrating the wcme track to webrtc core ([bdee8c6](https://github.com/webex/webrtc-core/commit/bdee8c6adb53e68451d1f1347ce761e42162e167))
+
 ### Bug Fixes
 * update adapterjs
 * disable integration tests (temporary) 
