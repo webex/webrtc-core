@@ -1,6 +1,6 @@
 {
   "name": "@webex/webrtc-core",
-  "version": "1.7.0",
+  "version": "1.0.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "browser": "dist/umd/index.js",
@@ -13,7 +13,8 @@
     "dist/**/*"
   ],
   "publishConfig": {
-    "registry": "https://registry.npmjs.org"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "repository": "https://github.com/webex/webrtc-core.git",
   "license": "MIT",
