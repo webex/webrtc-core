@@ -1,6 +1,6 @@
 # webrtc-media-core
 
-Handles the WebRTC core functionality.
+Handles the WebRTC core functionality and provides media helper function on browser.
 
 ## Development
 
