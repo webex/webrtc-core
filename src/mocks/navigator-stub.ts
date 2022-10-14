@@ -1,5 +1,5 @@
 import { createPermissionStatus } from './create-permission-status';
-import { MediaStream } from './media-stream-stub';
+import MediaStream from './media-stream-stub';
 
 /**
  * A getUserMedia stub, returns a MediaStream with tracks according to the constraints passed in.

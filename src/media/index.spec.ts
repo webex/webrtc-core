@@ -1,10 +1,10 @@
-import * as media from './media';
-import { createBrowserMock } from './mocks/create-browser-mock';
-import { createPermissionStatus } from './mocks/create-permission-status';
-import { MediaStream } from './mocks/media-stream-stub';
-import { Navigator } from './mocks/navigator-stub';
+import * as media from '.';
+import { createBrowserMock } from '../mocks/create-browser-mock';
+import { createPermissionStatus } from '../mocks/create-permission-status';
+import MediaStream from '../mocks/media-stream-stub';
+import { Navigator } from '../mocks/navigator-stub';
 
-jest.mock('./mocks/navigator-stub');
+jest.mock('../mocks/navigator-stub');
 
 /**
  * Create example MediaDeviceInfo objects to be used in mocks.

@@ -1,7 +1,7 @@
-import { EventEmitter } from './event-emitter';
+import { EventMap } from 'typed-emitter';
+import EventEmitter from './event-emitter';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
-import { log } from './util/logger';
-
+import { logger } from './util/logger';
 /**
  * A type-safe form of the DOMString used in the MediaStreamTrack.kind field.
  */
@@ -19,12 +19,24 @@ type RTCDataChannelOptions = {
   id?: number;
 };
 
+enum IceEvents {
+  IceGatheringStateChange = 'icegatheringstatechange',
+}
+
+type IceGatheringStateChangeEvent = {
+  target: any;
+};
+
+export interface PeerConnectionEvents extends EventMap {
+  [IceEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
+}
+
 /**
  * Manages a single RTCPeerConnection with the server.
  */
-class PeerConnection extends EventEmitter {
+class PeerConnection extends EventEmitter<PeerConnectionEvents> {
   static Events = {
-    IceGatheringStateChange: 'icegatheringstatechange',
+    IceGatheringStateChange: IceEvents.IceGatheringStateChange,
   };
 
   private pc: RTCPeerConnection;
@@ -34,7 +46,7 @@ class PeerConnection extends EventEmitter {
    */
   constructor() {
     super();
-    log('PeerConnection init');
+    logger.log('PeerConnection init');
 
     this.pc = createRTCPeerConnection();
 

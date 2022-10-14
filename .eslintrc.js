@@ -30,6 +30,7 @@ module.exports = {
         ts: 'never',
       },
     ],
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
     'import/prefer-default-export': 0,
     'jest/no-hooks': [
       'error',
@@ -38,6 +39,8 @@ module.exports = {
       },
     ],
     'jest/lowercase-name': 0,
+    'jest/prefer-lowercase-title': 0,
+    'jest/require-hook': 0,
     'jsdoc/check-tag-names': [
       1,
       {
@@ -87,7 +90,8 @@ module.exports = {
     'jsdoc/require-param-type': 0,
     'jsdoc/require-returns-type': 0,
     'jsdoc/valid-types': 1,
-    'no-shadow': 'off',
+    'no-underscore-dangle': 0,
+    'no-shadow': 0,
     '@typescript-eslint/no-shadow': ['error'],
   },
   settings: {

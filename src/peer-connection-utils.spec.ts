@@ -1,8 +1,8 @@
 /* eslint-disable */
 
+import { mocked } from './mocks/mock';
 import { PeerConnection } from './peer-connection';
 import { getLocalDescriptionWithIceCandidates } from './peer-connection-utils';
-import { mocked } from './mocks/mock';
 
 jest.mock('./peer-connection');
 

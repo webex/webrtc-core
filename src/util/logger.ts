@@ -1,21 +1,10 @@
-/**
- * This is just a placeholder utility to centralize how we log to the console. We will ultimately
- * replace this with a better logging method in the future.
- */
+import Logger from 'js-logger';
 
-/**
- * @param args
- */
-export const debug = (...args: any[]) => console.debug('[MEDIA CORE]', ...args);
-/**
- * @param args
- */
-export const error = (...args: any[]) => console.error('[MEDIA CORE]', ...args);
-/**
- * @param args
- */
-export const log = (...args: any[]) => console.log('[MEDIA CORE]', ...args);
-/**
- * @param args
- */
-export const warn = (...args: any[]) => console.warn('[MEDIA CORE]', ...args);
+const DEFAULT_LOGGER_NAME = 'webrtc-core';
+export const logger = Logger.get(DEFAULT_LOGGER_NAME);
+
+// Set log level to debug by default.
+logger.setLevel(Logger.DEBUG);
+
+// Export the Logger class so it can be used by other repositories.
+export { Logger };
