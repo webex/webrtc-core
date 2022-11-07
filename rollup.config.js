@@ -53,6 +53,11 @@ export default [
         sourcemap: !production,
         plugins: [terser()],
       },
+      {
+        format: 'umd',
+        name: 'webrtcCore',
+        file: './samples/bundle.js',
+      },
     ],
     plugins,
     watch: false,

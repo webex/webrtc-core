@@ -1,6 +1,6 @@
-import { LocalTrack } from './local-track';
+import {LocalVideoTrack} from './local-video-track';
 
 /**
  * Represents a local track for a display source.
  */
-export class LocalDisplayTrack extends LocalTrack {}
+export class LocalDisplayTrack extends LocalVideoTrack {}
