@@ -1,7 +1,9 @@
 import * as media from '../media';
+import { LocalAudioTrack } from '../media/local-audio-track';
 import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
 import { LocalMicrophoneTrack } from '../media/local-microphone-track';
+import { LocalVideoTrack } from '../media/local-video-track';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
@@ -59,7 +61,7 @@ export type VideoConstraints = {
   cameraDeviceId?: string;
   faceingMode?: ConstrainULong;
   optimizationMode?: ConstrainULong;
-  encoderConfig?: StaticVideoEncoderConfig | videoEncoderConfig; 
+  encoderConfig?: StaticVideoEncoderConfig | videoEncoderConfig;
 };
 
 // something like this https://api-ref.agora.io/en/video-sdk/web/4.x/globals.html#audioencoderconfigurationpreset
@@ -92,14 +94,14 @@ export type CustomAudioTrackInitConfig = {
   encoderConfig?: StaticAudioEncoderConfig | audioEncoderConfig;
 };
 
-/**
- * @param audioConfig
- * @param videoConfig
- */
-export async function createMicrophoneAndCameraTracks(
-  audioConfig?: MicrophoneConstraints,
-  videoConfig?: VideoConstraints
-): Promise<[IMicrophoneAudioTrack, ICameraVideoTrack]> {}
+// /**
+//  * @param audioConfig
+//  * @param videoConfig
+//  */
+// export async function createMicrophoneAndCameraTracks(
+//   audioConfig?: MicrophoneConstraints,
+//   videoConfig?: VideoConstraints
+// ): Promise<[IMicrophoneAudioTrack, ICameraVideoTrack]> {}
 
 /**
  * Creates a camera video track.
@@ -118,7 +120,7 @@ export async function createCameraTrack(constraints?: VideoConstraints): Promise
       `Failed to create camera track ${error}`
     );
   }
-  return new LocalCameraTrack(stream);
+  return new LocalCameraTrack(stream.getVideoTracks()[0]);
 }
 
 /**
@@ -128,7 +130,7 @@ export async function createCameraTrack(constraints?: VideoConstraints): Promise
  * @returns A LocalTrack object or an error.
  */
 export async function createMicrophoneTrack(
-  constraints?: AudioDeviceConstraints
+  constraints?: MicrophoneConstraints
 ): Promise<LocalMicrophoneTrack> {
   let stream: MediaStream;
   try {
@@ -140,7 +142,7 @@ export async function createMicrophoneTrack(
     );
   }
   // See if we can just pass the track and not streams
-  return new LocalMicrophoneTrack(stream);
+  return new LocalMicrophoneTrack(stream.getAudioTracks()[0]);
 }
 
 /**
@@ -150,10 +152,10 @@ export async function createMicrophoneTrack(
  * @returns A Promise that resolves to a LocalDisplayTrack.
  */
 export async function createDisplayTrack(
-  constraints?: VideoDeviceConstraints
+  constraints?: VideoConstraints
 ): Promise<LocalDisplayTrack> {
   const stream = await media.getDisplayMedia({ video: true });
-  return new LocalDisplayTrack(stream);
+  return new LocalDisplayTrack(stream.getVideoTracks()[0]);
 }
 
 /**
@@ -163,10 +165,11 @@ export async function createDisplayTrack(
  * @returns A Promise that resolves to a LocalVideoTrack.
  */
 export async function createCustomVideoTrack(
-  constraints?: CustomVideoTrackInitConfig
+  constraints: CustomVideoTrackInitConfig
 ): Promise<LocalVideoTrack> {
-  const stream = await media.getUserMedia({ video: constraints });
-  return new LocalVideoTrack(stream);
+  const localVideoTrack = new LocalVideoTrack(constraints.mediaStreamTrack);
+  localVideoTrack.setEncoderConfig(constraints.encoderConfig);
+  return localVideoTrack;
 }
 
 /**
@@ -176,10 +179,11 @@ export async function createCustomVideoTrack(
  * @returns A Promise that resolves to a LocalAudioTrack.
  */
 export async function createCustomAudioTrack(
-  constraints?: CustomVideoTrackInitConfig
+  constraints: CustomAudioTrackInitConfig
 ): Promise<LocalAudioTrack> {
-  const stream = await media.getUserMedia({ audio: constraints });
-  return new LocalAudioTrack(stream);
+  const localAudioTrack = new LocalAudioTrack(constraints.mediaStreamTrack);
+  localAudioTrack.setEncoderConfig(constraints.encoderConfig);
+  return localAudioTrack;
 }
 
 /**
@@ -210,7 +214,7 @@ export async function getDevices(deviceKind?: media.DeviceKind): Promise<MediaDe
  *
  * @returns List of microphone devices in an array of MediaDeviceInfo objects.
  */
-export async function getAudioInputDevices(): Promise<MediaDeviceInfo[]> {
+export async function getMicrophones(): Promise<MediaDeviceInfo[]> {
   return getDevices(media.DeviceKind.AudioInput);
 }
 
@@ -219,7 +223,7 @@ export async function getAudioInputDevices(): Promise<MediaDeviceInfo[]> {
  *
  * @returns List of speaker devices in an array of MediaDeviceInfo objects.
  */
-export async function getAudioOutputDevices(): Promise<MediaDeviceInfo[]> {
+export async function getSpeakers(): Promise<MediaDeviceInfo[]> {
   return getDevices(media.DeviceKind.AudioOutput);
 }
 
@@ -228,7 +232,7 @@ export async function getAudioOutputDevices(): Promise<MediaDeviceInfo[]> {
  *
  * @returns List of camera devices in an array of MediaDeviceInfo objects.
  */
-export async function getVideoInputDevices(): Promise<MediaDeviceInfo[]> {
+export async function getCameras(): Promise<MediaDeviceInfo[]> {
   return getDevices(media.DeviceKind.VideoInput);
 }
 
