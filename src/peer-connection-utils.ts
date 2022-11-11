@@ -24,7 +24,7 @@ export function getLocalDescriptionWithIceCandidates(
       }
     };
     peerConnection.on(PeerConnection.Events.IceGatheringStateChange, (e) => {
-      if (e.target.iceGatheringState === 'complete') {
+      if ((e.target as RTCPeerConnection).iceGatheringState === 'complete') {
         getLocalDescAndResolve();
       }
       // TODO(brian): throw an error if we see an error iceGatheringState

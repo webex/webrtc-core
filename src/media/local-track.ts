@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { EventMap } from 'typed-emitter';
-import EventEmitter from '../event-emitter';
+import { EventEmitter, EventMap } from '../event-emitter';
 import { MediaStreamTrackKind } from '../peer-connection';
 import { logger } from '../util/logger';
 
@@ -47,8 +46,9 @@ export interface TrackEvents extends EventMap {
   [LocalTrackEvents.UnderlyingTrackChange]: () => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TrackEffect = any;
-// TBD: Fix this once types are published seperatly
+// TBD: Fix this once types are published separately
 // export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
 
 /**

@@ -1,5 +1,5 @@
-import { EventMap } from 'typed-emitter';
-import EventEmitter from './event-emitter';
+import { ConnectionState, ConnectionStateHandler } from './connection-state-handler';
+import { EventEmitter, EventMap } from './event-emitter';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 import { logger } from './util/logger';
 /**
@@ -19,27 +19,29 @@ type RTCDataChannelOptions = {
   id?: number;
 };
 
-enum IceEvents {
-  IceGatheringStateChange = 'icegatheringstatechange',
-}
-
 type IceGatheringStateChangeEvent = {
-  target: any;
+  target: EventTarget | null;
 };
 
-export interface PeerConnectionEvents extends EventMap {
-  [IceEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
+enum PeerConnectionEvents {
+  IceGatheringStateChange = 'icegatheringstatechange',
+  ConnectionStateChange = 'connectionstatechange',
+}
+
+interface PeerConnectionEventHandlers extends EventMap {
+  [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
+  [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
 }
 
 /**
  * Manages a single RTCPeerConnection with the server.
  */
-class PeerConnection extends EventEmitter<PeerConnectionEvents> {
-  static Events = {
-    IceGatheringStateChange: IceEvents.IceGatheringStateChange,
-  };
+class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
+  static Events = PeerConnectionEvents;
 
   private pc: RTCPeerConnection;
+
+  private connectionStateHandler: ConnectionStateHandler;
 
   /**
    * Creates an instance of the RTCPeerConnection.
@@ -49,6 +51,28 @@ class PeerConnection extends EventEmitter<PeerConnectionEvents> {
     logger.log('PeerConnection init');
 
     this.pc = createRTCPeerConnection();
+
+    this.connectionStateHandler = new ConnectionStateHandler(() => {
+      return {
+        connectionState: this.pc.connectionState,
+        iceState: this.pc.iceConnectionState,
+      };
+    });
+
+    this.connectionStateHandler.on(
+      ConnectionStateHandler.Events.ConnectionStateChanged,
+      (state: ConnectionState) => {
+        this.emit(PeerConnection.Events.ConnectionStateChange, state);
+      }
+    );
+
+    // Forward the connection state related events to connection state handler
+    // eslint-disable-next-line jsdoc/require-jsdoc
+    this.pc.oniceconnectionstatechange = () =>
+      this.connectionStateHandler.onIceConnectionStateChange();
+
+    // eslint-disable-next-line jsdoc/require-jsdoc
+    this.pc.onconnectionstatechange = () => this.connectionStateHandler.onConnectionStateChange();
 
     // Subscribe to underlying PeerConnection events and emit them via the EventEmitter
     /* eslint-disable jsdoc/require-jsdoc */
@@ -64,6 +88,15 @@ class PeerConnection extends EventEmitter<PeerConnectionEvents> {
    */
   getUnderlyingRTCPeerConnection(): RTCPeerConnection {
     return this.pc;
+  }
+
+  /**
+   * Gets the overall connection state of the underlying RTCPeerConnection.
+   *
+   * @returns The underlying connection's overall state.
+   */
+  getConnectionState(): ConnectionState {
+    return this.connectionStateHandler.getConnectionState();
   }
 
   /**
