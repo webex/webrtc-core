@@ -25,28 +25,23 @@ type MaybeMockedConstructor<T> = T extends new (...args: any[]) => infer R
   ? jest.MockInstance<R, ConstructorArgumentsOf<T>>
   : T;
 
-type MockedFunction<T extends MockableFunction> = MockWithArgs<T> &
-  {
-    [K in keyof T]: T[K];
-  };
+type MockedFunction<T extends MockableFunction> = MockWithArgs<T> & {
+  [K in keyof T]: T[K];
+};
 
 type MockedFunctionDeep<T extends MockableFunction> = MockWithArgs<T> & MockedObjectDeep<T>;
 
-type MockedObject<T> = MaybeMockedConstructor<T> &
-  {
-    [K in MethodKeysOf<T>]: T[K] extends MockableFunction ? MockedFunction<T[K]> : T[K];
-  } &
-  {
-    [K in PropertyKeysOf<T>]: T[K];
-  };
+type MockedObject<T> = MaybeMockedConstructor<T> & {
+  [K in MethodKeysOf<T>]: T[K] extends MockableFunction ? MockedFunction<T[K]> : T[K];
+} & {
+  [K in PropertyKeysOf<T>]: T[K];
+};
 
-type MockedObjectDeep<T> = MaybeMockedConstructor<T> &
-  {
-    [K in MethodKeysOf<T>]: T[K] extends MockableFunction ? MockedFunctionDeep<T[K]> : T[K];
-  } &
-  {
-    [K in PropertyKeysOf<T>]: MaybeMockedDeep<T[K]>;
-  };
+type MockedObjectDeep<T> = MaybeMockedConstructor<T> & {
+  [K in MethodKeysOf<T>]: T[K] extends MockableFunction ? MockedFunctionDeep<T[K]> : T[K];
+} & {
+  [K in PropertyKeysOf<T>]: MaybeMockedDeep<T[K]>;
+};
 
 export type MaybeMockedDeep<T> = T extends MockableFunction
   ? MockedFunctionDeep<T>

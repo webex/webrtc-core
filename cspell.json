@@ -32,6 +32,8 @@
     "transpiled",
     "typedoc",
     "untracked",
+    "WCME",
+    "Wcme",
     "webrtc"
   ],
   "flagWords": [],
