@@ -5,7 +5,9 @@ Handles the WebRTC core functionality and provides media helper function on brow
 ## Development
 
 1. `yarn`
-1. `yarn watch`
+2. `yarn build`
+3. `yarn test`
+4. `yarn watch`
 
 ## Usage
 
