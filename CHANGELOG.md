@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/webex/webrtc-core/compare/v1.0.0...v1.0.1) (2022-11-15)
+
+
+### Bug Fixes
+
+* update doc for a force release ([#9](https://github.com/webex/webrtc-core/issues/9)) ([b19c913](https://github.com/webex/webrtc-core/commit/b19c913460fc70a5bb8c205cb37c6e27964e43ed))
+
 # 1.0.0 (2022-11-14)
 
 
