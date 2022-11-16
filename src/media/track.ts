@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { EventMap } from 'typed-emitter';
-import EventEmitter from '../event-emitter';
+import { EventEmitter } from '../event-emitter';
 import { logger } from '../util/logger';
 
 export enum Events {

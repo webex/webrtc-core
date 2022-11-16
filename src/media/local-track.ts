@@ -28,11 +28,6 @@ export interface LocalTrackEvents extends EventMap {
   [Events.PublishedStateUpdate]: (event: TrackPublishEvent) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TrackEffect = any;
-// TBD: Fix this once types are published separately
-// export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
-
 /**
  * Basic Track class. Wrapper for LocalTrack from 'webrtc-core'.
  */
