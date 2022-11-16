@@ -1189,11 +1189,6 @@
         }
     }
 
-    // something like this https://api-ref.agora.io/en/video-sdk/web/4.x/globals.html#audioencoderconfigurationpreset
-    var StaticAudioEncoderConfig;
-    (function (StaticAudioEncoderConfig) {
-        StaticAudioEncoderConfig["sampleRateLow"] = "16kHz";
-    })(StaticAudioEncoderConfig || (StaticAudioEncoderConfig = {}));
     /**
      * Represents a audio track for a audio source.
      */
@@ -1202,18 +1197,6 @@
             super(...arguments);
             this.effects = new Map();
         }
-        /**
-         *
-         */
-        getVolumeLevel() { }
-        /**
-         * @param level
-         */
-        setVolume(level) { }
-        /**
-         * @param device
-         */
-        setPlayBackDevice(device) { }
         /**
          * Get an effect by name.
          *
@@ -1247,31 +1230,50 @@
             this.effects.forEach((effect) => effect.dispose());
         }
         /**
+         * Adds background noise cancellation effect.
          *
+         * @param name - The name of the effect.
+         * @param effect - The effect to add.
          */
-        addBNREffect() { }
+        addBNREffect(name, effect) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // TODO: add validation checks to see if its a BNR effect passed in
+                yield this.addEffect(name, effect);
+            });
+        }
         /**
-         * @param encoderConfig
+         * Makes sure to apply the encoderConfig for the audio.
+         *
+         * @param encoderConfig - Encoder config for audio.
          */
-        setEncoderConfig(encoderConfig) { }
+        setEncoderConfig(encoderConfig) {
+            this.getMediaStreamTrack().applyConstraints(encoderConfig);
+        }
     }
 
-    // Predefined encoder config mentioned similar to https://api-ref.agora.io/en/voice-sdk/web/4.x/globals.html#videoencoderconfigurationpreset
-    var StaticVideoEncoderConfig;
-    (function (StaticVideoEncoderConfig) {
-        StaticVideoEncoderConfig["Profile1080P"] = "1080P";
-    })(StaticVideoEncoderConfig || (StaticVideoEncoderConfig = {}));
-    var FacingMode;
+    exports.FacingMode = void 0;
     (function (FacingMode) {
         FacingMode["user"] = "user";
         FacingMode["environment"] = "environment";
-    })(FacingMode || (FacingMode = {}));
-    var OptimizationMode;
+    })(exports.FacingMode || (exports.FacingMode = {}));
+    exports.OptimizationMode = void 0;
     (function (OptimizationMode) {
         OptimizationMode["motion"] = "motion";
         OptimizationMode["detail"] = "detail";
-    })(OptimizationMode || (OptimizationMode = {}));
-    // TBD: Fix this once types are published seperatly
+    })(exports.OptimizationMode || (exports.OptimizationMode = {}));
+    /**
+     * A class to map resolution with video constraints.
+     */
+    const staticVideoEncoderConfig = {
+        '1080p': { frameRate: 15, bitrateMax: 2080, width: 1920, height: 1080 },
+        '720p': { frameRate: 15, bitrateMax: 1130, width: 1280, height: 720 },
+        '480p': { frameRate: 15, bitrateMax: 500, width: 640, height: 480 },
+        '360p': { frameRate: 15, bitrateMax: 400, width: 640, height: 360 },
+        '240p': { frameRate: 15, bitrateMax: 200, width: 320, height: 240 },
+        '180p': { frameRate: 15, bitrateMax: 140, width: 320, height: 180 },
+        '120p': { frameRate: 15, bitrateMax: 65, width: 160, height: 120 },
+    };
+    // TBD: Fix this once types are published separately
     // export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
     /**
      * Represents a local video track.
@@ -1314,17 +1316,35 @@
             this.effects.forEach((effect) => effect.dispose());
         }
         /**
+         * Adds the virtual background effect.
          *
+         * @param effect - Pass the virtual background effect.
          */
-        addVirtualBackgroundEffect() { }
+        addVirtualBackgroundEffect(effect) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // check if the effect is of kind virtual background
+                yield this.addEffect('virtual-background', effect);
+            });
+        }
         /**
+         * Adds the blur background effect.
          *
+         * @param effect - Pass the blur background effect.
          */
-        addBlurBackgroundEffect() { }
+        addBlurBackgroundEffect(effect) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // add checks for if someone has passed blur background effect
+                yield this.addEffect('background-blur', effect);
+            });
+        }
         /**
-         * @param encoderConfig
+         * Applies the passed video constraints.
+         *
+         * @param encoderConfig - Custom encoder config for video.
          */
-        setEncoderConfig(encoderConfig) { }
+        setEncoderConfig(encoderConfig) {
+            this.getMediaStreamTrack().applyConstraints(encoderConfig);
+        }
     }
 
     /**
@@ -1344,6 +1364,52 @@
      */
     class LocalMicrophoneTrack extends LocalVideoTrack {
     }
+
+    // For reference https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+    /**
+     * Generates the audio constraints pass to getUserMedia.
+     *
+     * @param audioConstraints - Audio constraints.
+     * @returns Native audio constraints.
+     */
+    const generateAudioConstraints = (audioConstraints) => {
+        let audio = {};
+        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.microphoneDeviceId) {
+            audio.deviceId = audioConstraints.microphoneDeviceId;
+        }
+        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.echoCancellation) {
+            audio.echoCancellation = audioConstraints.echoCancellation;
+        }
+        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.noiseSuppression) {
+            audio.noiseSuppression = audioConstraints.noiseSuppression;
+        }
+        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.autoGainControl) {
+            audio.autoGainControl = audioConstraints.autoGainControl;
+        }
+        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.encoderConfig) {
+            audio = Object.assign(Object.assign({}, audio), audioConstraints.encoderConfig);
+        }
+        return audio;
+    };
+    /**
+     * Generates the audio constraints pass to getUserMedia.
+     *
+     * @param videoConstraints - Video constraints.
+     * @returns Native video constraints.
+     */
+    const generateVideoConstraints = (videoConstraints) => {
+        let video = {};
+        if (videoConstraints === null || videoConstraints === void 0 ? void 0 : videoConstraints.cameraDeviceId) {
+            video.deviceId = videoConstraints.cameraDeviceId;
+        }
+        if (videoConstraints === null || videoConstraints === void 0 ? void 0 : videoConstraints.facingMode) {
+            video.facingMode = videoConstraints.facingMode;
+        }
+        if (videoConstraints === null || videoConstraints === void 0 ? void 0 : videoConstraints.encoderConfig) {
+            video = Object.assign(Object.assign({}, video), videoConstraints.encoderConfig);
+        }
+        return video;
+    };
 
     exports.ErrorTypes = void 0;
     (function (ErrorTypes) {
@@ -1367,17 +1433,21 @@
         }
     }
     /**
-     * @param audioConfig
-     * @param videoConfig
-     * @param audioConstraints
-     * @param videoConstraints
+     * Creates MicrophoneTrack and CameraTrack at the same time.
+     *
+     * @param audioConstraints - Audio constraints to create microphone track.
+     * @param videoConstraints - Video constraints to create camera track.
+     * @returns MicrophoneTrack and cameraTrack at same time.
      */
     function createMicrophoneAndCameraTracks(audioConstraints, videoConstraints) {
         return __awaiter(this, void 0, void 0, function* () {
             let stream;
             try {
                 // TODO: change it
-                stream = yield getUserMedia({ video: {} });
+                stream = yield getUserMedia({
+                    audio: generateAudioConstraints(audioConstraints),
+                    video: generateVideoConstraints(videoConstraints),
+                });
             }
             catch (error) {
                 throw new WebrtcError(exports.ErrorTypes.CREATE_CAMERA_TRACK_FAILED, `Failed to create camera track ${error}`);
@@ -1399,7 +1469,7 @@
             let stream;
             try {
                 // TODO: change it
-                stream = yield getUserMedia({ video: {} });
+                stream = yield getUserMedia({ video: generateVideoConstraints(constraints) });
             }
             catch (error) {
                 throw new WebrtcError(exports.ErrorTypes.CREATE_CAMERA_TRACK_FAILED, `Failed to create camera track ${error}`);
@@ -1417,7 +1487,7 @@
         return __awaiter(this, void 0, void 0, function* () {
             let stream;
             try {
-                stream = yield getUserMedia({ audio: Object.assign({}, constraints) });
+                stream = yield getUserMedia({ audio: generateAudioConstraints(constraints) });
             }
             catch (error) {
                 throw new WebrtcError(exports.ErrorTypes.CREATE_MICROPHONE_TRACK_FAILED, `Failed to create microphone track ${error}`);
@@ -1429,26 +1499,26 @@
     /**
      * Creates a display video track.
      *
-     * @param constraints
+     * @param constraints - Display constraints for screen sharing.
      * @returns A Promise that resolves to a LocalDisplayTrack.
      */
     function createDisplayTrack(constraints) {
         return __awaiter(this, void 0, void 0, function* () {
-            const stream = yield getDisplayMedia({ video: true });
+            const stream = yield getDisplayMedia({ video: generateVideoConstraints(constraints) });
             return new LocalDisplayTrack(stream.getVideoTracks()[0]);
         });
     }
     /**
      * Creates custom video track .
      *
-     * @param constraints
+     * @param config - Custom video track creation config.
      * @returns A Promise that resolves to a LocalVideoTrack.
      */
-    function createCustomVideoTrack(constraints) {
+    function createCustomVideoTrack(config) {
         return __awaiter(this, void 0, void 0, function* () {
-            const localVideoTrack = new LocalVideoTrack(constraints.mediaStreamTrack);
-            if (constraints.encoderConfig) {
-                localVideoTrack.setEncoderConfig(constraints.encoderConfig);
+            const localVideoTrack = new LocalVideoTrack(config.mediaStreamTrack);
+            if (config.encoderConfig) {
+                localVideoTrack.setEncoderConfig(config.encoderConfig);
             }
             return localVideoTrack;
         });
@@ -1456,14 +1526,14 @@
     /**
      * Creates custom audio track .
      *
-     * @param constraints
+     * @param config - Config to create custom audio track.
      * @returns A Promise that resolves to a LocalAudioTrack.
      */
-    function createCustomAudioTrack(constraints) {
+    function createCustomAudioTrack(config) {
         return __awaiter(this, void 0, void 0, function* () {
-            const localAudioTrack = new LocalAudioTrack(constraints.mediaStreamTrack);
-            if (constraints.encoderConfig) {
-                localAudioTrack.setEncoderConfig(constraints.encoderConfig);
+            const localAudioTrack = new LocalAudioTrack(config.mediaStreamTrack);
+            if (config.encoderConfig) {
+                localAudioTrack.setEncoderConfig(config.encoderConfig);
             }
             return localAudioTrack;
         });
@@ -1520,6 +1590,100 @@
      * Export the setOnDeviceChangeHandler method directly from the core lib.
      */
     const { setOnDeviceChangeHandler } = media;
+
+    // Overall connection state (based on the ICE and DTLS connection states)
+    var ConnectionState;
+    (function (ConnectionState) {
+        ConnectionState["New"] = "New";
+        ConnectionState["Closed"] = "Closed";
+        ConnectionState["Connected"] = "Connected";
+        ConnectionState["Connecting"] = "Connecting";
+        ConnectionState["Disconnected"] = "Disconnected";
+        ConnectionState["Failed"] = "Failed";
+    })(ConnectionState || (ConnectionState = {}));
+    var ConnectionStateEvents;
+    (function (ConnectionStateEvents) {
+        ConnectionStateEvents["ConnectionStateChanged"] = "ConnectionStateChanged";
+    })(ConnectionStateEvents || (ConnectionStateEvents = {}));
+    /**
+     * Listens on the connection's ICE and DTLS state changes and emits a single
+     * event that summarizes all the internal states into a single overall connection state.
+     */
+    class ConnectionStateHandler extends EventEmitter {
+        /**
+         * Creates an instance of ConnectionStateHandler.
+         *
+         * @param getCurrentStatesCallback - Callback for getting the connection state information
+         *                                   from the peer connection.
+         */
+        constructor(getCurrentStatesCallback) {
+            super();
+            this.getCurrentStatesCallback = getCurrentStatesCallback;
+            this.mediaConnectionState = this.evaluateMediaConnectionState();
+        }
+        /**
+         * Handler for connection state change.
+         */
+        onConnectionStateChange() {
+            this.handleAnyConnectionStateChange();
+        }
+        /**
+         * Handler for ice connection state change.
+         */
+        onIceConnectionStateChange() {
+            this.handleAnyConnectionStateChange();
+        }
+        /**
+         * Method to be called whenever ice connection or dtls connection state is changed.
+         */
+        handleAnyConnectionStateChange() {
+            const newConnectionState = this.evaluateMediaConnectionState();
+            if (newConnectionState !== this.mediaConnectionState) {
+                this.mediaConnectionState = newConnectionState;
+                this.emit(ConnectionStateEvents.ConnectionStateChanged, this.mediaConnectionState);
+            }
+        }
+        /**
+         * Evaluates the overall connection state based on peer connection's
+         * connectionState and iceConnectionState.
+         *
+         * @returns Current overall connection state.
+         */
+        evaluateMediaConnectionState() {
+            const { connectionState, iceState } = this.getCurrentStatesCallback();
+            const connectionStates = [connectionState, iceState];
+            let mediaConnectionState;
+            if (connectionStates.every((value) => value === 'new')) {
+                mediaConnectionState = ConnectionState.New;
+            }
+            else if (connectionStates.some((value) => value === 'closed')) {
+                mediaConnectionState = ConnectionState.Closed;
+            }
+            else if (connectionStates.some((value) => value === 'failed')) {
+                mediaConnectionState = ConnectionState.Failed;
+            }
+            else if (connectionStates.some((value) => value === 'disconnected')) {
+                mediaConnectionState = ConnectionState.Disconnected;
+            }
+            else if (connectionStates.every((value) => value === 'connected' || value === 'completed')) {
+                mediaConnectionState = ConnectionState.Connected;
+            }
+            else {
+                mediaConnectionState = ConnectionState.Connecting;
+            }
+            logger.log(`iceConnectionState=${iceState} connectionState=${connectionState} => ${this.mediaConnectionState}`);
+            return mediaConnectionState;
+        }
+        /**
+         * Gets current connection state.
+         *
+         * @returns Current connection state.
+         */
+        getConnectionState() {
+            return this.mediaConnectionState;
+        }
+    }
+    ConnectionStateHandler.Events = ConnectionStateEvents;
 
     /*
      *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
@@ -4893,10 +5057,11 @@
         MediaStreamTrackKind["Audio"] = "audio";
         MediaStreamTrackKind["Video"] = "video";
     })(exports.MediaStreamTrackKind || (exports.MediaStreamTrackKind = {}));
-    var IceEvents;
-    (function (IceEvents) {
-        IceEvents["IceGatheringStateChange"] = "icegatheringstatechange";
-    })(IceEvents || (IceEvents = {}));
+    var PeerConnectionEvents;
+    (function (PeerConnectionEvents) {
+        PeerConnectionEvents["IceGatheringStateChange"] = "icegatheringstatechange";
+        PeerConnectionEvents["ConnectionStateChange"] = "connectionstatechange";
+    })(PeerConnectionEvents || (PeerConnectionEvents = {}));
     /**
      * Manages a single RTCPeerConnection with the server.
      */
@@ -4908,6 +5073,20 @@
             super();
             logger.log('PeerConnection init');
             this.pc = createRTCPeerConnection();
+            this.connectionStateHandler = new ConnectionStateHandler(() => {
+                return {
+                    connectionState: this.pc.connectionState,
+                    iceState: this.pc.iceConnectionState,
+                };
+            });
+            this.connectionStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
+                this.emit(PeerConnection.Events.ConnectionStateChange, state);
+            });
+            // Forward the connection state related events to connection state handler
+            // eslint-disable-next-line jsdoc/require-jsdoc
+            this.pc.oniceconnectionstatechange = () => this.connectionStateHandler.onIceConnectionStateChange();
+            // eslint-disable-next-line jsdoc/require-jsdoc
+            this.pc.onconnectionstatechange = () => this.connectionStateHandler.onConnectionStateChange();
             // Subscribe to underlying PeerConnection events and emit them via the EventEmitter
             /* eslint-disable jsdoc/require-jsdoc */
             this.pc.onicegatheringstatechange = (ev) => {
@@ -4921,6 +5100,14 @@
          */
         getUnderlyingRTCPeerConnection() {
             return this.pc;
+        }
+        /**
+         * Gets the overall connection state of the underlying RTCPeerConnection.
+         *
+         * @returns The underlying connection's overall state.
+         */
+        getConnectionState() {
+            return this.connectionStateHandler.getConnectionState();
         }
         /**
          * Adds a new media track to the set of tracks which will be transmitted to the other peer.
@@ -5083,9 +5270,7 @@
             return this.pc.iceGatheringState;
         }
     }
-    PeerConnection.Events = {
-        IceGatheringStateChange: IceEvents.IceGatheringStateChange,
-    };
+    PeerConnection.Events = PeerConnectionEvents;
 
     /**
      * Wait until the given peer connection has finished gathering ICE candidates and, when it has,
@@ -5126,6 +5311,7 @@
     exports.LocalDisplayTrack = LocalDisplayTrack;
     exports.LocalMicrophoneTrack = LocalMicrophoneTrack;
     exports.LocalTrack = LocalTrack;
+    exports.LocalVideoTrack = LocalVideoTrack;
     exports.PeerConnection = PeerConnection;
     exports.WebrtcError = WebrtcError;
     exports.createCameraTrack = createCameraTrack;
@@ -5141,6 +5327,7 @@
     exports.getSpeakers = getSpeakers;
     exports.media = media;
     exports.setOnDeviceChangeHandler = setOnDeviceChangeHandler;
+    exports.staticVideoEncoderConfig = staticVideoEncoderConfig;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
