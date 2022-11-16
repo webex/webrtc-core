@@ -27,14 +27,14 @@ export type VideoEncoderConfig = {
   aspectRatio?: number;
 };
 
-export type staticVideoEncoderConfig = {
-  '1080P': { frameRate: 15; bitrateMax: 2080 };
-  '720P': { frameRate: 15; bitrateMax: 1130 };
-  '480P': { frameRate: 15; bitrateMax: 500 };
-  '360P': { frameRate: 15; bitrateMax: 400 };
-  '240P': { frameRate: 15; bitrateMax: 200 };
-  '180P': { frameRate: 15; bitrateMax: 140 };
-  '120P': { frameRate: 15; bitrateMax: 65 };
+export const staticVideoEncoderConfig = {
+  '1080P': { frameRate: 15, bitrateMax: 2080 },
+  '720P': { frameRate: 15, bitrateMax: 1130 },
+  '480P': { frameRate: 15, bitrateMax: 500 },
+  '360P': { frameRate: 15, bitrateMax: 400 },
+  '240P': { frameRate: 15, bitrateMax: 200 },
+  '180P': { frameRate: 15, bitrateMax: 140 },
+  '120P': { frameRate: 15, bitrateMax: 65 },
 };
 
 export type VideoConstraints = {
