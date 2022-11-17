@@ -19,6 +19,7 @@ const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoInputSelect = document.querySelector('select#videoSource');
 const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
 let localAudioTrack;
+let cameraTrack;
 
 // This function is for handling error if promises getting failed
 /**
@@ -194,10 +195,16 @@ async function setVideoInputDevice() {
   };
   const resolution = document.getElementById('resolution').value;
   const constraint = staticVideoEncoderConfig[resolution];
-  const cameraTrack = await createCameraTrack({ cameraDeviceId: videoPayload.ID ,encoderConfig: constraint });
+  cameraTrack = await createCameraTrack({ cameraDeviceId: videoPayload.ID ,encoderConfig: constraint });
   cameraTrack.play(videoElement);
 
   // cameraTrack.getMediaStreamTrack().getSettings()
+}
+
+async function applyResolution() {
+  const resolution = document.getElementById('resolution').value;
+  const constraint = staticVideoEncoderConfig[resolution];
+  cameraTrack.setEncoderConfig(constraint);
 }
 
 /*

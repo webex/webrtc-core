@@ -32,6 +32,8 @@
                 <div class="u-mv">
                   <label class="context-info">Video Input Device</label>
                   <select id="videoSource"></select>
+                  <button type="button" onclick="setVideoInputDevice()" class="btn-code">createCameraTrack()</button>
+                  <label id="sd-video-input-device-status"></label>
                 </div>
               <div class="u-mv">
                 <label class="context-info">Resolution: </label>
@@ -41,11 +43,10 @@
                   <option value="480p">480p</option>
                   <option value="360p">360p</option>
                   <option value="240p">240p</option>
-                  <option value="180P">180P</option>
+                  <option value="180p">180P</option>
                   <option value="120p">120p</option>
                 </select>
-                <button type="button" onclick="setVideoInputDevice()" class="btn-code">createCameraTrack()</button>
-                <label id="sd-video-input-device-status"></label>
+                <button type="button" onclick="applyResolution()" class="btn-code">applyResolution()</button>
               </div>
               <div class="u-mv">
                   <label class="context-info">Audio Output Device</label>
