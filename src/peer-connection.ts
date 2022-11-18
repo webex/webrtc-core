@@ -273,4 +273,5 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
   }
 }
 
+export { ConnectionState } from './connection-state-handler';
 export { MediaStreamTrackKind, RTCDataChannelOptions, PeerConnection };
