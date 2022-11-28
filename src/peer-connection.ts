@@ -264,6 +264,18 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
   }
 
   /**
+   * Get statistics about either the overall connection or about the specified MediaStreamTrack.
+   *
+   * @param selector - An optional MediaStreamTrack for which to gather statistics. If not provided,
+   * statistics will be gathered for the entire underlying RTCPeerConnection.
+   * @returns - A Promise which resolves with an RTCStatsReport object providing connection
+   * statistics.
+   */
+  getStats(selector?: MediaStreamTrack): Promise<RTCStatsReport> {
+    return this.pc.getStats(selector);
+  }
+
+  /**
    * Returns a string that describes the connections' ICE gathering state.
    *
    * @returns - The ICE gathering state.
