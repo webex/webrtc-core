@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/webex/webrtc-core/compare/v1.0.2...v1.1.0) (2022-11-28)
+
+
+### Features
+
+* add getStats to PeerConnection ([#11](https://github.com/webex/webrtc-core/issues/11)) ([3868f24](https://github.com/webex/webrtc-core/commit/3868f242be84982d87c7a3c8066bb1691d6fd144))
+
 ## [1.0.2](https://github.com/webex/webrtc-core/compare/v1.0.1...v1.0.2) (2022-11-18)
 
 
