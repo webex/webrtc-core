@@ -1,4 +1,4 @@
-import {LocalVideoTrack} from './local-video-track';
+import { LocalVideoTrack } from './local-video-track';
 
 /**
  * Represents a local track for a display source.

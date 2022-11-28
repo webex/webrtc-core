@@ -35,7 +35,20 @@
                   <button type="button" onclick="setVideoInputDevice()" class="btn-code">createCameraTrack()</button>
                   <label id="sd-video-input-device-status"></label>
                 </div>
-                <div class="u-mv">
+              <div class="u-mv">
+                <label class="context-info">Resolution: </label>
+                <select id="resolution">
+                  <option value="1080p">1080p</option>
+                  <option value="720p" selected>720p</option>
+                  <option value="480p">480p</option>
+                  <option value="360p">360p</option>
+                  <option value="240p">240p</option>
+                  <option value="180p">180p</option>
+                  <option value="120p">120p</option>
+                </select>
+                <button type="button" onclick="applyResolution()" class="btn-code">applyResolution()</button>
+              </div>
+              <div class="u-mv">
                   <label class="context-info">Audio Output Device</label>
                   <select id="audioOutput"></select>
                   <button type="button" onclick="setPlayback()" class="btn-code">track.setPlayback()</button>
@@ -62,7 +75,7 @@
           </fieldset>
       </section>
 
-    
+
 
       </article>
       <aside>
@@ -74,18 +87,18 @@
                 <legend>Local Video</legend>
                 <video id="localVideo" muted="true" autoplay playsinline></video>
               </fieldset>
-    
+
               <fieldset>
                 <legend>Local Screenshare</legend>
                 <video id="localScreenshare" autoplay playsinline></video>
               </fieldset>
-    
+
               <fieldset>
                 <legend>Remote Video</legend>
                 <video id="remote-video" autoplay playsinline></video>
                 <audio id="remote-audio" autoplay></audio>
               </fieldset>
-    
+
               <fieldset>
                 <legend>Remote Screenshare</legend>
                 <video id="remote-screenshare" autoplay playsinline></video>

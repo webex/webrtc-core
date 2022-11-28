@@ -27,14 +27,23 @@ export type VideoEncoderConfig = {
   aspectRatio?: number;
 };
 
+/**
+ * A class to map resolution with video constraints.
+ */
 export const staticVideoEncoderConfig = {
-  '1080P': { frameRate: 15, bitrateMax: 2080 },
-  '720P': { frameRate: 15, bitrateMax: 1130 },
-  '480P': { frameRate: 15, bitrateMax: 500 },
-  '360P': { frameRate: 15, bitrateMax: 400 },
-  '240P': { frameRate: 15, bitrateMax: 200 },
-  '180P': { frameRate: 15, bitrateMax: 140 },
-  '120P': { frameRate: 15, bitrateMax: 65 },
+  '1080p': { frameRate: 15, bitrateMax: 2080, width: 1920, height: 1080 },
+
+  '720p': { frameRate: 15, bitrateMax: 1130, width: 1280, height: 720 },
+
+  '480p': { frameRate: 15, bitrateMax: 500, width: 640, height: 480 },
+
+  '360p': { frameRate: 15, bitrateMax: 400, width: 640, height: 360 },
+
+  '240p': { frameRate: 15, bitrateMax: 200, width: 320, height: 240 },
+
+  '180p': { frameRate: 15, bitrateMax: 140, width: 320, height: 180 },
+
+  '120p': { frameRate: 15, bitrateMax: 65, width: 160, height: 120 },
 };
 
 export type VideoConstraints = {

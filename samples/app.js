@@ -10,6 +10,7 @@ const {
   createCameraTrack,
   createMicrophoneTrack,
   createDisplayTrack,
+  staticVideoEncoderConfig,
 } = webrtcCore;
 const videoElement = document.querySelector('video#localVideo');
 const screenshareElement = document.querySelector('video#localScreenshare');
@@ -18,6 +19,7 @@ const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoInputSelect = document.querySelector('select#videoSource');
 const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
 let localAudioTrack;
+let cameraTrack;
 
 // This function is for handling error if promises getting failed
 /**
@@ -35,7 +37,7 @@ function handleError(error) {
 function buildSelectOption(device) {
   const childOption = document.createElement('option');
 
-  childOption.value = device.ID;
+  childOption.value = device.deviceId;
 
   return childOption;
 }
@@ -191,11 +193,18 @@ async function setVideoInputDevice() {
     ID: deviceId,
     kind: kindOfDevices.VIDEO_INPUT,
   };
-
-  const cameraTrack = await createCameraTrack({ cameraDevice: videoPayload.ID });
+  const resolution = document.getElementById('resolution').value;
+  const constraint = staticVideoEncoderConfig[resolution];
+  cameraTrack = await createCameraTrack({ cameraDeviceId: videoPayload.ID ,encoderConfig: constraint });
   cameraTrack.play(videoElement);
 
   // cameraTrack.getMediaStreamTrack().getSettings()
+}
+
+async function applyResolution() {
+  const resolution = document.getElementById('resolution').value;
+  const constraint = staticVideoEncoderConfig[resolution];
+  cameraTrack.setEncoderConfig(constraint);
 }
 
 /*
