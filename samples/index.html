@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Webrtc Core Samples</title>
+    <link rel="stylesheet" href="./style.css"/>
+  </head>
+  <body>
+    <main class="container">
+      <!-- ############################## ############################## ############################## -->
+      <!-- meeting media -->
+      <section id="meetingMedia">
+        <fieldset id="meetingControlsDevices">
+          <legend>Initialization</legend>
+          <div>
+              <div class="u-mv">
+                <label class="context-info">Gather devices</label>
+                <button type="button" onclick="gatherDevices()" class="btn-code">gather devices(audio, video, playback)</button>
+              </div>
+          </div>
+        </fieldset>
+          <!-- meeting-controls / media-devices -->
+          <fieldset id="meetingControlsDevices">
+            <legend>Media Devices</legend>
+            <div>
+                <div class="u-mv">
+                  <label class="context-info">Audio Input Device</label>
+                  <select id="audioSource"></select>
+                  <button type="button" onclick="setAudioInputDevice()" class="btn-code">createMicrophoneTrack()</button>
+                  <label id="sd-audio-input-device-status"></label>
+                </div>
+                <div class="u-mv">
+                  <label class="context-info">Video Input Device</label>
+                  <select id="videoSource"></select>
+                  <button type="button" onclick="setVideoInputDevice()" class="btn-code">createCameraTrack()</button>
+                  <label id="sd-video-input-device-status"></label>
+                </div>
+              <div class="u-mv">
+                <label class="context-info">Resolution: </label>
+                <select id="resolution">
+                  <option value="1080p">1080p</option>
+                  <option value="720p" selected>720p</option>
+                  <option value="480p">480p</option>
+                  <option value="360p">360p</option>
+                  <option value="240p">240p</option>
+                  <option value="180p">180p</option>
+                  <option value="120p">120p</option>
+                </select>
+                <button type="button" onclick="applyResolution()" class="btn-code">applyResolution()</button>
+              </div>
+              <div class="u-mv">
+                  <label class="context-info">Audio Output Device</label>
+                  <select id="audioOutput"></select>
+                  <button type="button" onclick="setPlayback()" class="btn-code">track.setPlayback()</button>
+                  <label id="sd-audio-output-device-status"></label>
+                </div>
+                <div class="u-mv">
+                  <button type="button" onclick="createDTrack()" class="btn-code">createDisplayTrack()</button>
+                  <label id="sd-video-input-device-status"></label>
+                </div>
+            </div>
+          </fieldset>
+          <fieldset id="meetingControlsDevices">
+            <legend>Background Noise Reduction</legend>
+            <div>
+                <div class="u-mv">
+                  <span>Please put your headphones on for better listening</span>
+                  <br/><br/>
+                  <audio id="bnr-audio" autoplay></audio>
+                  <button id="listenToAudio" type="button" onclick="toggleAudioListen()" class="btn-code">Start listening to Audio</button> <br/><br/>
+                  <button id="enableBnrBtn" disabled type="button" onclick="enableBNR()" class="btn-code">Media.Effects.BNR.enableBNR()</button>
+                  <button id="disableBnrBtn" disabled type="button" class="btn--red" onclick="disableBNR()">Media.Effects.BNR.disableBNR()</button>
+                </div>
+            </div>
+          </fieldset>
+      </section>
+
+
+
+      </article>
+      <aside>
+        <section>
+          <h2>Meeting Streams</h2>
+          <form id="streams">
+            <div class="flex flex--wrap">
+              <fieldset>
+                <legend>Local Video</legend>
+                <video id="localVideo" muted="true" autoplay playsinline></video>
+              </fieldset>
+
+              <fieldset>
+                <legend>Local Screenshare</legend>
+                <video id="localScreenshare" autoplay playsinline></video>
+              </fieldset>
+
+              <fieldset>
+                <legend>Remote Video</legend>
+                <video id="remote-video" autoplay playsinline></video>
+                <audio id="remote-audio" autoplay></audio>
+              </fieldset>
+
+              <fieldset>
+                <legend>Remote Screenshare</legend>
+                <video id="remote-screenshare" autoplay playsinline></video>
+              </fieldset>
+            </div>
+        </section>
+      </aside>
+    </main>
+    <script src="bundle.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
