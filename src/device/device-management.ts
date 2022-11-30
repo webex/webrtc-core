@@ -1,7 +1,14 @@
 import * as media from '../media';
+import {
+  AudioEncoderConfig,
+  LocalAudioTrack,
+  MicrophoneConstraints,
+} from '../media/local-audio-track';
 import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
 import { LocalMicrophoneTrack } from '../media/local-microphone-track';
+import { LocalVideoTrack, VideoConstraints, VideoEncoderConfig } from '../media/local-video-track';
+import { generateAudioConstraints, generateVideoConstraints } from '../media/utils';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
@@ -10,9 +17,9 @@ export enum ErrorTypes {
 }
 
 /**
- * Represents a WCME error, which contains error type and error message.
+ * Represents a webrtc core error, which contains error type and error message.
  */
-export class WcmeError {
+export class WebrtcError {
   type: string;
 
   message: string;
@@ -29,17 +36,14 @@ export class WcmeError {
   }
 }
 
-export type AudioDeviceConstraints = {
-  deviceId?: string;
+export type CustomVideoTrackInitConfig = {
+  mediaStreamTrack: MediaStreamTrack;
+  encoderConfig?: VideoEncoderConfig;
 };
 
-export type VideoDeviceConstraints = {
-  deviceId?: ConstrainDOMString;
-  width?: ConstrainULong;
-  height?: ConstrainULong;
-  aspectRatio?: ConstrainDouble;
-  frameRate?: ConstrainDouble;
-  facingMode?: ConstrainDOMString;
+export type CustomAudioTrackInitConfig = {
+  mediaStreamTrack: MediaStreamTrack;
+  encoderConfig?: AudioEncoderConfig;
 };
 
 /**
@@ -47,23 +51,51 @@ export type VideoDeviceConstraints = {
  *
  * 1. Previous captured video track from the same device is not stopped .
  * 2. Previous createCameraTrack() call for the same device is in progress.
+ * Creates MicrophoneTrack and CameraTrack at the same time.
  *
- * @param constraints - Video device constraints.
- * @returns A LocalTrack object or an error.
+ * @param audioConstraints - Audio constraints to create microphone track.
+ * @param videoConstraints - Video constraints to create camera track.
+ * @returns MicrophoneTrack and cameraTrack at same time.
  */
-export async function createCameraTrack(
-  constraints?: VideoDeviceConstraints
-): Promise<LocalCameraTrack> {
+export async function createMicrophoneAndCameraTracks(
+  audioConstraints?: MicrophoneConstraints,
+  videoConstraints?: VideoConstraints
+): Promise<[LocalMicrophoneTrack, LocalCameraTrack]> {
   let stream: MediaStream;
   try {
-    stream = await media.getUserMedia({ video: { ...constraints } });
+    stream = await media.getUserMedia({
+      audio: generateAudioConstraints(audioConstraints),
+      video: generateVideoConstraints(videoConstraints),
+    });
   } catch (error) {
-    throw new WcmeError(
+    throw new WebrtcError(
       ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
       `Failed to create camera track ${error}`
     );
   }
-  return new LocalCameraTrack(stream);
+  return [
+    new LocalMicrophoneTrack(stream.getAudioTracks()[0]),
+    new LocalCameraTrack(stream.getVideoTracks()[0]),
+  ];
+}
+
+/**
+ * Creates a camera video track.
+ *
+ * @param constraints - Video device constraints.
+ * @returns A LocalTrack object or an error.
+ */
+export async function createCameraTrack(constraints?: VideoConstraints): Promise<LocalCameraTrack> {
+  let stream: MediaStream;
+  try {
+    stream = await media.getUserMedia({ video: generateVideoConstraints(constraints) });
+  } catch (error) {
+    throw new WebrtcError(
+      ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
+      `Failed to create camera track ${error}`
+    );
+  }
+  return new LocalCameraTrack(stream.getVideoTracks()[0]);
 }
 
 /**
@@ -73,28 +105,67 @@ export async function createCameraTrack(
  * @returns A LocalTrack object or an error.
  */
 export async function createMicrophoneTrack(
-  constraints?: AudioDeviceConstraints
+  constraints?: MicrophoneConstraints
 ): Promise<LocalMicrophoneTrack> {
   let stream: MediaStream;
   try {
-    stream = await media.getUserMedia({ audio: { ...constraints } });
+    stream = await media.getUserMedia({ audio: generateAudioConstraints(constraints) });
   } catch (error) {
-    throw new WcmeError(
+    throw new WebrtcError(
       ErrorTypes.CREATE_MICROPHONE_TRACK_FAILED,
       `Failed to create microphone track ${error}`
     );
   }
-  return new LocalMicrophoneTrack(stream);
+  // See if we can just pass the track and not streams
+  return new LocalMicrophoneTrack(stream.getAudioTracks()[0]);
 }
 
 /**
  * Creates a display video track.
  *
+ * @param constraints - Display constraints for screen sharing.
  * @returns A Promise that resolves to a LocalDisplayTrack.
  */
-export async function createDisplayTrack(): Promise<LocalDisplayTrack> {
-  const stream = await media.getDisplayMedia({ video: true });
-  return new LocalDisplayTrack(stream);
+export async function createDisplayTrack(
+  constraints?: VideoConstraints
+): Promise<LocalDisplayTrack> {
+  const stream = await media.getDisplayMedia({ video: generateVideoConstraints(constraints) });
+  return new LocalDisplayTrack(stream.getVideoTracks()[0]);
+}
+
+/**
+ * Creates custom video track .
+ *
+ * @param config - Custom video track creation config.
+ * @returns A Promise that resolves to a LocalVideoTrack.
+ */
+export async function createCustomVideoTrack(
+  config: CustomVideoTrackInitConfig
+): Promise<LocalVideoTrack> {
+  const localVideoTrack = new LocalVideoTrack(config.mediaStreamTrack);
+
+  if (config.encoderConfig) {
+    localVideoTrack.setEncoderConfig(config.encoderConfig);
+  }
+
+  return localVideoTrack;
+}
+
+/**
+ * Creates custom audio track .
+ *
+ * @param config - Config to create custom audio track.
+ * @returns A Promise that resolves to a LocalAudioTrack.
+ */
+export async function createCustomAudioTrack(
+  config: CustomAudioTrackInitConfig
+): Promise<LocalAudioTrack> {
+  const localAudioTrack = new LocalAudioTrack(config.mediaStreamTrack);
+
+  if (config.encoderConfig) {
+    localAudioTrack.setEncoderConfig(config.encoderConfig);
+  }
+  return localAudioTrack;
 }
 
 /**
@@ -111,7 +182,10 @@ export async function getDevices(deviceKind?: media.DeviceKind): Promise<MediaDe
       media.enumerateDevices
     );
   } catch (error) {
-    throw new WcmeError(ErrorTypes.DEVICE_PERMISSION_DENIED, 'Failed to ensure device permissions');
+    throw new WebrtcError(
+      ErrorTypes.DEVICE_PERMISSION_DENIED,
+      'Failed to ensure device permissions'
+    );
   }
 
   return devices.filter((v: MediaDeviceInfo) => (deviceKind ? v.kind === deviceKind : true));
@@ -122,7 +196,7 @@ export async function getDevices(deviceKind?: media.DeviceKind): Promise<MediaDe
  *
  * @returns List of microphone devices in an array of MediaDeviceInfo objects.
  */
-export async function getAudioInputDevices(): Promise<MediaDeviceInfo[]> {
+export async function getMicrophones(): Promise<MediaDeviceInfo[]> {
   return getDevices(media.DeviceKind.AudioInput);
 }
 
@@ -131,7 +205,7 @@ export async function getAudioInputDevices(): Promise<MediaDeviceInfo[]> {
  *
  * @returns List of speaker devices in an array of MediaDeviceInfo objects.
  */
-export async function getAudioOutputDevices(): Promise<MediaDeviceInfo[]> {
+export async function getSpeakers(): Promise<MediaDeviceInfo[]> {
   return getDevices(media.DeviceKind.AudioOutput);
 }
 
@@ -140,7 +214,7 @@ export async function getAudioOutputDevices(): Promise<MediaDeviceInfo[]> {
  *
  * @returns List of camera devices in an array of MediaDeviceInfo objects.
  */
-export async function getVideoInputDevices(): Promise<MediaDeviceInfo[]> {
+export async function getCameras(): Promise<MediaDeviceInfo[]> {
   return getDevices(media.DeviceKind.VideoInput);
 }
 
