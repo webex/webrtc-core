@@ -260,5 +260,8 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
    */
   disposeEffects(): void {
     this.effects.forEach((effect: TrackEffect) => effect.dispose());
+
+    this.underlyingStream = this.originalStream;
+    this.emit(LocalTrackEvents.UnderlyingTrackChange);
   }
 }
