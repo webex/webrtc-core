@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/webex/webrtc-core/compare/v1.1.0...v1.1.1) (2022-12-06)
+
+
+### Bug Fixes
+
+* restore the original stream on disposing effects ([#16](https://github.com/webex/webrtc-core/issues/16)) ([981c1de](https://github.com/webex/webrtc-core/commit/981c1dee96f3e54ef76d0c74f9eca8fa0064f7f8))
+
 # [1.1.0](https://github.com/webex/webrtc-core/compare/v1.0.2...v1.1.0) (2022-11-28)
 
 
