@@ -6,6 +6,7 @@ import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
 import { mocked } from '../mocks/mock';
 import { createCameraTrack, createDisplayTrack, createMicrophoneTrack } from './device-management';
+import { FacingMode } from '../media/local-video-track';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -25,8 +26,7 @@ describe('Device Management', () => {
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
-
-      await createMicrophoneTrack({ deviceId: 'test-device-id' });
+      await createMicrophoneTrack({ microphoneDeviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         audio: {
           deviceId: 'test-device-id',
@@ -37,7 +37,9 @@ describe('Device Management', () => {
     it('should return a LocalMicrophoneTrack instance', async () => {
       expect.assertions(1);
 
-      const localMicrophoneTrack = await createMicrophoneTrack({ deviceId: 'test-device-id' });
+      const localMicrophoneTrack = await createMicrophoneTrack({
+        microphoneDeviceId: 'test-device-id',
+      });
       expect(localMicrophoneTrack).toBeInstanceOf(LocalMicrophoneTrack);
     });
   });
@@ -51,7 +53,7 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createCameraTrack({ deviceId: 'test-device-id' });
+      await createCameraTrack({ cameraDeviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         video: {
           deviceId: 'test-device-id',
@@ -63,12 +65,14 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createCameraTrack({
-        deviceId: 'test-device-id',
-        aspectRatio: 1.777,
-        width: 1920,
-        height: 1080,
-        frameRate: 30,
-        facingMode: { exact: 'user' },
+        cameraDeviceId: 'test-device-id',
+        encoderConfig: {
+          aspectRatio: 1.777,
+          width: 1920,
+          height: 1080,
+          frameRate: 30,
+        },
+        facingMode: FacingMode.user,
       });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         video: {
@@ -77,7 +81,7 @@ describe('Device Management', () => {
           width: 1920,
           height: 1080,
           frameRate: 30,
-          facingMode: { exact: 'user' },
+          facingMode: FacingMode.user,
         },
       });
     });
@@ -85,7 +89,7 @@ describe('Device Management', () => {
     it('should return a LocalCameraTrack instance', async () => {
       expect.assertions(1);
 
-      const localCameraTrack = await createCameraTrack({ deviceId: 'test-device-id' });
+      const localCameraTrack = await createCameraTrack({ cameraDeviceId: 'test-device-id' });
       expect(localCameraTrack).toBeInstanceOf(LocalCameraTrack);
     });
   });
@@ -100,7 +104,7 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayTrack();
-      expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true });
+      expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: {} });
     });
 
     it('should return a LocalDisplayTrack instance', async () => {

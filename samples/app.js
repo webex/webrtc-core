@@ -11,6 +11,7 @@ const {
   createMicrophoneTrack,
   createDisplayTrack,
   staticVideoEncoderConfig,
+  staticAudioEncoderConfig,
 } = webrtcCore;
 const videoElement = document.querySelector('video#localVideo');
 const screenshareElement = document.querySelector('video#localScreenshare');
@@ -20,6 +21,7 @@ const videoInputSelect = document.querySelector('select#videoSource');
 const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
 let localAudioTrack;
 let cameraTrack;
+let audioTrack;
 
 // This function is for handling error if promises getting failed
 /**
@@ -175,9 +177,9 @@ async function setAudioInputDevice() {
     ID: deviceId,
     kind: kindOfDevices.AUDIO_INPUT,
   };
-
-  const audioTrack = await createMicrophoneTrack({ microphoneDeviceid: audioPayload.ID });
-
+  const quality = document.getElementById('audioQuality').value;
+  const echoCancellation = document.getElementById('echoCancellation').checked;
+  audioTrack = await createMicrophoneTrack({ microphoneDeviceId: audioPayload.ID, encoderConfig: {...staticAudioEncoderConfig[quality], echoCancellation: echoCancellation}});
   audioTrack.play();
 }
 
@@ -205,6 +207,23 @@ async function applyResolution() {
   const resolution = document.getElementById('resolution').value;
   const constraint = staticVideoEncoderConfig[resolution];
   cameraTrack.setEncoderConfig(constraint);
+}
+
+async function applyQuality() {
+  const quality = document.getElementById('audioQuality').value;
+  let constraint = staticAudioEncoderConfig[quality];
+  constraint.echoCancellation = document.getElementById('echoCancellation').checked
+  audioTrack.stop();
+  audioTrack = await createMicrophoneTrack({ microphoneDeviceId: audioTrack.getMediaStreamTrack().getSettings().deviceId, encoderConfig: constraint});
+  audioTrack.play();
+}
+
+//For troubleshooting
+window.audioTrackInfo = function () {
+  console.log('audio constraint: ', audioTrack.getMediaStreamTrack().getConstraints())
+  console.log('audio settings: ', audioTrack.getMediaStreamTrack().getSettings())
+  console.log('sampleRate: ', audioTrack.getMediaStreamTrack().getSettings().sampleRate)
+  console.log('echoCancellation: ', audioTrack.getMediaStreamTrack().getSettings().echoCancellation)
 }
 
 /*

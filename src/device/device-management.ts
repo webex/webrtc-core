@@ -93,7 +93,7 @@ export async function createCameraTrack(constraints?: VideoConstraints): Promise
       `Failed to create camera track ${error}`
     );
   }
-  return new LocalCameraTrack(stream.getVideoTracks()[0]);
+  return new LocalCameraTrack(stream.getTracks()[0]);
 }
 
 /**
@@ -115,7 +115,7 @@ export async function createMicrophoneTrack(
     );
   }
   // See if we can just pass the track and not streams
-  return new LocalMicrophoneTrack(stream.getAudioTracks()[0]);
+  return new LocalMicrophoneTrack(stream.getTracks()[0]);
 }
 
 /**
@@ -128,7 +128,7 @@ export async function createDisplayTrack(
   constraints?: VideoConstraints
 ): Promise<LocalDisplayTrack> {
   const stream = await media.getDisplayMedia({ video: generateVideoConstraints(constraints) });
-  return new LocalDisplayTrack(stream.getVideoTracks()[0]);
+  return new LocalDisplayTrack(stream.getTracks()[0]);
 }
 
 /**

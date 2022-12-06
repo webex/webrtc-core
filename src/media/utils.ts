@@ -15,15 +15,15 @@ export const generateAudioConstraints = (
   if (audioConstraints?.microphoneDeviceId) {
     audio.deviceId = audioConstraints.microphoneDeviceId;
   }
-  if (audioConstraints?.echoCancellation) {
+  if (audioConstraints?.echoCancellation !== undefined) {
     audio.echoCancellation = audioConstraints.echoCancellation;
   }
 
-  if (audioConstraints?.noiseSuppression) {
+  if (audioConstraints?.noiseSuppression !== undefined) {
     audio.noiseSuppression = audioConstraints.noiseSuppression;
   }
 
-  if (audioConstraints?.autoGainControl) {
+  if (audioConstraints?.autoGainControl !== undefined) {
     audio.autoGainControl = audioConstraints.autoGainControl;
   }
 

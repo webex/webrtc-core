@@ -1364,6 +1364,14 @@
      */
     class LocalMicrophoneTrack extends LocalVideoTrack {
     }
+    /**
+     * A class to map audio quality with audio constraints.
+     */
+    const staticAudioEncoderConfig = {
+        'speech_standard': { sampleRate: 32000, bitrate: 24000 },
+        'music_standard': { sampleRate: 48000, bitrate: 40000 },
+        'high_quality': { sampleRate: 48000, bitrate: 128000 },
+    };
 
     // For reference https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
     /**
@@ -1377,13 +1385,13 @@
         if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.microphoneDeviceId) {
             audio.deviceId = audioConstraints.microphoneDeviceId;
         }
-        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.echoCancellation) {
+        if ((audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.echoCancellation) !== undefined) {
             audio.echoCancellation = audioConstraints.echoCancellation;
         }
-        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.noiseSuppression) {
+        if ((audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.noiseSuppression) !== undefined) {
             audio.noiseSuppression = audioConstraints.noiseSuppression;
         }
-        if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.autoGainControl) {
+        if ((audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.autoGainControl) !== undefined) {
             audio.autoGainControl = audioConstraints.autoGainControl;
         }
         if (audioConstraints === null || audioConstraints === void 0 ? void 0 : audioConstraints.encoderConfig) {
@@ -1474,7 +1482,7 @@
             catch (error) {
                 throw new WebrtcError(exports.ErrorTypes.CREATE_CAMERA_TRACK_FAILED, `Failed to create camera track ${error}`);
             }
-            return new LocalCameraTrack(stream.getVideoTracks()[0]);
+            return new LocalCameraTrack(stream.getTracks()[0]);
         });
     }
     /**
@@ -1493,7 +1501,7 @@
                 throw new WebrtcError(exports.ErrorTypes.CREATE_MICROPHONE_TRACK_FAILED, `Failed to create microphone track ${error}`);
             }
             // See if we can just pass the track and not streams
-            return new LocalMicrophoneTrack(stream.getAudioTracks()[0]);
+            return new LocalMicrophoneTrack(stream.getTracks()[0]);
         });
     }
     /**
@@ -1505,7 +1513,7 @@
     function createDisplayTrack(constraints) {
         return __awaiter(this, void 0, void 0, function* () {
             const stream = yield getDisplayMedia({ video: generateVideoConstraints(constraints) });
-            return new LocalDisplayTrack(stream.getVideoTracks()[0]);
+            return new LocalDisplayTrack(stream.getTracks()[0]);
         });
     }
     /**
@@ -5327,6 +5335,7 @@
     exports.getSpeakers = getSpeakers;
     exports.media = media;
     exports.setOnDeviceChangeHandler = setOnDeviceChangeHandler;
+    exports.staticAudioEncoderConfig = staticAudioEncoderConfig;
     exports.staticVideoEncoderConfig = staticVideoEncoderConfig;
 
     Object.defineProperty(exports, '__esModule', { value: true });
