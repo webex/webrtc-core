@@ -1,0 +1,40 @@
+@import "../node_modules/bootswatch/dist/pulse/variables";
+@import "../node_modules/bootstrap/scss/bootstrap";
+@import "../node_modules/bootswatch/dist/pulse/bootswatch";
+.accordion {
+  margin-top: 10px;
+}
+
+.accordion-header {
+  margin-top: 0;
+}
+
+.accordion-header button {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.accordion-body {
+  font-size: 0.8em;
+}
+
+button,
+input,
+label,
+select {
+  margin-right: 10px;
+}
+
+.container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+form > button,
+form > div {
+  margin-bottom: 5px;
+  display: flex;
+}
+h2 {
+  margin-top: 20px;
+}
