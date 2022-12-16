@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/webex/webrtc-core/compare/v1.1.1...v1.2.0) (2022-12-16)
+
+
+### Features
+
+* support for passing the config to the PeerConnection constructor ([#19](https://github.com/webex/webrtc-core/issues/19)) ([e4cc4a8](https://github.com/webex/webrtc-core/commit/e4cc4a8d79b7828ab310c6de6ef4a42dabc54772))
+
 ## [1.1.1](https://github.com/webex/webrtc-core/compare/v1.1.0...v1.1.1) (2022-12-06)
 
 
