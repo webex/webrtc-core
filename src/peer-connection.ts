@@ -45,12 +45,14 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
 
   /**
    * Creates an instance of the RTCPeerConnection.
+   *
+   * @param configuration - Config to the RTCPeerConnection constructor.
    */
-  constructor() {
+  constructor(configuration?: RTCConfiguration | undefined) {
     super();
     logger.log('PeerConnection init');
 
-    this.pc = createRTCPeerConnection();
+    this.pc = createRTCPeerConnection(configuration);
 
     this.connectionStateHandler = new ConnectionStateHandler(() => {
       return {
