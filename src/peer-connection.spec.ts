@@ -10,7 +10,124 @@ jest.mock('./connection-state-handler');
 
 const mockCreateRTCPeerConnection = mocked(createRTCPeerConnection, true);
 
+// eslint-disable-next-line jsdoc/require-jsdoc
+function constructCandidatePairStats(id: string, localCandidateId: string, state: string) {
+  return {
+    id: `${id}`,
+    timestamp: 1671091266890.878,
+    type: 'candidate-pair',
+    transportId: 'T11',
+    localCandidateId: `${localCandidateId}`,
+    remoteCandidateId: 'I+UUFv24B',
+    state: `${state}`,
+  };
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function constructLocalCandidateStats(
+  id: string,
+  protocol: string,
+  relayProtocol: string | undefined
+) {
+  return {
+    id,
+    timestamp: 1671091266890.878,
+    type: 'local-candidate',
+    transportId: 'T21',
+    isRemote: false,
+    networkType: 'vpn',
+    ip: '2001:420:c0c8:1005::456',
+    address: '2001:420:c0c8:1005::456',
+    port: 53906,
+    protocol,
+    candidateType: 'host',
+    priority: 2122197247,
+    relayProtocol,
+  };
+}
+
 describe('PeerConnection', () => {
+  describe('getCurrentConnectionType', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+    const mockPc = mocked(new RTCPeerConnectionStub(), true);
+    Object.defineProperty(mockPc, 'iceConnectionState', {
+      // eslint-disable-next-line jsdoc/require-jsdoc
+      get() {
+        return 'connected';
+      },
+    });
+
+    it('normal case', async () => {
+      expect.hasAssertions();
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      mockPc.getStats.mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve([
+            constructCandidatePairStats('001', 'localCandidateId1', 'succeeded'),
+            constructCandidatePairStats('002', 'localCandidateId2', 'succeeded'),
+            constructLocalCandidateStats('localCandidateId1', 'udp', undefined),
+            constructLocalCandidateStats('localCandidateId1', 'udp', undefined),
+          ]);
+        });
+      });
+      const pc = new PeerConnection();
+      const connectionType = await pc.getCurrentConnectionType();
+      expect(connectionType).toBe('UDP');
+    });
+    it('first candidate pair state is not succeeded', async () => {
+      expect.hasAssertions();
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      mockPc.getStats.mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve([
+            constructCandidatePairStats('001', 'localCandidateId1', 'failed'),
+            constructCandidatePairStats('002', 'localCandidateId2', 'succeeded'),
+            constructLocalCandidateStats('localCandidateId2', 'udp', undefined),
+            constructLocalCandidateStats('localCandidateId1', 'udp', undefined),
+          ]);
+        });
+      });
+      const pc = new PeerConnection();
+      const connectionType = await pc.getCurrentConnectionType();
+      expect(connectionType).toBe('UDP');
+    });
+    it('no candidate matched', async () => {
+      expect.hasAssertions();
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      mockPc.getStats.mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve([
+            constructCandidatePairStats('001', 'localCandidateId1', 'failed'),
+            constructCandidatePairStats('002', 'localCandidateId2', 'succeeded'),
+            constructLocalCandidateStats('localCandidateId1', 'udp', undefined),
+            constructLocalCandidateStats('localCandidateId1', 'udp', undefined),
+          ]);
+        });
+      });
+      const pc = new PeerConnection();
+      const connectionType = await pc.getCurrentConnectionType();
+      expect(connectionType).toBe('unknown');
+    });
+    it('relay candidate case', async () => {
+      expect.hasAssertions();
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      mockPc.getStats.mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve([
+            constructCandidatePairStats('001', 'localCandidateId1', 'failed'),
+            constructCandidatePairStats('002', 'localCandidateId2', 'succeeded'),
+            constructLocalCandidateStats('localCandidateId1', 'udp', 'tls'),
+            constructLocalCandidateStats('localCandidateId2', 'udp', 'tls'),
+          ]);
+        });
+      });
+      const pc = new PeerConnection();
+      const connectionType = await pc.getCurrentConnectionType();
+      expect(connectionType).toBe('TURN-TLS');
+    });
+  });
   it('should pass the correct options through when calling createOffer', async () => {
     expect.hasAssertions();
     const mockPc = mocked(new RTCPeerConnectionStub(), true);
