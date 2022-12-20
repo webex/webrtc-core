@@ -33,6 +33,7 @@ interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
 }
 
+type ConnectionType = 'UDP' | 'TCP' | 'TURN-TLS' | 'TURN-TCP' | 'TURN-UDP' | 'unknown';
 /**
  * Manages a single RTCPeerConnection with the server.
  */
@@ -289,9 +290,9 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
   /**
    * Returns the type of a connection that has been established.
    *
-   * @returns The connection type which would be {Promise<'UDP' | 'TCP' | 'TURN-TLS' | 'TURN-TCP' | 'TURN-UDP' | 'unknown'>}.
+   * @returns The connection type which would be `ConnectionType`.
    */
-  async getCurrentConnectionType(): Promise<string> {
+  async getCurrentConnectionType(): Promise<ConnectionType> {
     // make sure this method only can be called when the ice connection is established;
     const isIceConnected =
       this.pc.iceConnectionState === 'connected' || this.pc.iceConnectionState === 'completed';
@@ -320,7 +321,7 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
       return 'unknown';
     }
     if (localCandidate.relayProtocol) {
-      return `TURN-${localCandidate.relayProtocol.toUpperCase()}`;
+      return `TURN-${localCandidate.relayProtocol.toUpperCase()}` as ConnectionType;
     }
     return localCandidate.protocol?.toUpperCase();
   }

@@ -53,10 +53,9 @@ describe('PeerConnection', () => {
     });
     const mockPc = mocked(new RTCPeerConnectionStub(), true);
     Object.defineProperty(mockPc, 'iceConnectionState', {
-      // eslint-disable-next-line jsdoc/require-jsdoc
-      get() {
-        return 'connected';
-      },
+      value: 'connected',
+      writable: true,
+      configurable: true,
     });
 
     it('normal case', async () => {
@@ -110,6 +109,23 @@ describe('PeerConnection', () => {
       const connectionType = await pc.getCurrentConnectionType();
       expect(connectionType).toBe('unknown');
     });
+    it('no candidate matched caused by all failed', async () => {
+      expect.hasAssertions();
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      mockPc.getStats.mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve([
+            constructCandidatePairStats('001', 'localCandidateId1', 'failed'),
+            constructCandidatePairStats('002', 'localCandidateId2', 'failed'),
+            constructLocalCandidateStats('localCandidateId2', 'udp', undefined),
+            constructLocalCandidateStats('localCandidateId2', 'udp', undefined),
+          ]);
+        });
+      });
+      const pc = new PeerConnection();
+      const connectionType = await pc.getCurrentConnectionType();
+      expect(connectionType).toBe('unknown');
+    });
     it('relay candidate case', async () => {
       expect.hasAssertions();
       mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
@@ -126,6 +142,21 @@ describe('PeerConnection', () => {
       const pc = new PeerConnection();
       const connectionType = await pc.getCurrentConnectionType();
       expect(connectionType).toBe('TURN-TLS');
+    });
+
+    it('ice state is not connected/completed', async () => {
+      expect.hasAssertions();
+      Object.defineProperty(mockPc, 'iceConnectionState', {
+        // eslint-disable-next-line jsdoc/require-jsdoc
+        get() {
+          return 'disconnected';
+        },
+      });
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      const pc = new PeerConnection();
+      await expect(pc.getCurrentConnectionType()).rejects.toThrow(
+        'Ice connection is not established'
+      );
     });
   });
   it('should pass the correct options through when calling createOffer', async () => {
