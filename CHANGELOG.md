@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/webex/webrtc-core/compare/v1.2.0...v1.3.0) (2022-12-20)
+
+
+### Features
+
+* add the api for fetching the connection type ([#20](https://github.com/webex/webrtc-core/issues/20)) ([4e5fe55](https://github.com/webex/webrtc-core/commit/4e5fe55bdf526b82f0d5f930e6d1d9c96c340bbc))
+
 # [1.2.0](https://github.com/webex/webrtc-core/compare/v1.1.1...v1.2.0) (2022-12-16)
 
 
