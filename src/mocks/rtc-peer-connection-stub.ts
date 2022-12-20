@@ -10,6 +10,9 @@ class RTCPeerConnectionStub {
   createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> {
     return new Promise(() => {});
   }
+  getStats(): Promise<any> {
+    return new Promise(() => {});
+  }
   onconnectionstatechange: () => void = () => {};
   oniceconnectionstatechange: () => void = () => {};
 }
