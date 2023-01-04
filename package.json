@@ -1,10 +1,14 @@
 {
-  "name": "webrtc-core",
+  "name": "webrtc-core-mono",
   "version": "1.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "clean": "rimraf packages/**/.coverage packages/**/dist && rm packets/samples/src/bundle.js",
-    "build": "cd packets/webrtc-core && yarn build",
-    "start": "cd packets/samples && yarn start"
+    "clean": "rimraf packages/**/.coverage packages/**/dist && rm samples/src/bundle.js",
+    "build": "yarn workspaces run build",
+    "start": "cd samples && yarn start"
   },
   "dependencies": {
   }
