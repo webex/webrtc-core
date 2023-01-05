@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "clean": "rimraf packages/**/.coverage packages/**/dist && rm samples/src/bundle.js",
+    "clean": "rm -rf packages/*/coverage && rm -rf packages/*/dist && rm samples/src/bundle.js",
     "build": "yarn workspaces run build",
     "start": "cd samples && yarn start"
   },
