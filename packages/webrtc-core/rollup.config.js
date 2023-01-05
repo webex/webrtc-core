@@ -60,6 +60,6 @@ export default [
       },
     ],
     plugins,
-    watch: false,
+    watch: true,
   },
 ];
