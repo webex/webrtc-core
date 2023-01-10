@@ -1,27 +1,15 @@
 import { LocalTrack } from './local-track';
 
-export type AudioDeviceConstraints = {
-  deviceId?: string;
-};
-
-export type StaticAudioEncoderConfig = {
-  low: '16kHz';
-};
-
-export type AudioEncoderConfig = {
-  bitrate?: number;
-  sampleRate?: number;
-  sampleSize?: number;
-  channelCount?: number;
-};
-
-export type MicrophoneConstraints = {
-  echoCancellation?: boolean;
-  autoGainControl?: boolean;
-  noiseSuppression?: boolean;
-  microphoneDeviceId?: string;
-  encoderConfig?: AudioEncoderConfig;
-};
+export type MicrophoneConstraints = Pick<
+  MediaTrackConstraints,
+  | 'deviceId'
+  | 'echoCancellation'
+  | 'autoGainControl'
+  | 'noiseSuppression'
+  | 'sampleRate'
+  | 'sampleSize'
+  | 'channelCount'
+>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TrackEffect = any;
@@ -34,7 +22,7 @@ export class LocalAudioTrack extends LocalTrack {
    *
    * @param encoderConfig - Encoder config for audio.
    */
-  setEncoderConfig(encoderConfig: AudioEncoderConfig): void {
+  setEncoderConfig(encoderConfig: MicrophoneConstraints): void {
     this.getMediaStreamTrack().applyConstraints(encoderConfig);
   }
 }
