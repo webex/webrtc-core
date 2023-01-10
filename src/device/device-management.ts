@@ -1,14 +1,9 @@
 import * as media from '../media';
-import {
-  AudioEncoderConfig,
-  LocalAudioTrack,
-  MicrophoneConstraints,
-} from '../media/local-audio-track';
+import { LocalAudioTrack, MicrophoneConstraints } from '../media/local-audio-track';
 import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
 import { LocalMicrophoneTrack } from '../media/local-microphone-track';
-import { LocalVideoTrack, VideoConstraints, VideoEncoderConfig } from '../media/local-video-track';
-import { generateAudioConstraints, generateVideoConstraints } from '../media/utils';
+import { VideoConstraints } from '../media/local-video-track';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
@@ -36,16 +31,6 @@ export class WebrtcError {
   }
 }
 
-export type CustomVideoTrackInitConfig = {
-  mediaStreamTrack: MediaStreamTrack;
-  encoderConfig?: VideoEncoderConfig;
-};
-
-export type CustomAudioTrackInitConfig = {
-  mediaStreamTrack: MediaStreamTrack;
-  encoderConfig?: AudioEncoderConfig;
-};
-
 /**
  * Creates MicrophoneTrack and CameraTrack at the same time.
  *
@@ -60,8 +45,8 @@ export async function createMicrophoneAndCameraTracks(
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({
-      audio: generateAudioConstraints(audioConstraints),
-      video: generateVideoConstraints(videoConstraints),
+      audio: audioConstraints,
+      video: videoConstraints,
     });
   } catch (error) {
     throw new WebrtcError(
@@ -84,7 +69,7 @@ export async function createMicrophoneAndCameraTracks(
 export async function createCameraTrack(constraints?: VideoConstraints): Promise<LocalCameraTrack> {
   let stream: MediaStream;
   try {
-    stream = await media.getUserMedia({ video: generateVideoConstraints(constraints) });
+    stream = await media.getUserMedia({ video: constraints });
   } catch (error) {
     throw new WebrtcError(
       ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
@@ -105,7 +90,7 @@ export async function createMicrophoneTrack(
 ): Promise<LocalMicrophoneTrack> {
   let stream: MediaStream;
   try {
-    stream = await media.getUserMedia({ audio: generateAudioConstraints(constraints) });
+    stream = await media.getUserMedia({ audio: constraints });
   } catch (error) {
     throw new WebrtcError(
       ErrorTypes.CREATE_MICROPHONE_TRACK_FAILED,
@@ -120,48 +105,24 @@ export async function createMicrophoneTrack(
  * Creates a display video track.
  *
  * @param constraints - Display constraints for screen sharing.
+ * @param withAudio
  * @returns A Promise that resolves to a LocalDisplayTrack.
  */
 export async function createDisplayTrack(
-  constraints?: VideoConstraints
-): Promise<LocalDisplayTrack> {
-  const stream = await media.getDisplayMedia({ video: generateVideoConstraints(constraints) });
-  return new LocalDisplayTrack(stream.getVideoTracks()[0]);
-}
+  constraints?: VideoConstraints,
+  withAudio?: boolean
+): Promise<{
+  localDisplayTrack: LocalDisplayTrack;
+  localAudioTrack?: LocalAudioTrack | undefined;
+}> {
+  const stream = await media.getDisplayMedia({ video: constraints, audio: withAudio });
 
-/**
- * Creates custom video track .
- *
- * @param config - Custom video track creation config.
- * @returns A Promise that resolves to a LocalVideoTrack.
- */
-export async function createCustomVideoTrack(
-  config: CustomVideoTrackInitConfig
-): Promise<LocalVideoTrack> {
-  const localVideoTrack = new LocalVideoTrack(config.mediaStreamTrack);
-
-  if (config.encoderConfig) {
-    localVideoTrack.setEncoderConfig(config.encoderConfig);
-  }
-
-  return localVideoTrack;
-}
-
-/**
- * Creates custom audio track .
- *
- * @param config - Config to create custom audio track.
- * @returns A Promise that resolves to a LocalAudioTrack.
- */
-export async function createCustomAudioTrack(
-  config: CustomAudioTrackInitConfig
-): Promise<LocalAudioTrack> {
-  const localAudioTrack = new LocalAudioTrack(config.mediaStreamTrack);
-
-  if (config.encoderConfig) {
-    localAudioTrack.setEncoderConfig(config.encoderConfig);
-  }
-  return localAudioTrack;
+  return {
+    localDisplayTrack: new LocalDisplayTrack(stream.getVideoTracks()[0]),
+    localAudioTrack: stream.getAudioTracks()[0]
+      ? new LocalAudioTrack(stream.getAudioTracks()[0])
+      : undefined,
+  };
 }
 
 /**
