@@ -15,7 +15,7 @@ type BaseVideoConstraints = Pick<
   'aspectRatio' | 'height' | 'width' | 'frameRate' | 'deviceId'
 >;
 
-export interface VideoConstraints extends BaseVideoConstraints {
+export interface CameraConstraints extends BaseVideoConstraints {
   facingMode?: FacingMode;
   optimizationMode?: OptimizationMode;
 }
@@ -23,7 +23,7 @@ export interface VideoConstraints extends BaseVideoConstraints {
 /**
  * A class to map resolution with video constraints.
  */
-export const StaticVideoEncoderConfig: { [key: string]: VideoConstraints } = {
+export const StaticVideoEncoderConfig: { [key: string]: CameraConstraints } = {
   '1080p': { frameRate: 15, width: 1920, height: 1080 },
 
   '720p': { frameRate: 15, width: 1280, height: 720 },
@@ -53,7 +53,7 @@ export class LocalVideoTrack extends LocalTrack {
    *
    * @param constraints - Custom encoder config for video.
    */
-  setEncoderConfig(constraints: VideoConstraints): void {
+  setEncoderConfig(constraints: CameraConstraints): void {
     this.getMediaStreamTrack().applyConstraints(constraints);
   }
 }

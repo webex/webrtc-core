@@ -34,7 +34,7 @@ export type TrackEffect = any;
 // export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
 
 /**
- * Basic Track class. Wrapper for LocalTrack from 'webrtc-core'.
+ * Local track manages effects which gets extended by video and audio.
  */
 export abstract class LocalTrack extends Track {
   private isPublished = false;
@@ -70,7 +70,7 @@ export abstract class LocalTrack extends Track {
   }
 
   /**
-   * disposes the effect already applied .
+   * Disposes the effect already applied .
    */
   disposeEffects(): void {
     if (this.effects.size > 0) {

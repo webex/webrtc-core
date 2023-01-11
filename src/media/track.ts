@@ -86,23 +86,20 @@ export abstract class Track extends EventEmitter<TrackEvents> {
    */
   constructor(track: MediaStreamTrack) {
     super();
-    /**
-     * Emit ended event when the underlying track ends.
-     */
     this.ID = track.id;
     this.status = track.readyState as TrackStatus;
     this.label = track.label;
     this.#mediaStreamTrack = track;
     this.isPlaying = false;
     /**
-     *
+     * Emit ended event when the underlying track ends.
      */
     this.#mediaStreamTrack.onended = () => {
       this.emit(Events.Ended, { trackState: this.trackState });
     };
 
     /**
-     *
+     * Emit mute event when the underlying track gets muted.
      */
     this.#mediaStreamTrack.onmute = () => {
       // using arrow function which should bind to this from outer scope track

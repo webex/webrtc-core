@@ -3,7 +3,7 @@ import { LocalAudioTrack, MicrophoneConstraints } from '../media/local-audio-tra
 import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
 import { LocalMicrophoneTrack } from '../media/local-microphone-track';
-import { VideoConstraints } from '../media/local-video-track';
+import { CameraConstraints } from '../media/local-video-track';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
@@ -44,7 +44,7 @@ export class WebrtcError {
  */
 export async function createMicrophoneAndCameraTracks(
   audioConstraints?: MicrophoneConstraints,
-  videoConstraints?: VideoConstraints
+  videoConstraints?: CameraConstraints
 ): Promise<[LocalMicrophoneTrack, LocalCameraTrack]> {
   let stream: MediaStream;
   try {
@@ -70,7 +70,7 @@ export async function createMicrophoneAndCameraTracks(
  * @param constraints - Video device constraints.
  * @returns A LocalTrack object or an error.
  */
-export async function createCameraTrack(constraints?: VideoConstraints): Promise<LocalCameraTrack> {
+export async function createCameraTrack(constraints?: CameraConstraints): Promise<LocalCameraTrack> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ video: constraints });
@@ -113,7 +113,7 @@ export async function createMicrophoneTrack(
  * @returns A Promise that resolves to a LocalDisplayTrack.
  */
 export async function createDisplayTrack(
-  constraints?: VideoConstraints,
+  constraints?: CameraConstraints,
   withAudio?: boolean
 ): Promise<{
   localDisplayTrack: LocalDisplayTrack;
