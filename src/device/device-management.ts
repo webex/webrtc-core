@@ -3,6 +3,9 @@ import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
 import { LocalMicrophoneTrack } from '../media/local-microphone-track';
 
+let isCameraTaskInProgress = false;
+let capturedVideoStream: MediaStream;
+
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
   CREATE_CAMERA_TRACK_FAILED = 'CREATE_CAMERA_TRACK_FAILED',
@@ -51,16 +54,30 @@ export type VideoDeviceConstraints = {
 export async function createCameraTrack(
   constraints?: VideoDeviceConstraints
 ): Promise<LocalCameraTrack> {
-  let stream: MediaStream;
+  // let stream: MediaStream;
+  if (isCameraTaskInProgress) {
+    throw new WcmeError(
+      ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
+      `camera track can NOT be created since previous call has not been finished yet`
+    );
+  }
+  if (capturedVideoStream && capturedVideoStream.active) {
+    throw new WcmeError(
+      ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
+      `camera track can NOT be created since previous captured video stream does not be stopped`
+    );
+  }
+  isCameraTaskInProgress = true;
   try {
-    stream = await media.getUserMedia({ video: { ...constraints } });
+    capturedVideoStream = await media.getUserMedia({ video: { ...constraints } });
   } catch (error) {
     throw new WcmeError(
       ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
       `Failed to create camera track ${error}`
     );
   }
-  return new LocalCameraTrack(stream);
+  isCameraTaskInProgress = false;
+  return new LocalCameraTrack(capturedVideoStream);
 }
 
 /**
