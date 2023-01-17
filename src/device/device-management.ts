@@ -43,7 +43,10 @@ export type VideoDeviceConstraints = {
 };
 
 /**
- * Creates a camera video track.
+ * Creates a camera video track. Please note that the constraint params in second getUserMedia call would NOT take effect when:
+ *
+ * 1. Previous captured video track from the same device is not stopped .
+ * 2. Previous createCameraTrack() call for the same device is in progress.
  *
  * @param constraints - Video device constraints.
  * @returns A LocalTrack object or an error.
