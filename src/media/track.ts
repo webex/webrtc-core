@@ -106,7 +106,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
       const action = this.#mediaStreamTrack.enabled ? 'muted' : 'unmuted';
       // TODO:  Move this logic else where
 
-      this.emit('track:mute', {
+      this.emit(Events.Muted, {
         action,
       });
     };

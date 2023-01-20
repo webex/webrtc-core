@@ -18,11 +18,11 @@ export type TrackEffect = any;
  */
 export class LocalAudioTrack extends LocalTrack {
   /**
-   * Makes sure to apply the encoderConfig for the audio.
+   * Makes sure to apply the encoderConstraints for the audio.
    *
-   * @param encoderConfig - Encoder config for audio.
+   * @param encoderConstraints - Encoder constraints for audio.
    */
-  setEncoderConfig(encoderConfig: MicrophoneConstraints): void {
-    this.getMediaStreamTrack().applyConstraints(encoderConfig);
+  setEncoderConstraints(encoderConstraints: MicrophoneConstraints): void {
+    this.getMediaStreamTrack().applyConstraints(encoderConstraints);
   }
 }

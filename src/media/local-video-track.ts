@@ -10,33 +10,49 @@ export enum OptimizationMode {
   detail = 'detail',
 }
 
+export enum DisplaySurface {
+  browser = 'browser',
+  monitor = 'monitor',
+  window = 'window',
+}
+
 type BaseVideoConstraints = Pick<
   MediaTrackConstraints,
   'aspectRatio' | 'height' | 'width' | 'frameRate' | 'deviceId'
 >;
 
+type BaseDisplayConstraints = Pick<
+  MediaTrackConstraints,
+  'aspectRatio' | 'height' | 'width' | 'frameRate' | 'suppressLocalAudioPlayback'
+>;
+
 export interface CameraConstraints extends BaseVideoConstraints {
-  facingMode?: FacingMode;
+  FacingMode?: FacingMode;
   optimizationMode?: OptimizationMode;
+}
+
+export interface DisplayConstraints extends BaseDisplayConstraints {
+  displaySurface?: DisplaySurface;
+  logicalSurface?: boolean;
 }
 
 /**
  * A class to map resolution with video constraints.
  */
-export const StaticVideoEncoderConfig: { [key: string]: CameraConstraints } = {
-  '1080p': { frameRate: 15, width: 1920, height: 1080 },
+export const StaticVideoEncoderConstraints: { [key: string]: CameraConstraints } = {
+  '1080p': { frameRate: 30, width: 1920, height: 1080 },
 
-  '720p': { frameRate: 15, width: 1280, height: 720 },
+  '720p': { frameRate: 30, width: 1280, height: 720 },
 
-  '480p': { frameRate: 15, width: 640, height: 480 },
+  '480p': { frameRate: 30, width: 640, height: 480 },
 
-  '360p': { frameRate: 15, width: 640, height: 360 },
+  '360p': { frameRate: 30, width: 640, height: 360 },
 
-  '240p': { frameRate: 15, width: 320, height: 240 },
+  '240p': { frameRate: 30, width: 320, height: 240 },
 
-  '180p': { frameRate: 15, width: 320, height: 180 },
+  '180p': { frameRate: 30, width: 320, height: 180 },
 
-  '120p': { frameRate: 15, width: 160, height: 120 },
+  '120p': { frameRate: 30, width: 160, height: 120 },
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,9 +67,9 @@ export class LocalVideoTrack extends LocalTrack {
   /**
    * Applies the passed video constraints.
    *
-   * @param constraints - Custom encoder config for video.
+   * @param encoderConstraints - Custom encoder constraints  for video.
    */
-  setEncoderConfig(constraints: CameraConstraints): void {
-    this.getMediaStreamTrack().applyConstraints(constraints);
+  setEncoderConstraints(encoderConstraints: CameraConstraints): void {
+    this.getMediaStreamTrack().applyConstraints(encoderConstraints);
   }
 }
