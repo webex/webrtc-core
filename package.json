@@ -11,7 +11,5 @@
     "dev": "yarn workspace @webex/webrtc-core dev",
     "start": "cd samples && yarn start"
   },
-  "dependencies": {
-  }
+  "packageManager": "yarn@4.0.0-rc.36"
 }
-å
