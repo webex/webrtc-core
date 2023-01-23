@@ -13,10 +13,11 @@ import { ErrorTypes, WebrtcError } from '../error/WebrtcError';
  * 1. Previous captured video track from the same device is not stopped .
  * 2. Previous createCameraTrack() call for the same device is in progress.
  * Creates MicrophoneTrack and CameraTrack at the same time.
+ * Creates LocalMicrophoneTrack and LocalCameraTrack at the same time.
  *
  * @param audioConstraints - Audio constraints to create microphone track.
  * @param videoConstraints - Video constraints to create camera track.
- * @returns MicrophoneTrack and cameraTrack at same time.
+ * @returns LocalMicrophoneTrack and LocalCameraTrack at same time.
  */
 export async function createMicrophoneAndCameraTracks(
   audioConstraints?: MicrophoneConstraints,
@@ -113,14 +114,10 @@ export async function createDisplayTrack(
  * @returns List of media devices in an array of MediaDeviceInfo objects.
  */
 export async function getDevices(deviceKind?: media.DeviceKind): Promise<MediaDeviceInfo[]> {
-  const devices: MediaDeviceInfo[] = await media
-    .ensureDevicePermissions(
-      [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
-      media.enumerateDevices
-    )
-    .catch((error) => {
-      throw error;
-    });
+  const devices: MediaDeviceInfo[] = await media.ensureDevicePermissions(
+    [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
+    media.enumerateDevices
+  );
 
   return devices.filter((v: MediaDeviceInfo) => (deviceKind ? v.kind === deviceKind : true));
 }
