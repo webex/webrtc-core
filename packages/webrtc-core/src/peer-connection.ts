@@ -33,6 +33,7 @@ interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
 }
 
+type ConnectionType = 'UDP' | 'TCP' | 'TURN-TLS' | 'TURN-TCP' | 'TURN-UDP' | 'unknown';
 /**
  * Manages a single RTCPeerConnection with the server.
  */
@@ -45,12 +46,14 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
 
   /**
    * Creates an instance of the RTCPeerConnection.
+   *
+   * @param configuration - Config to the RTCPeerConnection constructor.
    */
-  constructor() {
+  constructor(configuration?: RTCConfiguration | undefined) {
     super();
     logger.log('PeerConnection init');
 
-    this.pc = createRTCPeerConnection();
+    this.pc = createRTCPeerConnection(configuration);
 
     this.connectionStateHandler = new ConnectionStateHandler(() => {
       return {
@@ -282,6 +285,45 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    */
   get iceGatheringState(): RTCIceGathererState {
     return this.pc.iceGatheringState;
+  }
+
+  /**
+   * Returns the type of a connection that has been established.
+   *
+   * @returns The connection type which would be `ConnectionType`.
+   */
+  async getCurrentConnectionType(): Promise<ConnectionType> {
+    // make sure this method only can be called when the ice connection is established;
+    const isIceConnected =
+      this.pc.iceConnectionState === 'connected' || this.pc.iceConnectionState === 'completed';
+    if (!isIceConnected) {
+      throw new Error('Ice connection is not established');
+    }
+    const succeededLocalCandidateIds = new Set();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const localCandidateStatsReports: any[] = [];
+
+    (await this.pc.getStats()).forEach((report) => {
+      // collect all local candidate ids from `candidate-pair` stats reports with `succeeded` state.
+      if (report.type === 'candidate-pair' && report.state?.toLowerCase() === 'succeeded') {
+        succeededLocalCandidateIds.add(report.localCandidateId);
+      }
+      // collect all `local-candidate` stats.
+      if (report.type === 'local-candidate') {
+        localCandidateStatsReports.push(report);
+      }
+    });
+    // find the `local-candidate` stats which report id contains in `succeededLocalCandidateIds`.
+    const localCandidate = localCandidateStatsReports.find((report) =>
+      succeededLocalCandidateIds.has(report.id)
+    );
+    if (!localCandidate) {
+      return 'unknown';
+    }
+    if (localCandidate.relayProtocol) {
+      return `TURN-${localCandidate.relayProtocol.toUpperCase()}` as ConnectionType;
+    }
+    return localCandidate.protocol?.toUpperCase();
   }
 }
 

@@ -90,7 +90,6 @@ export abstract class Track extends EventEmitter<TrackEvents> {
     this.status = track.readyState as TrackStatus;
     this.label = track.label;
     this.#mediaStreamTrack = track;
-    this.isPlaying = false;
     /**
      * Emit ended event when the underlying track ends.
      */
@@ -106,7 +105,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
       const action = this.#mediaStreamTrack.enabled ? 'muted' : 'unmuted';
       // TODO:  Move this logic else where
 
-      this.emit('track:mute', {
+      this.emit(Events.Muted, {
         action,
       });
     };
@@ -195,26 +194,5 @@ export abstract class Track extends EventEmitter<TrackEvents> {
     this.#mediaStreamTrack.stop();
     this.emit(Events.Ended, { trackState: this.trackState });
     logger.log(`Local track stopped:`, { trackState: this.trackState });
-  }
-
-  /**
-   *
-   * @param element - Either pass the ID for the dom element where we need to attach the video tag
-   * pass the video element dom element where we need to attach the stream.
-   */
-
-  /**
-   * @param element
-   */
-  play(element?: string | HTMLElement): void {
-    if (element instanceof HTMLElement) {
-      // eslint-disable-next-line no-param-reassign
-      element.srcObject = new MediaStream([this.#mediaStreamTrack]);
-      this.isPlaying = true;
-    } else {
-      const audioElement = document.createElement('audio');
-      audioElement.srcObject = new MediaStream([this.#mediaStreamTrack]);
-      audioElement.play();
-    }
   }
 }

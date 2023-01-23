@@ -1,5 +1,7 @@
 import { logger } from '../util/logger';
 
+import { ErrorTypes, WebrtcError } from '../error/WebrtcError';
+
 export enum DeviceKind {
   AudioInput = 'audioinput',
   AudioOutput = 'audiooutput',
@@ -138,6 +140,9 @@ export async function ensureDevicePermissions<T>(
     return callback();
   } catch (e) {
     logger.error(e);
-    throw new Error('Failed to ensure device permissions.');
+    throw new WebrtcError(
+      ErrorTypes.DEVICE_PERMISSION_DENIED,
+      'Failed to ensure device permissions'
+    );
   }
 }

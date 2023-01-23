@@ -1,3 +1,24 @@
+# [1.3.0](https://github.com/webex/webrtc-core/compare/v1.2.0...v1.3.0) (2022-12-20)
+
+
+### Features
+
+* add the api for fetching the connection type ([#20](https://github.com/webex/webrtc-core/issues/20)) ([4e5fe55](https://github.com/webex/webrtc-core/commit/4e5fe55bdf526b82f0d5f930e6d1d9c96c340bbc))
+
+# [1.2.0](https://github.com/webex/webrtc-core/compare/v1.1.1...v1.2.0) (2022-12-16)
+
+
+### Features
+
+* support for passing the config to the PeerConnection constructor ([#19](https://github.com/webex/webrtc-core/issues/19)) ([e4cc4a8](https://github.com/webex/webrtc-core/commit/e4cc4a8d79b7828ab310c6de6ef4a42dabc54772))
+
+## [1.1.1](https://github.com/webex/webrtc-core/compare/v1.1.0...v1.1.1) (2022-12-06)
+
+
+### Bug Fixes
+
+* restore the original stream on disposing effects ([#16](https://github.com/webex/webrtc-core/issues/16)) ([981c1de](https://github.com/webex/webrtc-core/commit/981c1dee96f3e54ef76d0c74f9eca8fa0064f7f8))
+
 # [1.1.0](https://github.com/webex/webrtc-core/compare/v1.0.2...v1.1.0) (2022-11-28)
 
 
