@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { EventMap } from 'typed-emitter';
-import EventEmitter from '../event-emitter';
+import { EventEmitter } from '../event-emitter';
 import { logger } from '../util/logger';
 
 export enum Events {
@@ -66,8 +66,6 @@ export type TrackEffect = any;
 export abstract class Track extends EventEmitter<TrackEvents> {
   static Events = Events;
 
-  isPlaying: boolean;
-
   ID: string;
 
   status: TrackStatus;
@@ -76,7 +74,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
 
   #mediaStreamTrack: MediaStreamTrack;
 
-  #mediaStreamTrackWithEffect: MediaStreamTrack;
+  #mediaStreamTrackWithEffect?: MediaStreamTrack;
 
   /**
    * Constructor for the Track class. Creates an empty CoreLocalTrack or uses an existing one.
@@ -90,6 +88,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
     this.status = track.readyState as TrackStatus;
     this.label = track.label;
     this.#mediaStreamTrack = track;
+
     /**
      * Emit ended event when the underlying track ends.
      */
@@ -101,12 +100,12 @@ export abstract class Track extends EventEmitter<TrackEvents> {
      * Emit mute event when the underlying track gets muted.
      */
     this.#mediaStreamTrack.onmute = () => {
-      // using arrow function which should bind to this from outer scope track
-      const action = this.#mediaStreamTrack.enabled ? 'muted' : 'unmuted';
-      // TODO:  Move this logic else where
-
       this.emit(Events.Muted, {
-        action,
+        trackState: {
+          id: 'string',
+          label: 'string',
+          muted: this.#mediaStreamTrack.enabled,
+        },
       });
     };
   }
@@ -169,7 +168,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
    *
    * @returns #mediaStreamTrack of type MediaStreamTrack.
    */
-  getMediaStreamTrackWithEffects(): MediaStreamTrack {
+  getMediaStreamTrackWithEffects(): MediaStreamTrack | undefined {
     return this.#mediaStreamTrackWithEffect;
   }
 

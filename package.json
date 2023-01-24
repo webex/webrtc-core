@@ -3,11 +3,12 @@
   "version": "1.1.0",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "samples"
   ],
   "scripts": {
     "clean": "rm -rf packages/*/coverage && rm -rf packages/*/dist && rm samples/src/bundle.js",
-    "build": "yarn workspaces run build",
+    "build": "yarn workspaces foreach run build",
     "dev": "yarn workspace @webex/webrtc-core dev",
     "start": "cd samples && yarn start"
   },

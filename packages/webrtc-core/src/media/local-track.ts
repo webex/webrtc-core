@@ -73,7 +73,13 @@ export abstract class LocalTrack extends Track {
    * Disposes the effect already applied .
    */
   disposeEffects(): void {
-    this.effects.forEach((effect: TrackEffect) => effect.dispose());
+    if (this.effects.size > 0) {
+      this.effects.forEach((effect: TrackEffect) => effect.dispose());
+      this.effects.clear();
+
+      // this.underlyingStream = this.originalStream;
+      // this.emit(LocalTrackEvents.UnderlyingTrackChange);
+    }
   }
 
   /**

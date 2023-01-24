@@ -1,6 +1,7 @@
 import {Button, Col, Form} from "react-bootstrap";
+import {createMicrophoneTrack} from  "@webex/webrtc-core";
 
-const createMicrophoneTrack = () => {}
+const cMicrophoneTrack = () => {console.log(createMicrophoneTrack)}
 const applyQuality = () => {}
 const setPlayback = () => {}
 const createCameraTrack = () => {}
@@ -18,7 +19,7 @@ export default () => {
           <Form.Select></Form.Select>
         </Col>
         <Col>
-          <Button onClick={createMicrophoneTrack}>createMicrophoneTrack</Button>
+          <Button onClick={cMicrophoneTrack}>createMicrophoneTrack</Button>
         </Col>
       </Form.Group>
       <Col>

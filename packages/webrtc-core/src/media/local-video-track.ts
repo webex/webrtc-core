@@ -55,11 +55,6 @@ export const StaticVideoEncoderConstraints: { [key: string]: CameraConstraints }
   '120p': { frameRate: 30, width: 160, height: 120 },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TrackEffect = any;
-// TBD: Fix this once types are published separately
-// export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
-
 /**
  * Represents a local video track.
  */
