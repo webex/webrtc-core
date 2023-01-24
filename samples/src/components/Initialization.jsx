@@ -1,16 +1,14 @@
-import {Button, Form} from "react-bootstrap";
+import { Button, Form } from 'react-bootstrap';
 
-const gatherDevices = () => {}
-
-export default () => {
+export default (props) => {
   return (
     <Form>
       <h2>Initialization</h2>
       <div>
-        <Button id="btn-get-devices" size="sm" onClick={gatherDevices}>
+        <Button id='btn-get-devices' size='sm' onClick={props.init}>
           gather devices(audio, video, playback)
         </Button>
       </div>
     </Form>
-  )
-}
+  );
+};

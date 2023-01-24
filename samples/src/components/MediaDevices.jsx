@@ -1,13 +1,9 @@
-import {Button, Col, Form} from "react-bootstrap";
-import {createMicrophoneTrack} from  "@webex/webrtc-core";
-
-const cMicrophoneTrack = () => {console.log(createMicrophoneTrack)}
-const applyQuality = () => {}
-const setPlayback = () => {}
-const createCameraTrack = () => {}
-const applyResolution = () => {}
-const createDisplayTrack = () => {}
-export default () => {
+import { Button, Col, Form } from 'react-bootstrap';
+import { useState } from 'react';
+export default (props) => {
+  const [selectedAudioDevice, setAudioDevice] = useState('default');
+  const [selectedCameraDevice, setCameraDevice] = useState('default');
+  const [selectedSpeakerDevice, setSpeakerDevice] = useState('');
   return (
     <Form>
       <h2>Media Devices</h2>
@@ -16,17 +12,33 @@ export default () => {
           <label>Audio Input Device</label>
         </Col>
         <Col>
-          <Form.Select></Form.Select>
+          <Form.Select
+            onChange={(choice) => setAudioDevice(choice.target.value)}
+          >
+            {props.audioDevice?.map((device) => {
+              return (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label}
+                </option>
+              );
+            })}
+          </Form.Select>
         </Col>
         <Col>
-          <Button onClick={cMicrophoneTrack}>createMicrophoneTrack</Button>
+          <Button
+            onClick={() => {
+              props.createMicrophoneTrackAction(selectedAudioDevice);
+            }}
+          >
+            createMicrophoneTrack
+          </Button>
         </Col>
       </Form.Group>
       <Col>
         <Form.Check
-          id="echoCancellation-checkbox"
-          type="checkbox"
-          label="echoCancellation"
+          id='echoCancellation-checkbox'
+          type='checkbox'
+          label='echoCancellation'
         />
       </Col>
       <Form.Group>
@@ -37,7 +49,7 @@ export default () => {
           <Form.Select></Form.Select>
         </Col>
         <Col>
-          <Button onClick={applyQuality}>applyQuality</Button>
+          <Button onClick={props.applyQuality}>applyQuality</Button>
         </Col>
       </Form.Group>
       <Form.Group>
@@ -45,10 +57,20 @@ export default () => {
           <label>Audio Output Device</label>
         </Col>
         <Col>
-          <Form.Select></Form.Select>
+          <Form.Select
+            onChange={(choice) => setSpeakerDevice(choice.target.value)}
+          >
+            {props.speakerDevice?.map((device) => {
+              return (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label}
+                </option>
+              );
+            })}
+          </Form.Select>
         </Col>
         <Col>
-          <Button onClick={setPlayback}>setPlayback</Button>
+          <Button onClick={props.setPlayback}>setPlayback</Button>
         </Col>
       </Form.Group>
       <Form.Group>
@@ -56,10 +78,24 @@ export default () => {
           <label>Video Input Device</label>
         </Col>
         <Col>
-          <Form.Select></Form.Select>
+          <Form.Select onChange={(choice) => setCameraDevice(choice.value)}>
+            {props.cameraDevice?.map((device) => {
+              return (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label}
+                </option>
+              );
+            })}
+          </Form.Select>
         </Col>
         <Col>
-          <Button onClick={createCameraTrack}>createCameraTrack</Button>
+          <Button
+            onClick={() => {
+              props.createCameraTrackAction(selectedCameraDevice);
+            }}
+          >
+            createCameraTrack
+          </Button>
         </Col>
       </Form.Group>
       <Form.Group>
@@ -70,12 +106,14 @@ export default () => {
           <Form.Select></Form.Select>
         </Col>
         <Col>
-          <Button onClick={applyResolution}>applyResolution</Button>
+          <Button onClick={props.applyResolution}>applyResolution</Button>
         </Col>
       </Form.Group>
       <Col>
-        <Button onClick={createDisplayTrack}>createDisplayTrack</Button>
+        <Button onClick={props.createDisplayTrackAction}>
+          createDisplayTrack
+        </Button>
       </Col>
     </Form>
-  )
-}
+  );
+};
