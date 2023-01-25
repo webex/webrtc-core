@@ -7,9 +7,12 @@ export default (props) => {
   return (
     <Form>
       <h2>Media Devices</h2>
+      <Button id='btn-get-devices' size='sm' onClick={props.init}>
+        gather devices(audio, video, playback)
+      </Button>
       <Form.Group>
         <Col>
-          <label>Audio Input Device</label>
+          <label>Audio</label>
         </Col>
         <Col>
           <Form.Select
@@ -33,23 +36,83 @@ export default (props) => {
             createMicrophoneTrack
           </Button>
         </Col>
+        <Col>
+          <Button
+            onClick={() => {
+              props.stopAudioTrack();
+            }}
+          >
+            Stop
+          </Button>
+        </Col>
+        <Col>
+          <Button>AEC</Button>
+          <Button>AGC</Button>
+          <Button>ANS</Button>
+        </Col>
+        <Col>
+          <Button
+            onClick={() => {
+              props.stopAudioTrack();
+            }}
+          >
+            Load Bnr
+          </Button>
+        </Col>
+        <Col>
+          <Button
+            onClick={() => {
+              props.stopAudioTrack();
+            }}
+          >
+            enableBnr
+          </Button>
+        </Col>
+        <Col>
+          <Button
+            onClick={() => {
+              props.stopAudioTrack();
+            }}
+          >
+            disableBnr
+          </Button>
+        </Col>
       </Form.Group>
-      <Col>
-        <Form.Check
-          id='echoCancellation-checkbox'
-          type='checkbox'
-          label='echoCancellation'
-        />
-      </Col>
       <Form.Group>
         <Col>
-          <label>Audio Quality</label>
+          <label>Video </label>
         </Col>
         <Col>
-          <Form.Select></Form.Select>
+          <Form.Select onChange={(choice) => setCameraDevice(choice.value)}>
+            {props.cameraDevice?.map((device) => {
+              return (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label}
+                </option>
+              );
+            })}
+          </Form.Select>
         </Col>
         <Col>
-          <Button onClick={props.applyQuality}>applyQuality</Button>
+          <Form.Select onChange={(choice) => setCameraDevice(choice.value)}>
+            <option>1080p</option>
+            <option>720p</option>
+            <option>480p</option>
+            <option>360p</option>
+          </Form.Select>
+        </Col>
+        <Col>
+          <Button
+            onClick={() => {
+              props.createCameraTrackAction(selectedCameraDevice);
+            }}
+          >
+            createCameraTrack
+          </Button>
+        </Col>
+        <Col>
+          <Button>Blur</Button>
+          <Button>virtualBackground</Button>
         </Col>
       </Form.Group>
       <Form.Group>
@@ -71,42 +134,6 @@ export default (props) => {
         </Col>
         <Col>
           <Button onClick={props.setPlayback}>setPlayback</Button>
-        </Col>
-      </Form.Group>
-      <Form.Group>
-        <Col>
-          <label>Video Input Device</label>
-        </Col>
-        <Col>
-          <Form.Select onChange={(choice) => setCameraDevice(choice.value)}>
-            {props.cameraDevice?.map((device) => {
-              return (
-                <option key={device.deviceId} value={device.deviceId}>
-                  {device.label}
-                </option>
-              );
-            })}
-          </Form.Select>
-        </Col>
-        <Col>
-          <Button
-            onClick={() => {
-              props.createCameraTrackAction(selectedCameraDevice);
-            }}
-          >
-            createCameraTrack
-          </Button>
-        </Col>
-      </Form.Group>
-      <Form.Group>
-        <Col>
-          <label>Resolution</label>
-        </Col>
-        <Col>
-          <Form.Select></Form.Select>
-        </Col>
-        <Col>
-          <Button onClick={props.applyResolution}>applyResolution</Button>
         </Col>
       </Form.Group>
       <Col>

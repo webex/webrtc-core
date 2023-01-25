@@ -68,6 +68,8 @@ export abstract class Track extends EventEmitter<TrackEvents> {
 
   ID: string;
 
+  kind: string;
+
   status: TrackStatus;
 
   label: string;
@@ -87,6 +89,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
     this.ID = track.id;
     this.status = track.readyState as TrackStatus;
     this.label = track.label;
+    this.kind = track.kind;
     this.#mediaStreamTrack = track;
 
     /**

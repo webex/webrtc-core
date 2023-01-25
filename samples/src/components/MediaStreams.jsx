@@ -27,9 +27,7 @@ export default (props) => {
             ref={(video) => {
               console.log(video);
               video.srcObject = props.localCameraTrack
-                ? new MediaStream([
-                    props.localCameraTrack.getMediaStreamTrack(),
-                  ])
+                ? new MediaStream([props.localCameraTrack])
                 : null;
             }}
             id='localVideo'

@@ -14,6 +14,11 @@ import {
   getCameras,
 } from "@webex/webrtc-core";
 
+import {
+  NoiseReductionEffect,
+  VirtualBackgroundEffect,
+} from "@webex-connect/web-media-effects";
+
 const createDisplayTrackAction = () => {};
 const applyQuality = () => {};
 const setPlayback = () => {};
@@ -29,11 +34,31 @@ function App() {
   const [localMicrophoneTrack, setLocalMicrophoneTrack] = useState();
 
   const createMicrophoneTrackAction = async (deviceId) => {
-    await createMicrophoneTrack({ deviceId }).then(setLocalMicrophoneTrack);
+    await createMicrophoneTrack({ deviceId }).then((localMicrophoneTrack) => {
+      setLocalMicrophoneTrack(localMicrophoneTrack.getMediaStreamTrack());
+    });
   };
 
   const createCameraTrackAction = async (deviceId) => {
-    await createCameraTrack({ deviceId }).then(setLocalCameraTrack);
+    const effect = new VirtualBackgroundEffect({
+      mode: `BLUR`,
+      blurStrength: `STRONG`,
+      quality: `HIGH`,
+    });
+    await createCameraTrack({ deviceId }).then((localCameraTrack) => {
+      setLocalCameraTrack(localCameraTrack.getMediaStreamTrack());
+      window.localCameraTrack = localCameraTrack;
+
+      localCameraTrack.on("underlying-track-change", () => {
+        console.log(localCameraTrack.getMediaStreamTrackWithEffects());
+        setLocalCameraTrack(
+          localCameraTrack.getMediaStreamTrackWithEffects() ||
+            localCameraTrack.getMediaStreamTrack()
+        );
+      });
+      localCameraTrack.addEffect("blur", effect);
+      effect.enable();
+    });
   };
 
   const init = async () => {
@@ -60,34 +85,25 @@ function App() {
         </Container>
       </Navbar>
       <Container>
-        <Row>
-          <Col>
-            <Row>
-              <Initialization {...{ init }} />
-            </Row>
-            <Row>
-              <MediaDevices
-                {...{
-                  createMicrophoneTrackAction,
-                  applyQuality,
-                  createCameraTrackAction,
-                  createDisplayTrackAction,
-                  applyResolution,
-                  setPlayback,
-                  audioDevice,
-                  cameraDevice,
-                  speakerDevice,
-                }}
-              />
-            </Row>
-            <Row>
-              <Background />
-            </Row>
-          </Col>
-          <Col id={"meetingStreams"}>
-            <MediaStreams {...{ localMicrophoneTrack, localCameraTrack }} />
-          </Col>
-        </Row>
+        <Col>
+          <MediaDevices
+            {...{
+              createMicrophoneTrackAction,
+              applyQuality,
+              createCameraTrackAction,
+              createDisplayTrackAction,
+              applyResolution,
+              setPlayback,
+              audioDevice,
+              cameraDevice,
+              speakerDevice,
+              init,
+            }}
+          />
+        </Col>
+        <Col id={"meetingStreams"}>
+          <MediaStreams {...{ localMicrophoneTrack, localCameraTrack }} />
+        </Col>
       </Container>
     </>
   );

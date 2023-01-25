@@ -65,7 +65,11 @@ export abstract class LocalTrack extends Track {
    */
   async addEffect(name: string, effect: TrackEffect): Promise<void> {
     await effect.load(new MediaStream([this.getMediaStreamTrack()]));
-    this.setMediaStreamTrackWithEffects(effect.getUnderlyingStream().getAudioTracks()[0]);
+    this.setMediaStreamTrackWithEffects(
+      this.kind === 'audio'
+        ? effect.getUnderlyingStream().getAudioTracks()[0]
+        : effect.getUnderlyingStream().getVideoTracks()[0]
+    );
     this.effects.set(name, effect);
   }
 
