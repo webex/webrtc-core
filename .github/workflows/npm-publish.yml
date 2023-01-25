@@ -5,6 +5,8 @@ name: Node.js Package
 
 on:
   push:
+    paths:
+      - "packages/**"
     branches:
       - main
 
@@ -18,9 +20,8 @@ jobs:
         with:
           node-version: 16
       - run: yarn install
-
       - run: yarn build
-      - run: npx semantic-release
+      - run: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
