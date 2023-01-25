@@ -61,7 +61,7 @@ export type TrackEffect = any;
 // export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
 
 /**
- * Basic Track class. Wrapper for LocalTrack from 'webrtc-core'.
+ * Basic Track class.
  */
 export abstract class Track extends EventEmitter<TrackEvents> {
   static Events = Events;
@@ -107,7 +107,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
         trackState: {
           id: 'string',
           label: 'string',
-          muted: this.#mediaStreamTrack.enabled,
+          muted: this.#mediaStreamTrack.muted,
         },
       });
     };
