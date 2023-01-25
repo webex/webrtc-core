@@ -1,18 +1,19 @@
 import * as media from '../media';
-import { LocalAudioTrack, MicrophoneConstraints } from '../media/local-audio-track';
+import { MicrophoneConstraints } from '../media/local-audio-track';
 import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
 import { LocalMicrophoneTrack } from '../media/local-microphone-track';
 import { CameraConstraints, DisplayConstraints } from '../media/local-video-track';
 
 import { ErrorTypes, WebrtcError } from '../error/WebrtcError';
+import { LocalComputerAudioTrack } from '../media/local-computer-audio-track';
 
 /**
  * Creates a camera video track. Please note that the constraint params in second getUserMedia call would NOT take effect when:
  *
  * 1. Previous captured video track from the same device is not stopped .
  * 2. Previous createCameraTrack() call for the same device is in progress.
- * Creates MicrophoneTrack and CameraTrack at the same time.
+ 
  * Creates LocalMicrophoneTrack and LocalCameraTrack at the same time.
  *
  * @param audioConstraints - Audio constraints to create microphone track.
@@ -95,14 +96,14 @@ export async function createDisplayTrack(
   withAudio?: boolean
 ): Promise<{
   localDisplayTrack: LocalDisplayTrack;
-  localAudioTrack?: LocalAudioTrack;
+  localAudioTrack?: LocalComputerAudioTrack;
 }> {
   const stream = await media.getDisplayMedia({ video: constraints, audio: withAudio });
 
   return {
     localDisplayTrack: new LocalDisplayTrack(stream.getVideoTracks()[0]),
     localAudioTrack: stream.getAudioTracks()[0]
-      ? new LocalAudioTrack(stream.getAudioTracks()[0])
+      ? new LocalComputerAudioTrack(stream.getAudioTracks()[0])
       : undefined,
   };
 }
