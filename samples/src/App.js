@@ -2,13 +2,12 @@ import "bootswatch/dist/pulse/bootstrap.min.css";
 import "./App.css";
 import { useState } from "react";
 import { Col, Container, Navbar, Row } from "react-bootstrap";
-import Initialization from "./components/Initialization";
 import MediaDevices from "./components/MediaDevices";
-import Background from "./components/Background";
 import MediaStreams from "./components/MediaStreams";
 import {
   createMicrophoneTrack,
   createCameraTrack,
+  createDisplayTrack,
   getSpeakers,
   getMicrophones,
   getCameras,
@@ -19,7 +18,6 @@ import {
   VirtualBackgroundEffect,
 } from "@webex-connect/web-media-effects";
 
-const createDisplayTrackAction = () => {};
 const applyQuality = () => {};
 const setPlayback = () => {};
 
@@ -32,6 +30,7 @@ function App() {
 
   const [localCameraTrack, setLocalCameraTrack] = useState();
   const [localMicrophoneTrack, setLocalMicrophoneTrack] = useState();
+  const [localDisplayTracks, setLocalDisplayTracks] = useState();
 
   const createMicrophoneTrackAction = async (deviceId) => {
     await createMicrophoneTrack({ deviceId }).then((localMicrophoneTrack) => {
@@ -59,6 +58,18 @@ function App() {
       localCameraTrack.addEffect("blur", effect);
       effect.enable();
     });
+  };
+
+  const createDisplayTrackAction = async ({ withAudio, constraints }) => {
+    await createDisplayTrack({ constraints, withAudio }).then(
+      ({ localDisplayTrack, localComputerAudioTrack }) => {
+        const displayTracks = [];
+        displayTracks.push(localDisplayTrack.getMediaStreamTrack());
+        if (localComputerAudioTrack)
+          displayTracks.push(localComputerAudioTrack?.getMediaStreamTrack());
+        setLocalDisplayTracks(displayTracks);
+      }
+    );
   };
 
   const init = async () => {
@@ -97,12 +108,19 @@ function App() {
               audioDevice,
               cameraDevice,
               speakerDevice,
+              stopAudioTrack: () => {},
+              stopVideoTrack: () => {},
+              stopDisplayTrack: () => {},
+              muteAudioTrack: () => {},
+              muteVideoTrack: () => {},
               init,
             }}
           />
         </Col>
         <Col id={"meetingStreams"}>
-          <MediaStreams {...{ localMicrophoneTrack, localCameraTrack }} />
+          <MediaStreams
+            {...{ localMicrophoneTrack, localCameraTrack, localDisplayTracks }}
+          />
         </Col>
       </Container>
     </>

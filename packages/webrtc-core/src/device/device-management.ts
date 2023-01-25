@@ -83,26 +83,31 @@ export async function createMicrophoneTrack(
   }
   return new LocalMicrophoneTrack(stream.getAudioTracks()[0]);
 }
+export interface createDisplayTrackConstraint {
+  constraints?: DisplayConstraints;
+  withAudio?: boolean;
+}
 
 /**
  * Creates a display video track.
  *
  * @param constraints - Display constraints for screen sharing.
- * @param withAudio
+ * @param constraints.constraints
+ * @param constraints.withAudio
  * @returns A Promise that resolves to a LocalDisplayTrack.
  */
-export async function createDisplayTrack(
-  constraints?: DisplayConstraints,
-  withAudio?: boolean
-): Promise<{
+export async function createDisplayTrack({
+  constraints,
+  withAudio,
+}: createDisplayTrackConstraint): Promise<{
   localDisplayTrack: LocalDisplayTrack;
-  localAudioTrack?: LocalComputerAudioTrack;
+  localComputerAudioTrack?: LocalComputerAudioTrack;
 }> {
   const stream = await media.getDisplayMedia({ video: constraints, audio: withAudio });
 
   return {
     localDisplayTrack: new LocalDisplayTrack(stream.getVideoTracks()[0]),
-    localAudioTrack: stream.getAudioTracks()[0]
+    localComputerAudioTrack: stream.getAudioTracks()[0]
       ? new LocalComputerAudioTrack(stream.getAudioTracks()[0])
       : undefined,
   };
