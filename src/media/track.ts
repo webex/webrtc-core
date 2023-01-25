@@ -61,7 +61,7 @@ export type TrackEffect = any;
 // export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
 
 /**
- * Basic Track class. Wrapper for LocalTrack from 'webrtc-core'.
+ * Basic Track class.
  */
 export abstract class Track extends EventEmitter<TrackEvents> {
   static Events = Events;
@@ -102,7 +102,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
      */
     this.#mediaStreamTrack.onmute = () => {
       // using arrow function which should bind to this from outer scope track
-      const action = this.#mediaStreamTrack.enabled ? 'muted' : 'unmuted';
+      const action = this.#mediaStreamTrack.muted ? 'muted' : 'unmuted';
       // TODO:  Move this logic else where
 
       this.emit(Events.Muted, {
