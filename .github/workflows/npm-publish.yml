@@ -5,22 +5,27 @@ name: Node.js Package
 
 on:
   push:
+    paths:
+      - "packages/**"
     branches:
       - main
+      - beta
+      - alpha
 
 jobs:
   semantic-release:
     name: semantic-latest
     runs-on: ubuntu-latest
+    env:
+      CONNECT_TOKEN: ${{ secrets.CONNECT_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
       - run: yarn install
-
       - run: yarn build
-      - run: npx semantic-release
+      - run: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
