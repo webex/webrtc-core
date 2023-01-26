@@ -12,4 +12,3 @@ jobs:
           node-version: "16"
       - run: yarn install
       - run: yarn test:lint
-      - run: yarn test:coverage

@@ -9,6 +9,8 @@ on:
       - "packages/**"
     branches:
       - main
+      - beta
+      - alpha
 
 jobs:
   semantic-release:
