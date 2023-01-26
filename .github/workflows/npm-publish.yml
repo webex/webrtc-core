@@ -14,6 +14,8 @@ jobs:
   semantic-release:
     name: semantic-latest
     runs-on: ubuntu-latest
+    env:
+      CONNECT_TOKEN: ${{ secrets.CONNECT_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3

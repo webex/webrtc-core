@@ -3,11 +3,13 @@ on: [pull_request]
 jobs:
   setup:
     runs-on: ubuntu-latest
+    env:
+      CONNECT_TOKEN: ${{ secrets.CONNECT_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: "16"
       - run: yarn install
       - run: yarn test:lint
       - run: yarn test:coverage
