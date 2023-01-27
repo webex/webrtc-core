@@ -1,3 +1,18 @@
+# [1.4.0-beta.1](https://github.com/webex/webrtc-core/compare/v1.3.0...v1.4.0-beta.1) (2023-01-27)
+
+
+### Bug Fixes
+
+* build only webrtc core on release ([6e4e702](https://github.com/webex/webrtc-core/commit/6e4e702d687dec8f9372f70c76dd950bb6a81d5b))
+* move husky to root ([36c6562](https://github.com/webex/webrtc-core/commit/36c656282d2423aad5fd8847c322c972cc01e4d9))
+* release script to not publish samples ([#24](https://github.com/webex/webrtc-core/issues/24)) ([42c2d5e](https://github.com/webex/webrtc-core/commit/42c2d5ea067159432e24bcc455416d1e887631b5))
+* revert the workspace usage in samples ([d04bc65](https://github.com/webex/webrtc-core/commit/d04bc65e5cfac5299c3bd2d924ad88066e6a4e39))
+
+
+### Features
+
+* samples + mono repo + track changes ([#18](https://github.com/webex/webrtc-core/issues/18)) ([4e9891a](https://github.com/webex/webrtc-core/commit/4e9891a7cdac81fc8649c0aec5cfd7c235190dc6))
+
 # [1.3.0](https://github.com/webex/webrtc-core/compare/v1.2.0...v1.3.0) (2022-12-20)
 
 
