@@ -10,7 +10,7 @@
     "clean": "rm -rf packages/*/coverage && rm -rf packages/*/dist && rm samples/src/bundle.js",
     "build": "yarn workspaces foreach run build",
     "test": "yarn workspaces foreach run test",
-    "release": "yarn workspaces foreach run release",
+    "release": "yarn workspace @webex/webrtc-core run release",
     "dev": "yarn workspace @webex/webrtc-core dev",
     "start": "cd samples && yarn start"
   },
