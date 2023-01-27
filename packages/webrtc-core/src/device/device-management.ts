@@ -21,8 +21,8 @@ import { LocalComputerAudioTrack } from '../media/local-computer-audio-track';
  * @returns LocalMicrophoneTrack and LocalCameraTrack at same time.
  */
 export async function createMicrophoneAndCameraTracks(
-  audioConstraints?: MicrophoneConstraints,
-  videoConstraints?: CameraConstraints
+  audioConstraints?: MicrophoneConstraints | boolean,
+  videoConstraints?: CameraConstraints | boolean
 ): Promise<[LocalMicrophoneTrack, LocalCameraTrack]> {
   let stream: MediaStream;
   try {

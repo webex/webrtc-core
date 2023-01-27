@@ -5,11 +5,6 @@ export enum FacingMode {
   environment = 'environment',
 }
 
-export enum OptimizationMode {
-  motion = 'motion',
-  detail = 'detail',
-}
-
 export enum DisplaySurface {
   browser = 'browser',
   monitor = 'monitor',
@@ -28,7 +23,6 @@ type BaseDisplayConstraints = Pick<
 
 export interface CameraConstraints extends BaseVideoConstraints {
   FacingMode?: FacingMode;
-  optimizationMode?: OptimizationMode;
 }
 
 export interface DisplayConstraints extends BaseDisplayConstraints {
@@ -39,7 +33,7 @@ export interface DisplayConstraints extends BaseDisplayConstraints {
 /**
  * A class to map resolution with video constraints.
  */
-export const StaticVideoEncoderConstraints: { [key: string]: CameraConstraints } = {
+export const PresetCameraConstraints: { [key: string]: CameraConstraints } = {
   '1080p': { frameRate: 30, width: 1920, height: 1080 },
 
   '720p': { frameRate: 30, width: 1280, height: 720 },
