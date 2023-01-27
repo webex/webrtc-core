@@ -14,5 +14,17 @@
     "dev": "yarn workspace @webex/webrtc-core dev",
     "start": "cd samples && yarn start"
   },
+  "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "lint-staged": "^11.1.1"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "eslint --max-warnings=0",
+      "cspell"
+    ]
+  },
   "packageManager": "yarn@4.0.0-rc.36"
 }

@@ -4926,12 +4926,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@webex/webrtc-core@npm:1.1.0, @webex/webrtc-core@workspace:packages/webrtc-core":
+"@webex/webrtc-core@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@webex/webrtc-core@npm:1.1.0"
+  dependencies:
+    events: "npm:^3.3.0"
+    js-logger: "npm:^1.6.1"
+    typed-emitter: "npm:^2.1.0"
+    webrtc-adapter: "npm:^8.1.2"
+  checksum: 98b105b765515d43dbcffe25800dd87560a7b87d01b5bf96ade8e6aa17e969790344102bb5d51e3e1efd401680b1dde8887ab607d7ec9444fec4480a9e111bfb
+  languageName: node
+  linkType: hard
+
+"@webex/webrtc-core@workspace:packages/webrtc-core":
   version: 0.0.0-use.local
   resolution: "@webex/webrtc-core@workspace:packages/webrtc-core"
   dependencies:
-    "@commitlint/cli": "npm:^12.1.4"
-    "@commitlint/config-conventional": "npm:^12.1.4"
     "@microsoft/api-documenter": "npm:^7.13.33"
     "@microsoft/api-extractor": "npm:^7.18.4"
     "@rollup/plugin-commonjs": "npm:^20.0.0"
@@ -4958,7 +4968,6 @@ __metadata:
     eslint-plugin-jsdoc: "npm:^35.5.0"
     eslint-plugin-prettier: "npm:^3.4.0"
     events: "npm:^3.3.0"
-    husky: "npm:^7.0.0"
     jest: "npm:^27.0.6"
     js-logger: "npm:^1.6.1"
     karma: "npm:6.3.15"
@@ -4973,7 +4982,6 @@ __metadata:
     karma-sauce-launcher: "npm:^4.3.6"
     karma-typescript: "npm:^5.5.2"
     karma-typescript-es6-transform: "npm:^5.5.2"
-    lint-staged: "npm:^11.1.1"
     mocha: "npm:^9.1.2"
     npm-run-all: "npm:^4.1.5"
     prettier: "npm:^2.3.2"
@@ -11200,15 +11208,6 @@ __metadata:
   dependencies:
     ms: "npm:^2.0.0"
   checksum: fded981fd3b507fe78f7ce505c3f060e3b53cb2155d279d794a6bddb451bb1c7f865f4ca495dc0bae695ad0c182fd5be3a581b51ba30770e6adfda960bca0e68
-  languageName: node
-  linkType: hard
-
-"husky@npm:^7.0.0":
-  version: 7.0.4
-  resolution: "husky@npm:7.0.4"
-  bin:
-    husky: lib/bin.js
-  checksum: 1d6dd7e973e7fab4316f767f3f8d76591a9857b3ad4fea2b371834afe2122d6567965b6c5a027040b403363c328d35871113d7f64586d7149b4b417c90554237
   languageName: node
   linkType: hard
 
@@ -20713,6 +20712,10 @@ __metadata:
 "webrtc-core-mono@workspace:.":
   version: 0.0.0-use.local
   resolution: "webrtc-core-mono@workspace:."
+  dependencies:
+    "@commitlint/cli": "npm:^12.1.4"
+    "@commitlint/config-conventional": "npm:^12.1.4"
+    lint-staged: "npm:^11.1.1"
   languageName: unknown
   linkType: soft
 
