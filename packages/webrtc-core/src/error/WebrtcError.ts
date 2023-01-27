@@ -7,7 +7,7 @@ export enum ErrorTypes {
 /**
  * Represents a webrtc core error, which contains error type and error message.
  */
-export class WebrtcError {
+export class WebrtcError extends Error {
   type: string;
 
   message: string;
@@ -19,6 +19,7 @@ export class WebrtcError {
    * @param message - Error message.
    */
   constructor(type: ErrorTypes, message = '') {
+    super();
     this.type = type;
     this.message = message;
   }

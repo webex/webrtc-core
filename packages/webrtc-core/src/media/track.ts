@@ -52,7 +52,6 @@ export type TrackPublishEvent = {
 export interface TrackEvents extends EventMap {
   [Events.Ended]: (event: TrackEndEvent) => void;
   [Events.Muted]: (event: TrackMuteEvent) => void;
-  [Events.PublishedStateUpdate]: (event: TrackPublishEvent) => void;
   [Events.UnderlyingTrackChange]: () => void;
 }
 
