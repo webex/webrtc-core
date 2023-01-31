@@ -11,7 +11,7 @@ import {
   getSpeakers,
   getMicrophones,
   getCameras,
-} from "@webex/webrtc-core";
+} from "./bundle";
 
 import {
   NoiseReductionEffect,
