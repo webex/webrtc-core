@@ -1,3 +1,10 @@
+# [1.4.0-beta.2](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.1...v1.4.0-beta.2) (2023-01-31)
+
+
+### Bug Fixes
+
+* review comments ([97fd0a8](https://github.com/webex/webrtc-core/commit/97fd0a835f38bef012685b5259ade399257be77f))
+
 # [1.4.0-beta.1](https://github.com/webex/webrtc-core/compare/v1.3.0...v1.4.0-beta.1) (2023-01-27)
 
 
