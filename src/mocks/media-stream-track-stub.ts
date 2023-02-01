@@ -12,6 +12,8 @@ class MediaStreamTrackStub {
   // be fine.
   eventListeners: Map<string, any> = new Map();
 
+  constraints: MediaTrackConstraints = {};
+
   kind?: MediaStreamTrackKind;
 
   /**
@@ -23,6 +25,12 @@ class MediaStreamTrackStub {
    * Stop this track.
    */
   stop(): void {}
+
+  applyConstraints(constraints?: MediaTrackConstraints): void {}
+
+  getConstraints(): MediaTrackConstraints {
+    return {} as MediaTrackConstraints;
+  }
 
   getSettings(): MediaTrackSettings {
     return {} as MediaTrackSettings;

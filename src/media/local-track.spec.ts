@@ -51,4 +51,14 @@ describe('LocalTrack', () => {
 
     expect(emitted).toBe(true);
   });
+
+  it('should apply and get underlying track constraints', () => {
+    expect.assertions(1);
+
+    localTrack.applyConstraints({ autoGainControl: true });
+
+    const constraints = localTrack.getConstraints();
+
+    expect(constraints).toStrictEqual({ autoGainControl: true });
+  });
 });

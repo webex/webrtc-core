@@ -31,6 +31,9 @@ export class WcmeError {
 
 export type AudioDeviceConstraints = {
   deviceId?: string;
+  autoGainControl?: boolean;
+  echoCancellation?: boolean;
+  noiseSuppression?: boolean;
 };
 
 export type VideoDeviceConstraints = {
