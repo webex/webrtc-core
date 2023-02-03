@@ -2,3 +2,5 @@
 package.json
 docs
 dist
+bundle.js
+samples
