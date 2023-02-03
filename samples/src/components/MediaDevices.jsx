@@ -1,14 +1,14 @@
-import { Button, Col, Form } from 'react-bootstrap';
 import { useState } from 'react';
+import { Button, Col, Form } from 'react-bootstrap';
 export default (props) => {
   const [selectedAudioDevice, setAudioDevice] = useState('default');
   const [selectedCameraDevice, setCameraDevice] = useState('default');
   const [selectedSpeakerDevice, setSpeakerDevice] = useState('');
   const [bnrStatus, setBnrStatus] = useState({ loaded: false, enabled: false });
-  const [vbgStatus, setVbgStatus] = useState({
+  const [videoEffectsStatus, setVideoEffectStatus] = useState({
     blur: false,
-    loaded: false,
-    enabled: false,
+    video:false,
+    background: false
   });
   const [audioStatus, setAudioStatus] = useState({
     muted: false,
@@ -70,13 +70,15 @@ export default (props) => {
         </Col>
         <Col>
           <Button
+            variant={audioStatus.muted?"danger" : 'primary'}
             onClick={() => {
-              props.muteAudioTrack();
+              setAudioStatus({...audioStatus, muted: !audioStatus.muted})
+              props.muteAudioTrack(audioStatus.muted);
             }}
           >
-            Mute
+            {audioStatus.muted?"unMute" : 'Mute'}
           </Button>
-        </Col>
+        </Col>    
         <Col>
           <Button
             onClick={() => {
@@ -89,16 +91,7 @@ export default (props) => {
         <Col>
           <Button
             onClick={() => {
-              props.stopAudioTrack();
-            }}
-          >
-            Load Bnr
-          </Button>
-        </Col>
-        <Col>
-          <Button
-            onClick={() => {
-              props.stopAudioTrack();
+              props.enableBnr();
             }}
           >
             enableBnr
@@ -136,9 +129,18 @@ export default (props) => {
           >
             createCameraTrack
           </Button>
+
+          <Button onClick={() =>{
+            props.stopVideoTrack()
+          }}>stop</Button>
         </Col>
         <Col>
-          <Button>Blur</Button>
+          <Button  
+            variant={videoEffectsStatus.bnrStatus?"danger" : 'primary'} 
+            onClick={() =>{
+              props.enableBlurBackground(!videoEffectsStatus.bnrStatus);
+              setVideoEffectStatus({...videoEffectsStatus, bnrStatus: !videoEffectsStatus.bnrStatus})
+            }}>{videoEffectsStatus.bnrStatus?"enableBlur" : 'disableBlur'}</Button>
           <Button>virtualBackground</Button>
         </Col>
       </Form.Group>
