@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button, Col, Form } from 'react-bootstrap';
+
 export default (props) => {
   const [selectedAudioDevice, setAudioDevice] = useState('default');
   const [selectedCameraDevice, setCameraDevice] = useState('default');
@@ -7,8 +8,8 @@ export default (props) => {
   const [bnrStatus, setBnrStatus] = useState({ loaded: false, enabled: false });
   const [videoEffectsStatus, setVideoEffectStatus] = useState({
     blur: false,
-    video:false,
-    background: false
+    video: false,
+    background: false,
   });
   const [audioStatus, setAudioStatus] = useState({
     muted: false,
@@ -34,7 +35,7 @@ export default (props) => {
   return (
     <Form>
       <h2>Media Devices</h2>
-      <Button id='btn-get-devices' size='sm' onClick={props.init}>
+      <Button id="btn-get-devices" size="sm" onClick={props.init}>
         gather devices(audio, video, playback)
       </Button>
       <Form.Group>
@@ -42,9 +43,7 @@ export default (props) => {
           <label>Audio</label>
         </Col>
         <Col>
-          <Form.Select
-            onChange={(choice) => setAudioDevice(choice.target.value)}
-          >
+          <Form.Select onChange={(choice) => setAudioDevice(choice.target.value)}>
             {props.audioDevice?.map((device) => {
               return (
                 <option key={device.deviceId} value={device.deviceId}>
@@ -63,28 +62,25 @@ export default (props) => {
           <Button
             onClick={() => {
               props.createMicrophoneTrackAction(selectedAudioDevice);
-            }}
-          >
+            }}>
             createMicrophoneTrack
           </Button>
         </Col>
         <Col>
           <Button
-            variant={audioStatus.muted?"danger" : 'primary'}
+            variant={audioStatus.muted ? 'danger' : 'primary'}
             onClick={() => {
-              setAudioStatus({...audioStatus, muted: !audioStatus.muted})
+              setAudioStatus({ ...audioStatus, muted: !audioStatus.muted });
               props.muteAudioTrack(audioStatus.muted);
-            }}
-          >
-            {audioStatus.muted?"unMute" : 'Mute'}
+            }}>
+            {audioStatus.muted ? 'unMute' : 'Mute'}
           </Button>
-        </Col>    
+        </Col>
         <Col>
           <Button
             onClick={() => {
               props.stopAudioTrack();
-            }}
-          >
+            }}>
             Stop
           </Button>
         </Col>
@@ -92,8 +88,7 @@ export default (props) => {
           <Button
             onClick={() => {
               props.enableBnr();
-            }}
-          >
+            }}>
             enableBnr
           </Button>
         </Col>
@@ -125,22 +120,29 @@ export default (props) => {
           <Button
             onClick={() => {
               props.createCameraTrackAction(selectedCameraDevice);
-            }}
-          >
+            }}>
             createCameraTrack
           </Button>
 
-          <Button onClick={() =>{
-            props.stopVideoTrack()
-          }}>stop</Button>
+          <Button
+            onClick={() => {
+              props.stopVideoTrack();
+            }}>
+            stop
+          </Button>
         </Col>
         <Col>
-          <Button  
-            variant={videoEffectsStatus.bnrStatus?"danger" : 'primary'} 
-            onClick={() =>{
+          <Button
+            variant={videoEffectsStatus.bnrStatus ? 'danger' : 'primary'}
+            onClick={() => {
               props.enableBlurBackground(!videoEffectsStatus.bnrStatus);
-              setVideoEffectStatus({...videoEffectsStatus, bnrStatus: !videoEffectsStatus.bnrStatus})
-            }}>{videoEffectsStatus.bnrStatus?"enableBlur" : 'disableBlur'}</Button>
+              setVideoEffectStatus({
+                ...videoEffectsStatus,
+                bnrStatus: !videoEffectsStatus.bnrStatus,
+              });
+            }}>
+            {videoEffectsStatus.bnrStatus ? 'enableBlur' : 'disableBlur'}
+          </Button>
           <Button>virtualBackground</Button>
         </Col>
       </Form.Group>
@@ -148,8 +150,7 @@ export default (props) => {
         <Col>Display</Col>
         <Col>
           <p>
-            withAudio{' '}
-            <input type='checkbox' checked={true} onChange={() => {}} />
+            withAudio <input type="checkbox" checked={true} onChange={() => {}} />
           </p>
         </Col>
         <Col>
@@ -158,15 +159,13 @@ export default (props) => {
               props.createDisplayTrackAction({
                 withAudio: shareStatus.withAudio,
               });
-            }}
-          >
+            }}>
             createDisplayTrack
           </Button>
           <Button
             onClick={() => {
               props.stopDisplayTrack();
-            }}
-          >
+            }}>
             stop
           </Button>
         </Col>
@@ -176,9 +175,7 @@ export default (props) => {
           <label>Audio Output Device</label>
         </Col>
         <Col>
-          <Form.Select
-            onChange={(choice) => setSpeakerDevice(choice.target.value)}
-          >
+          <Form.Select onChange={(choice) => setSpeakerDevice(choice.target.value)}>
             {props.speakerDevice?.map((device) => {
               return (
                 <option key={device.deviceId} value={device.deviceId}>
