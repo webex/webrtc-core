@@ -13,6 +13,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:jsdoc/recommended',
     'plugin:prettier/recommended',
+    'plugin:react/recommended',
   ],
   ignorePatterns: ['dist/**/*.*', 'docs/**/*.*'],
   parser: '@typescript-eslint/parser',
@@ -94,6 +95,19 @@ module.exports = {
     'no-shadow': 0,
     '@typescript-eslint/no-shadow': ['error'],
   },
+  overrides: [
+    {
+      files: ['samples/**/*.jsx', 'samples/**/*.[tj]s'],
+      rules: {
+        'jsdoc/require-description': 0,
+        '@typescript-eslint/no-shadow': 0,
+        'jsdoc/require-jsdoc': 0,
+        'react/display-name': 0,
+        'react/prop-types': 0,
+        'react/react-in-jsx-scope': 0,
+      },
+    },
+  ],
   settings: {
     'import/parsers': {
       '@typescript-eslint/parser': ['.js', '.ts'],

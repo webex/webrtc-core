@@ -1,27 +1,19 @@
-import "bootswatch/dist/pulse/bootstrap.min.css";
-import { useState } from "react";
-import { Col, Container, Navbar } from "react-bootstrap";
-import "./App.css";
+import { VirtualBackgroundEffect } from '@webex-connect/web-media-effects';
+import 'bootswatch/dist/pulse/bootstrap.min.css';
+import { useState } from 'react';
+import { Col, Container, Navbar } from 'react-bootstrap';
+import './App.css';
 import {
   createCameraTrack,
   createDisplayTrack,
   createMicrophoneTrack,
   getCameras,
   getMicrophones,
-  getSpeakers
-} from "./bundle.js";
+  getSpeakers,
+} from './bundle.js';
 import EventList from './components/EventList';
-import MediaDevices from "./components/MediaDevices";
-import MediaStreams from "./components/MediaStreams";
-
-import {
-  VirtualBackgroundEffect
-} from "@webex-connect/web-media-effects";
-
-const applyQuality = () => {};
-const setPlayback = () => {};
-
-const applyResolution = () => {};
+import MediaDevices from './components/MediaDevices';
+import MediaStreams from './components/MediaStreams';
 
 function App() {
   const [audioDevice, setAudioDevice] = useState([]);
@@ -40,99 +32,108 @@ function App() {
   const [trackEvents, setTrackEvents] = useState([]);
 
   const updateEvents = (event) => {
-    setTrackEvents(trackEvents => [...trackEvents,{message: event}]);
-  }
+    setTrackEvents((trackEvents) => [...trackEvents, { message: event }]);
+  };
 
-  const enableBnr = (enabled) =>{
-    const options = {
-      audioContext,
-      processorUrl,
-      legacyProcessorUrl,
-      mode,
-    };
-    effect = new NoiseReductionEffect(options);
-
-  }
+  const enableBnr = (enabled) => {};
 
   const enableVirtualBackground = (enabled) => {
-
-    if(!videoEffect) {
+    let effect = null;
+    if (!vbgEffect) {
       effect = new VirtualBackgroundEffect({
-        mode: "IMAGE",
-        bgVideoUrl: VIDEO_URL,
+        mode: 'IMAGE',
+        bgVideoUrl: 'file://sdsd/sd/',
       });
 
-      localCameraTrack.addEffect("virtualBackground", effect)
+      localCameraTrack.addEffect('virtualBackground', effect);
+
+      setVirtualBackgroundEffect(effect);
+    } else {
+      effect = blurEffect;
     }
 
-  }
+    if (enabled) {
+      effect.enable();
+    } else {
+      effect.disable();
+    }
+  };
 
   const enableVideoBackground = (enabled) => {
-    effect = new VirtualBackgroundEffect({
-      mode: "VIDEO",
-      bgVideoUrl: VIDEO_URL,
-    });
-  }
+    let effect = null;
+    if (!videoEffect) {
+      effect = new VirtualBackgroundEffect({
+        mode: 'VIDEO',
+        bgVideoUrl: 'file://sdsd/sd/',
+      });
+      setVideoEffect(effect);
+    } else {
+      effect = blurEffect;
+    }
+
+    if (enabled) {
+      effect.enable();
+    } else {
+      effect.disable();
+    }
+  };
 
   const enableBlurBackground = async (enabled) => {
     let effect = null;
-    if(!blurEffect) {
+    if (!blurEffect) {
       effect = new VirtualBackgroundEffect({
         mode: `BLUR`,
         blurStrength: `STRONG`,
         quality: `HIGH`,
       });
-      await localCameraTrack.addEffect("blur", effect);
-      setBlurEffect(effect)
+      await localCameraTrack.addEffect('blur', effect);
+      setBlurEffect(effect);
     } else {
-      effect = blurEffect
+      effect = blurEffect;
     }
 
-
-    if(enabled) {
-      effect.enable()
+    if (enabled) {
+      effect.enable();
     } else {
-      effect.disable()
+      effect.disable();
     }
+  };
 
-
-
-  }
-
+  /**
+   * @param deviceId
+   */
   const createMicrophoneTrackAction = async (deviceId) => {
     await createMicrophoneTrack({ deviceId }).then((localMicrophoneTrack) => {
       setLocalMicrophoneTrack(localMicrophoneTrack);
-      updateEvents("Microphone track added ")
-      localMicrophoneTrack.on('muted',(event) =>{
-        updateEvents("Microphone "+ event.trackState.muted)
-      })
+      updateEvents('Microphone track added ');
+      localMicrophoneTrack.on('muted', (event) => {
+        updateEvents(`Microphone ${event.trackState.muted}`);
+      });
 
-      localMicrophoneTrack.on('ended',() =>{
-        updateEvents("Microphone ended")
-      })
+      localMicrophoneTrack.on('ended', () => {
+        updateEvents('Microphone ended');
+      });
 
-      localMicrophoneTrack.on("underlying-track-change",() =>{
-        updateEvents("Microphone track change")
-      })
+      localMicrophoneTrack.on('underlying-track-change', () => {
+        updateEvents('Microphone track change');
+      });
     });
   };
 
   const createCameraTrackAction = async (deviceId) => {
-
     await createCameraTrack({ deviceId }).then((localCameraTrack) => {
       setLocalCameraTrack(localCameraTrack);
       window.localCameraTrack = localCameraTrack;
 
-      localCameraTrack.on('muted',(event) =>{
-        updateEvents("Camera track", event.trackState.muted)
-      })
-      localCameraTrack.on('ended',(event) =>{
-        updateEvents("Camera track Ended")
-      })
+      localCameraTrack.on('muted', (event) => {
+        updateEvents('Camera track', event.trackState.muted);
+      });
+      localCameraTrack.on('ended', (event) => {
+        updateEvents('Camera track Ended');
+      });
 
-
-      localCameraTrack.on("underlying-track-change", () => {
-        updateEvents("Camera track change ")
+      localCameraTrack.on('underlying-track-change', () => {
+        updateEvents('Camera track change ');
         console.log(localCameraTrack.getMediaStreamTrackWithEffects());
       });
     });
@@ -144,30 +145,23 @@ function App() {
         const displayTracks = [];
         displayTracks.push(localDisplayTrack);
         if (localComputerAudioTrack) {
-          localComputerAudioTrack.on('muted',(event) =>{
-            updateEvents("Computer Audio ", event.trackState.muted)
-          })
-          localComputerAudioTrack.on('ended',(event) =>{
-            updateEvents("Computer Audio Track Ended ")
-          })
+          localComputerAudioTrack.on('muted', (event) => {
+            updateEvents('Computer Audio ', event.trackState.muted);
+          });
+          localComputerAudioTrack.on('ended', (event) => {
+            updateEvents('Computer Audio Track Ended ');
+          });
 
-          localDisplayTrack.on("underlying-track-change",(event) =>{
-            updateEvents("Computer Audio underlying-track-change")
-          })
+          localDisplayTrack.on('underlying-track-change', (event) => {
+            updateEvents('Computer Audio underlying-track-change');
+          });
           displayTracks.push(localComputerAudioTrack);
         }
-          
 
+        localDisplayTrack.on('ended', () => {
+          updateEvents('Local display track ended');
+        });
 
-        localDisplayTrack.on('muted',() =>{
-
-          })
-          localDisplayTrack.on('ended',() =>{
-            
-          })
-
-
-          
         setLocalDisplayTracks(displayTracks);
       }
     );
@@ -201,37 +195,44 @@ function App() {
           <MediaDevices
             {...{
               createMicrophoneTrackAction,
-              applyQuality,
               createCameraTrackAction,
               createDisplayTrackAction,
-              applyResolution,
-              setPlayback,
               audioDevice,
               cameraDevice,
               speakerDevice,
               enableBlurBackground,
               enableVirtualBackground,
+              enableVideoBackground,
               enableBnr,
-              stopAudioTrack: () => {localMicrophoneTrack.stop()},
-              stopVideoTrack: () => {localCameraTrack.stop()},
-              stopDisplayTrack: () => {localDisplayTrack.stop()},
-              muteAudioTrack: (muted) => {localMicrophoneTrack.setMuted(muted)},
-              muteVideoTrack: (muted) => {localCameraTrack.setMuted(muted)},
+              stopAudioTrack: () => {
+                localMicrophoneTrack.stop();
+              },
+              stopVideoTrack: () => {
+                localCameraTrack.stop();
+              },
+              stopDisplayTrack: () => {
+                localDisplayTrack.stop();
+              },
+              muteAudioTrack: (muted) => {
+                localMicrophoneTrack.setMuted(muted);
+              },
+              muteVideoTrack: (muted) => {
+                localCameraTrack.setMuted(muted);
+              },
               init,
             }}
           />
         </Col>
         <Col>
-        <p>Track Events </p>
-        <EventList  
-          {...{
-            trackEvents}}
-        />
-        </Col>
-        <Col id={"meetingStreams"}>
-          <MediaStreams
-            {...{ localMicrophoneTrack, localCameraTrack, localDisplayTracks }}
+          <p>Track Events </p>
+          <EventList
+            {...{
+              trackEvents,
+            }}
           />
+        </Col>
+        <Col id={'meetingStreams'}>
+          <MediaStreams {...{ localMicrophoneTrack, localCameraTrack, localDisplayTracks }} />
         </Col>
       </Container>
     </>
