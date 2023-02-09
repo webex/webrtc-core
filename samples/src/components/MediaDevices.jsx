@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Col, Form } from 'react-bootstrap';
+import {Button, Col, Form, Row} from 'react-bootstrap';
 
 export default (props) => {
   const [selectedAudioDevice, setAudioDevice] = useState('default');
@@ -33,162 +33,145 @@ export default (props) => {
   });
 
   return (
-    <Form>
-      <h2>Media Devices</h2>
-      <Button id="btn-get-devices" size="sm" onClick={props.init}>
-        gather devices(audio, video, playback)
-      </Button>
-      <Form.Group>
-        <Col>
-          <label>Audio</label>
-        </Col>
-        <Col>
-          <Form.Select onChange={(choice) => setAudioDevice(choice.target.value)}>
+      <Form>
+        <h2>Media Devices</h2>
+        <Button id="btn-get-devices" size="sm" onClick={props.init}>
+          gather devices(audio, video, playback)
+        </Button>
+        <Form.Group className="d-flex">
+          <h4>Audio</h4>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <Form.Select onChange={(choice) => setAudioDevice(choice.target.value)} style={{ width: '250px' }}>
             {props.audioDevice?.map((device) => {
               return (
-                <option key={device.deviceId} value={device.deviceId}>
-                  {device.label}
-                </option>
+                  <option key={device.deviceId} value={device.deviceId}>
+                    {device.label}
+                  </option>
               );
             })}
           </Form.Select>
-        </Col>
-        <Col>
+          <Button
+              onClick={() => {
+                props.createMicrophoneTrackAction(selectedAudioDevice);
+              }}>
+            createMicrophoneTrack
+          </Button>
+        </Form.Group>
+        <Form.Group className="d-flex">
           <Button>AEC</Button>
           <Button>AGC</Button>
           <Button>ANS</Button>
-        </Col>
-        <Col>
           <Button
-            onClick={() => {
-              props.createMicrophoneTrackAction(selectedAudioDevice);
-            }}>
-            createMicrophoneTrack
-          </Button>
-        </Col>
-        <Col>
-          <Button
-            variant={audioStatus.muted ? 'danger' : 'primary'}
-            onClick={() => {
-              setAudioStatus({ ...audioStatus, muted: !audioStatus.muted });
-              props.muteAudioTrack(audioStatus.muted);
-            }}>
+              variant={audioStatus.muted ? 'danger' : 'primary'}
+              onClick={() => {
+                setAudioStatus({ ...audioStatus, muted: !audioStatus.muted });
+                props.muteAudioTrack(audioStatus.muted);
+              }}>
             {audioStatus.muted ? 'unMute' : 'Mute'}
           </Button>
-        </Col>
-        <Col>
           <Button
-            onClick={() => {
-              props.stopAudioTrack();
-            }}>
+              onClick={() => {
+                props.stopAudioTrack();
+              }}>
             Stop
           </Button>
-        </Col>
-        <Col>
           <Button
-            onClick={() => {
-              props.enableBnr();
-            }}>
+              onClick={() => {
+                props.enableBnr();
+              }}>
             enableBnr
           </Button>
-        </Col>
-      </Form.Group>
-      <Form.Group>
-        <Col>
-          <label>Video </label>
-        </Col>
-        <Col>
-          <Form.Select onChange={(choice) => setCameraDevice(choice.value)}>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <h4>Video</h4>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <Form.Select onChange={(choice) => setCameraDevice(choice.value)} style={{ width: '250px' }}>
             {props.cameraDevice?.map((device) => {
               return (
-                <option key={device.deviceId} value={device.deviceId}>
-                  {device.label}
-                </option>
+                  <option key={device.deviceId} value={device.deviceId}>
+                    {device.label}
+                  </option>
               );
             })}
           </Form.Select>
-        </Col>
-        <Col>
-          <Form.Select onChange={(choice) => setCameraDevice(choice.value)}>
+          <Form.Select onChange={(choice) => setCameraDevice(choice.value)} style={{ width: '100px' }}>
             <option>1080p</option>
             <option>720p</option>
             <option>480p</option>
             <option>360p</option>
           </Form.Select>
-        </Col>
-        <Col>
           <Button
-            onClick={() => {
-              props.createCameraTrackAction(selectedCameraDevice);
-            }}>
+              onClick={() => {
+                props.createCameraTrackAction(selectedCameraDevice);
+              }}>
             createCameraTrack
           </Button>
+        </Form.Group>
+        <Form.Group className="d-flex">
 
           <Button
-            onClick={() => {
-              props.stopVideoTrack();
-            }}>
+              onClick={() => {
+                props.stopVideoTrack();
+              }}>
             stop
           </Button>
-        </Col>
-        <Col>
           <Button
-            variant={videoEffectsStatus.bnrStatus ? 'danger' : 'primary'}
-            onClick={() => {
-              props.enableBlurBackground(!videoEffectsStatus.bnrStatus);
-              setVideoEffectStatus({
-                ...videoEffectsStatus,
-                bnrStatus: !videoEffectsStatus.bnrStatus,
-              });
-            }}>
+              variant={videoEffectsStatus.bnrStatus ? 'danger' : 'primary'}
+              onClick={() => {
+                props.enableBlurBackground(!videoEffectsStatus.bnrStatus);
+                setVideoEffectStatus({
+                  ...videoEffectsStatus,
+                  bnrStatus: !videoEffectsStatus.bnrStatus,
+                });
+              }}>
             {videoEffectsStatus.bnrStatus ? 'enableBlur' : 'disableBlur'}
           </Button>
           <Button>virtualBackground</Button>
-        </Col>
-      </Form.Group>
-      <Form.Group>
-        <Col>Display</Col>
-        <Col>
-          <p>
-            withAudio <input type="checkbox" checked={true} onChange={() => {}} />
-          </p>
-        </Col>
-        <Col>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <h4>Display</h4>
+        </Form.Group>
+        <Form.Group className="d-flex">
           <Button
-            onClick={() => {
-              props.createDisplayTrackAction({
-                withAudio: shareStatus.withAudio,
-              });
-            }}>
+              onClick={() => {
+                props.createDisplayTrackAction({
+                  withAudio: shareStatus.withAudio,
+                });
+              }}>
             createDisplayTrack
           </Button>
           <Button
-            onClick={() => {
-              props.stopDisplayTrack();
-            }}>
+              onClick={() => {
+                props.stopDisplayTrack();
+              }}>
             stop
           </Button>
-        </Col>
-      </Form.Group>
-      <Form.Group>
-        <Col>
-          <label>Audio Output Device</label>
-        </Col>
-        <Col>
-          <Form.Select onChange={(choice) => setSpeakerDevice(choice.target.value)}>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <p>
+            withAudio <input type="checkbox" checked={true} onChange={() => {}} />
+          </p>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <h4>Output</h4>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <h5>Audio Output Device</h5>
+        </Form.Group>
+        <Form.Group className="d-flex">
+          <Form.Select onChange={(choice) => setSpeakerDevice(choice.target.value)} style={{ width: '150px' }}>
             {props.speakerDevice?.map((device) => {
               return (
-                <option key={device.deviceId} value={device.deviceId}>
-                  {device.label}
-                </option>
+                  <option key={device.deviceId} value={device.deviceId}>
+                    {device.label}
+                  </option>
               );
             })}
           </Form.Select>
-        </Col>
-        <Col>
           <Button onClick={props.setPlayback}>setPlayback</Button>
-        </Col>
-      </Form.Group>
-    </Form>
+        </Form.Group>
+      </Form>
   );
 };

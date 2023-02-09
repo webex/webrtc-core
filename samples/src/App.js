@@ -1,7 +1,7 @@
 import { VirtualBackgroundEffect } from '@webex-connect/web-media-effects';
 import 'bootswatch/dist/pulse/bootstrap.min.css';
 import { useState } from 'react';
-import { Col, Container, Navbar } from 'react-bootstrap';
+import {Col, Container, Navbar, Row} from 'react-bootstrap';
 import './App.css';
 import {
   createCameraTrack,
@@ -191,49 +191,53 @@ function App() {
         </Container>
       </Navbar>
       <Container>
-        <Col>
-          <MediaDevices
-            {...{
-              createMicrophoneTrackAction,
-              createCameraTrackAction,
-              createDisplayTrackAction,
-              audioDevice,
-              cameraDevice,
-              speakerDevice,
-              enableBlurBackground,
-              enableVirtualBackground,
-              enableVideoBackground,
-              enableBnr,
-              stopAudioTrack: () => {
-                localMicrophoneTrack.stop();
-              },
-              stopVideoTrack: () => {
-                localCameraTrack.stop();
-              },
-              stopDisplayTrack: () => {
-                localDisplayTrack.stop();
-              },
-              muteAudioTrack: (muted) => {
-                localMicrophoneTrack.setMuted(muted);
-              },
-              muteVideoTrack: (muted) => {
-                localCameraTrack.setMuted(muted);
-              },
-              init,
-            }}
-          />
-        </Col>
-        <Col>
-          <p>Track Events </p>
-          <EventList
-            {...{
-              trackEvents,
-            }}
-          />
-        </Col>
-        <Col id={'meetingStreams'}>
-          <MediaStreams {...{ localMicrophoneTrack, localCameraTrack, localDisplayTracks }} />
-        </Col>
+        <Row>
+          <Col>
+            <MediaDevices
+                {...{
+                  createMicrophoneTrackAction,
+                  createCameraTrackAction,
+                  createDisplayTrackAction,
+                  audioDevice,
+                  cameraDevice,
+                  speakerDevice,
+                  enableBlurBackground,
+                  enableVirtualBackground,
+                  enableVideoBackground,
+                  enableBnr,
+                  stopAudioTrack: () => {
+                    localMicrophoneTrack.stop();
+                  },
+                  stopVideoTrack: () => {
+                    localCameraTrack.stop();
+                  },
+                  stopDisplayTrack: () => {
+                    localDisplayTrack.stop();
+                  },
+                  muteAudioTrack: (muted) => {
+                    localMicrophoneTrack.setMuted(muted);
+                  },
+                  muteVideoTrack: (muted) => {
+                    localCameraTrack.setMuted(muted);
+                  },
+                  init,
+                }}
+            />
+          </Col>
+          <Col id={'meetingStreams'}>
+            <MediaStreams {...{ localMicrophoneTrack, localCameraTrack, localDisplayTracks }} />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <p>Track Events </p>
+            <EventList
+                {...{
+                  trackEvents,
+                }}
+            />
+          </Col>
+        </Row>
       </Container>
     </>
   );
