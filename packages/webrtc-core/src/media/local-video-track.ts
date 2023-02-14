@@ -18,7 +18,7 @@ type BaseVideoConstraints = Pick<
 
 type BaseDisplayConstraints = Pick<
   MediaTrackConstraints,
-  'aspectRatio' | 'height' | 'width' | 'frameRate' | 'suppressLocalAudioPlayback'
+  'aspectRatio' | 'height' | 'width' | 'frameRate' | 'deviceId' | 'suppressLocalAudioPlayback'
 >;
 
 export interface CameraConstraints extends BaseVideoConstraints {

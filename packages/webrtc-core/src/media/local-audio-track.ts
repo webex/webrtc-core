@@ -2,13 +2,7 @@ import { LocalTrack } from './local-track';
 
 export type MicrophoneConstraints = Pick<
   MediaTrackConstraints,
-  | 'deviceId'
-  | 'echoCancellation'
-  | 'autoGainControl'
-  | 'noiseSuppression'
-  | 'sampleRate'
-  | 'sampleSize'
-  | 'channelCount'
+  'deviceId' | 'echoCancellation' | 'sampleRate' | 'sampleSize' | 'channelCount'
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
