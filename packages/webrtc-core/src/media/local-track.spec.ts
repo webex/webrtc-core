@@ -13,6 +13,7 @@ describe('LocalTrack', () => {
     localTrack = new TestLocalTrack(mockStream);
   });
 
+  console.log(localTrack);
   it('should change the underlying track state based on being muted & unmuted', () => {
     expect.assertions(2);
     // Simulate the default state of the track's enabled state.
