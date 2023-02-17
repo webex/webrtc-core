@@ -54,7 +54,6 @@ export async function createCameraTrack(
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ video: constraints });
-    console.log(stream.getVideoTracks[0]);
   } catch (error) {
     throw new WebrtcError(
       ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
@@ -77,7 +76,6 @@ export async function createMicrophoneTrack(
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ audio: constraints });
-    console.log(stream);
   } catch (error) {
     throw new WebrtcError(
       ErrorTypes.CREATE_MICROPHONE_TRACK_FAILED,

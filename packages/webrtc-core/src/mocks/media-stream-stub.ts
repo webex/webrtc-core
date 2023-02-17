@@ -31,14 +31,15 @@ class MediaStreamStub {
   getVideoTracks(): MediaStreamTrack[] {
     return [];
   }
+
+  getAudioTracks(): MediaStreamTrack[] {
+    return [];
+  }
+
+  ensureDevicePermissions(): MediaDeviceInfo[] {
+    return [];
+  }
 }
 
-/**
- * We do this to fill in the type that would normally be in the dom.
- */
-Object.defineProperty(window, 'MediaStream', {
-  writable: true,
-  value: MediaStreamStub,
-});
 
 export default MediaStreamStub;
