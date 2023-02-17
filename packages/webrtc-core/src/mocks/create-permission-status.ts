@@ -7,10 +7,12 @@
 /**
  * Generate a Permission Status mock to be returned from the permissions `query()` function.
  *
+ * @param name
  * @param state - PermissionState.
  * @returns PermissionStatus.
  */
 export const createPermissionStatus = (state: PermissionState): PermissionStatus => ({
+  name: 'string',
   state,
   onchange: () => {},
   addEventListener: () => {},

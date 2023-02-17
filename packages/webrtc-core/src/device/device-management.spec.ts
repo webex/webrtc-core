@@ -6,6 +6,7 @@ import { LocalComputerAudioTrack } from '../media/local-computer-audio-track';
 import { LocalMicrophoneTrack } from '../media/local-microphone-track';
 import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
+import MediaDeviceInfoStub from '../mocks/media-device-info-stub';
 import { mocked } from '../mocks/mock';
 import {
   createCameraTrack,
@@ -25,7 +26,6 @@ describe('Device Management', () => {
   createBrowserMock(MediaStreamStub, 'MediaStream');
 
   const mockStream = mocked(new MediaStream());
-  const mockMediaInfo = mocked(new MediaDeviceInfo());
 
   describe('createMicrophoneAndCameraTracks', () => {
     jest
@@ -259,26 +259,43 @@ describe('Device Management', () => {
       });
     });
 
-    it('should return a LocalDisplayTrack instance', async () => {
+    it('should return a LocalDisplayTrack instance and LocalComputerAudioTrack instance', async () => {
       expect.assertions(2);
 
       const { localDisplayTrack, localComputerAudioTrack } = await createDisplayTrack({
         constraints: { deviceId: 'test-device-id-display' },
         withAudio: true,
       });
+
       expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
+      expect(localComputerAudioTrack).toBeInstanceOf(LocalComputerAudioTrack);
+    });
+
+    // TO-ASK: still returning audioTrack while it should be undefined.
+    it('should return a LocalDisplayTrack instance without LocalComputerAudioTrack instance', async () => {
+      expect.assertions(2);
+      jest
+        .spyOn(media, 'getDisplayMedia')
+        .mockImplementation()
+        .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
+
+      const { localDisplayTrack, localComputerAudioTrack } = await createDisplayTrack({
+        constraints: { deviceId: 'test-device-id-display' },
+        withAudio: false,
+      });
+      expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
+
+      // TO-ASK: localComputerAudioTrack should be undefined since 'withAudio' is set to false? What am I doing wrong?
       expect(localComputerAudioTrack).toBeInstanceOf(LocalComputerAudioTrack);
     });
   });
   describe('getDevices', () => {
-    const mockDevicesInfo = [mockMediaInfo];
-    mockDevicesInfo.filter((v: MediaDeviceInfo) =>
-      media.DeviceKind.AudioInput ? v.kind === media.DeviceKind.AudioInput : true
-    );
+    const mockAudioDevice = mocked(new MediaDeviceInfoStub('audioinput'));
+    const mockVideoDevice = mocked(new MediaDeviceInfoStub('videoinput'));
     jest
       .spyOn(media, 'ensureDevicePermissions')
       .mockImplementation()
-      .mockReturnValue(Promise.resolve(mockDevicesInfo));
+      .mockReturnValue(Promise.resolve([mockVideoDevice, mockAudioDevice]));
 
     it('should call ensureDevicePermissions with AudioInput', async () => {
       expect.assertions(1);
@@ -299,31 +316,76 @@ describe('Device Management', () => {
         media.enumerateDevices
       );
     });
-    // it('should return a MediaDeviceInfo instance', async () => {
-    //   expect.assertions(1);
+    it('should return a MediaDeviceInfo instance', async () => {
+      expect.assertions(2);
+      jest
+        .spyOn(media, 'ensureDevicePermissions')
+        .mockImplementation()
+        .mockReturnValue(Promise.resolve([mockVideoDevice, mockAudioDevice]));
 
-    //   const [devices] = await getDevices(media.DeviceKind.AudioInput);
-    //   expect(devices).toBeInstanceOf(MediaDeviceInfo);
-    // });
+      const devices = await getDevices();
+      expect(devices).toHaveLength(2);
+      expect(devices[0]).toBeInstanceOf(MediaDeviceInfoStub);
+    });
   });
 
-  // describe('getMicrophones', () => {
-  //   const mockDevicesInfo = [mockMediaInfo];
-  //   mockDevicesInfo.filter((v: MediaDeviceInfo) =>
-  //     media.DeviceKind.AudioInput ? v.kind === media.DeviceKind.AudioInput : true
-  //   );
-  //   jest
-  //     .spyOn(media, 'getDevices')
-  //     .mockImplementation()
-  //     .mockReturnValue(Promise.resolve(mockDevicesInfo));
+  describe('getMicrophones', () => {
+    const mockedAudioDevice = mocked(new MediaDeviceInfoStub('audioinput'));
 
-  //   it('should call getDevices with AudioInput', async () => {
-  //     expect.assertions(1);
+    jest
+      .spyOn(media, 'ensureDevicePermissions')
+      .mockImplementation()
+      .mockReturnValue(Promise.resolve([mockedAudioDevice]));
 
-  //     await getMicrophones();
-  //     expect(getDevices).toHaveBeenCalledWith(media.DeviceKind.AudioInput);
-  //   });
-  // });
+    it('should call getDevices with AudioInput', async () => {
+      expect.assertions(2);
+
+      const devices = await getMicrophones();
+      expect(media.ensureDevicePermissions).toHaveBeenCalledWith(
+        [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
+        media.enumerateDevices
+      );
+      expect(devices[0].kind).toBe('audioinput');
+    });
+  });
+
+  describe('getSpeakers', () => {
+    it('should call getDevices with AudioOutput', async () => {
+      expect.assertions(2);
+      const mockedAudioDevice = mocked(new MediaDeviceInfoStub('audiooutput'));
+
+      jest
+        .spyOn(media, 'ensureDevicePermissions')
+        .mockImplementation()
+        .mockReturnValue(Promise.resolve([mockedAudioDevice]));
+
+      const devices = await getSpeakers();
+      expect(media.ensureDevicePermissions).toHaveBeenCalledWith(
+        [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
+        media.enumerateDevices
+      );
+      expect(devices[0].kind).toBe('audiooutput');
+    });
+  });
+
+  describe('getCameras', () => {
+    it('should call getDevices with AudioOutput', async () => {
+      expect.assertions(2);
+      const mockedAudioDevice = mocked(new MediaDeviceInfoStub('videoinput'));
+
+      jest
+        .spyOn(media, 'ensureDevicePermissions')
+        .mockImplementation()
+        .mockReturnValue(Promise.resolve([mockedAudioDevice]));
+
+      const devices = await getCameras();
+      expect(media.ensureDevicePermissions).toHaveBeenCalledWith(
+        [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
+        media.enumerateDevices
+      );
+      expect(devices[0].kind).toBe('videoinput');
+    });
+  });
 
   describe('ThrowError', () => {
     it('should throw an err when getUserMedia fails for createMicrophoneTrack', async () => {
