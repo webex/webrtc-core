@@ -22,7 +22,7 @@ type BaseDisplayConstraints = Pick<
 >;
 
 export interface CameraConstraints extends BaseVideoConstraints {
-  FacingMode?: FacingMode;
+  facingMode?: FacingMode;
 }
 
 export interface DisplayConstraints extends BaseDisplayConstraints {

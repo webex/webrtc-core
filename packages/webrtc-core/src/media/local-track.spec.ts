@@ -10,19 +10,18 @@ describe('LocalTrack', () => {
   const mockStream = createMockedStream();
   let localTrack: LocalTrack;
   beforeEach(() => {
-    localTrack = new TestLocalTrack(mockStream);
+    localTrack = new TestLocalTrack(mockStream.getTracks()[0]);
   });
 
-  console.log(localTrack);
   it('should change the underlying track state based on being muted & unmuted', () => {
     expect.assertions(2);
     // Simulate the default state of the track's enabled state.
     mockStream.getTracks()[0].enabled = true;
 
     localTrack.setMuted(true);
-    expect(localTrack.underlyingTrack.enabled).toBe(false);
+    expect(localTrack.getMediaStreamTrack().enabled).toBe(false);
     localTrack.setMuted(false);
-    expect(localTrack.underlyingTrack.enabled).toBe(true);
+    expect(localTrack.getMediaStreamTrack().enabled).toBe(true);
   });
 
   it('should emit an event when stopped', () => {
@@ -48,7 +47,7 @@ describe('LocalTrack', () => {
       emitted = true;
     });
 
-    localTrack.underlyingTrack.onended?.(new Event('Synthetic Ended Event'));
+    localTrack.getMediaStreamTrack().onended?.(new Event('Synthetic Ended Event'));
 
     expect(emitted).toBe(true);
   });
