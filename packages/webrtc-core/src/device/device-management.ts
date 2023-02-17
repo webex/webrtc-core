@@ -63,7 +63,6 @@ export async function createCameraTrack(
   return new LocalCameraTrack(stream.getVideoTracks()[0]);
 }
 
-// to-ask: getAudioTracks doesnt exist on the o/p of getUserMedia()
 /**
  * Creates a microphone audio track.
  *

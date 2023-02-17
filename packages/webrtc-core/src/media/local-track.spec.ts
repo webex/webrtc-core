@@ -51,4 +51,42 @@ describe('LocalTrack', () => {
 
     expect(emitted).toBe(true);
   });
+
+  // TO-ASK: what does TracEffect take, shouldn't it be list of effects?
+  // TO-DO: add testcases for addEffect, getEffect and disposeEffect once the above is figured out.
+  it('should return getEffect correctly', () => {
+    expect.assertions(2);
+
+    jest.spyOn(localTrack, 'getEffect').mockReturnValue(undefined);
+    localTrack.getEffect('testname');
+    expect(localTrack.getEffect).toHaveBeenCalledWith('testname');
+
+    expect(localTrack.getEffect('testname')).toBeUndefined();
+  });
+
+  // it('should addEffect correctly', () => {
+  //   expect.assertions(2);
+
+  //   jest.spyOn(localTrack, 'getEffect').mockReturnValue(undefined);
+  //   localTrack.getEffect('testname');
+  //   expect(localTrack.getEffect).toHaveBeenCalledWith('testname');
+
+  //   expect(localTrack.getEffect('testname')).toBeUndefined();
+  // });
+
+  it('should setPublished correctly', () => {
+    expect.assertions(4);
+
+    jest.spyOn(localTrack, 'setPublished');
+    localTrack.setPublished(true);
+    expect(localTrack.setPublished).toHaveBeenCalledWith(true);
+
+    expect(localTrack.published).toBe(true);
+
+    jest.spyOn(localTrack, 'setPublished');
+    localTrack.setPublished(false);
+    expect(localTrack.setPublished).toHaveBeenCalledWith(false);
+
+    expect(localTrack.published).toBe(false);
+  });
 });

@@ -44,10 +44,5 @@ Object.defineProperty(window, 'MediaStreamTrack', {
   writable: true,
   value: MediaStreamTrackStub,
 });
-Object.defineProperty(window, 'MediaDeviceInfo', {
-  writable: true,
-  value: MediaStreamTrackStub,
-});
-
 
 export default MediaStreamTrackStub;
