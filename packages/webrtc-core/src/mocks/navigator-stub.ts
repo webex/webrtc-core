@@ -32,9 +32,6 @@ const enumerateDevices = async (): Promise<MediaDeviceInfo[]> => {
   return [];
 };
 
-// TO-ASK: How can this handler be mocked correctly here to access in testcase?
-// const ondevicechange = (() => void);
-
 /**
  * A permissions.query stub.
  *
