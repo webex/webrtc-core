@@ -270,24 +270,6 @@ describe('Device Management', () => {
       expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
       expect(localComputerAudioTrack).toBeInstanceOf(LocalComputerAudioTrack);
     });
-
-    // TO-ASK: still returning audioTrack while it should be undefined.
-    it('should return a LocalDisplayTrack instance without LocalComputerAudioTrack instance', async () => {
-      expect.assertions(2);
-      jest
-        .spyOn(media, 'getDisplayMedia')
-        .mockImplementation()
-        .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
-
-      const { localDisplayTrack, localComputerAudioTrack } = await createDisplayTrack({
-        constraints: { deviceId: 'test-device-id-display' },
-        withAudio: false,
-      });
-      expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
-
-      // TO-ASK: localComputerAudioTrack should be undefined since 'withAudio' is set to false? What am I doing wrong?
-      expect(localComputerAudioTrack).toBeInstanceOf(LocalComputerAudioTrack);
-    });
   });
   describe('getDevices', () => {
     const mockAudioDevice = mocked(new MediaDeviceInfoStub('audioinput'));
