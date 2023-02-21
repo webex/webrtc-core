@@ -1,3 +1,14 @@
+# [1.4.0-beta.3](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.2...v1.4.0-beta.3) (2023-02-21)
+
+
+### Bug Fixes
+
+* add device-management unit tests ([eb53669](https://github.com/webex/webrtc-core/commit/eb53669dd0f688c85ff0fe4b713b8e79d6acefde))
+* adding tests for device-management ([e691f12](https://github.com/webex/webrtc-core/commit/e691f12d7bd15aa74f7ddfe635ba4c80c5b58da5))
+* eslint errors and review comments ([f06365b](https://github.com/webex/webrtc-core/commit/f06365b9a62b718c333701343d954cd0c579ae3b))
+* fixing unit tests in device-management ([e403542](https://github.com/webex/webrtc-core/commit/e403542f5db2a7060489ff655fd53478deef4b12))
+* update samples to test tracks and events ([f415703](https://github.com/webex/webrtc-core/commit/f4157039f8432fcbd3fa276ee904e9c0b584e8cf))
+
 # [1.4.0-beta.2](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.1...v1.4.0-beta.2) (2023-01-31)
 
 
