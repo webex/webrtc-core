@@ -4971,7 +4971,6 @@ __metadata:
     karma-typescript: "npm:^5.5.2"
     karma-typescript-es6-transform: "npm:^5.5.2"
     mocha: "npm:^9.1.2"
-    npm-run-all: "npm:^4.1.5"
     prettier: "npm:^2.3.2"
     puppeteer: "npm:^10.4.0"
     rollup: "npm:^2.53.2"
@@ -20705,6 +20704,7 @@ __metadata:
     "@commitlint/config-conventional": "npm:^12.1.4"
     eslint-plugin-react: "npm:^7.32.2"
     lint-staged: "npm:^11.1.1"
+    npm-run-all: "npm:^4.1.5"
   languageName: unknown
   linkType: soft
 
