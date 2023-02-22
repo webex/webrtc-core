@@ -54,6 +54,7 @@ export default (props) => {
           })}
         </Form.Select>
         <Button
+          size="sm"
           onClick={() => {
             props.createMicrophoneTrackAction(selectedAudioDevice);
           }}>
@@ -61,10 +62,11 @@ export default (props) => {
         </Button>
       </Form.Group>
       <Form.Group className="d-flex">
-        <Button>AEC</Button>
-        <Button>AGC</Button>
-        <Button>ANS</Button>
+        <Button size="sm">AEC</Button>
+        <Button size="sm">AGC</Button>
+        <Button size="sm">ANS</Button>
         <Button
+          size="sm"
           variant={audioStatus.muted ? 'danger' : 'primary'}
           onClick={() => {
             setAudioStatus({ ...audioStatus, muted: !audioStatus.muted });
@@ -73,12 +75,14 @@ export default (props) => {
           {audioStatus.muted ? 'unMute' : 'Mute'}
         </Button>
         <Button
+          size="sm"
           onClick={() => {
             props.stopAudioTrack();
           }}>
           Stop
         </Button>
         <Button
+          size="sm"
           onClick={() => {
             props.enableBnr();
           }}>
@@ -109,6 +113,7 @@ export default (props) => {
           <option>360p</option>
         </Form.Select>
         <Button
+          size="sm"
           onClick={() => {
             props.createCameraTrackAction(selectedCameraDevice);
           }}>
@@ -117,12 +122,14 @@ export default (props) => {
       </Form.Group>
       <Form.Group className="d-flex">
         <Button
+          size="sm"
           onClick={() => {
             props.stopVideoTrack();
           }}>
           stop
         </Button>
         <Button
+          size="sm"
           variant={videoEffectsStatus.bnrStatus ? 'danger' : 'primary'}
           onClick={() => {
             props.enableBlurBackground(!videoEffectsStatus.bnrStatus);
@@ -133,13 +140,14 @@ export default (props) => {
           }}>
           {videoEffectsStatus.bnrStatus ? 'enableBlur' : 'disableBlur'}
         </Button>
-        <Button>virtualBackground</Button>
+        <Button size="sm">virtualBackground</Button>
       </Form.Group>
       <Form.Group className="d-flex">
         <h4>Display</h4>
       </Form.Group>
       <Form.Group className="d-flex">
         <Button
+          size="sm"
           onClick={() => {
             props.createDisplayTrackAction({
               withAudio: shareStatus.withAudio,
@@ -148,6 +156,7 @@ export default (props) => {
           createDisplayTrack
         </Button>
         <Button
+          size="sm"
           onClick={() => {
             props.stopDisplayTrack();
           }}>
@@ -177,7 +186,9 @@ export default (props) => {
             );
           })}
         </Form.Select>
-        <Button onClick={props.setPlayback}>setPlayback</Button>
+        <Button size="sm" onClick={props.setPlayback}>
+          setPlayback
+        </Button>
       </Form.Group>
     </Form>
   );
