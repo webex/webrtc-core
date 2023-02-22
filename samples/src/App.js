@@ -1,7 +1,7 @@
 import { VirtualBackgroundEffect } from '@webex-connect/web-media-effects';
 import 'bootswatch/dist/pulse/bootstrap.min.css';
 import { useState } from 'react';
-import {Col, Container, Navbar, Row} from 'react-bootstrap';
+import { Col, Container, Navbar, Row } from 'react-bootstrap';
 import './App.css';
 import {
   createCameraTrack,
@@ -194,34 +194,34 @@ function App() {
         <Row>
           <Col>
             <MediaDevices
-                {...{
-                  createMicrophoneTrackAction,
-                  createCameraTrackAction,
-                  createDisplayTrackAction,
-                  audioDevice,
-                  cameraDevice,
-                  speakerDevice,
-                  enableBlurBackground,
-                  enableVirtualBackground,
-                  enableVideoBackground,
-                  enableBnr,
-                  stopAudioTrack: () => {
-                    localMicrophoneTrack.stop();
-                  },
-                  stopVideoTrack: () => {
-                    localCameraTrack.stop();
-                  },
-                  stopDisplayTrack: () => {
-                    localDisplayTrack.stop();
-                  },
-                  muteAudioTrack: (muted) => {
-                    localMicrophoneTrack.setMuted(muted);
-                  },
-                  muteVideoTrack: (muted) => {
-                    localCameraTrack.setMuted(muted);
-                  },
-                  init,
-                }}
+              {...{
+                createMicrophoneTrackAction,
+                createCameraTrackAction,
+                createDisplayTrackAction,
+                audioDevice,
+                cameraDevice,
+                speakerDevice,
+                enableBlurBackground,
+                enableVirtualBackground,
+                enableVideoBackground,
+                enableBnr,
+                stopAudioTrack: () => {
+                  localMicrophoneTrack.stop();
+                },
+                stopVideoTrack: () => {
+                  localCameraTrack.stop();
+                },
+                stopDisplayTrack: () => {
+                  localDisplayTrack.stop();
+                },
+                muteAudioTrack: (muted) => {
+                  localMicrophoneTrack.setMuted(muted);
+                },
+                muteVideoTrack: (muted) => {
+                  localCameraTrack.setMuted(muted);
+                },
+                init,
+              }}
             />
           </Col>
           <Col id={'meetingStreams'}>
@@ -232,9 +232,9 @@ function App() {
           <Col>
             <p>Track Events </p>
             <EventList
-                {...{
-                  trackEvents,
-                }}
+              {...{
+                trackEvents,
+              }}
             />
           </Col>
         </Row>
