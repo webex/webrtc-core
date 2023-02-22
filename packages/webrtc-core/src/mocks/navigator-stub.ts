@@ -33,6 +33,13 @@ const enumerateDevices = async (): Promise<MediaDeviceInfo[]> => {
 };
 
 /**
+ * @param event
+ */
+const ondevicechange = (event: Event) => {
+  return event;
+};
+
+/**
  * A permissions.query stub.
  *
  * @param descriptor - A PermissionDescriptor object.
@@ -47,6 +54,7 @@ const mediaDevices = {
   enumerateDevices,
   getDisplayMedia,
   getUserMedia,
+  ondevicechange,
 };
 
 const permissions = {

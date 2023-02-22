@@ -33,10 +33,10 @@ describe('Device Management', () => {
       .mockImplementation()
       .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
 
-    const track = new MediaStreamTrack();
-    const mockTrack = new MediaStreamTrack();
-    mockStream.getAudioTracks.mockReturnValue([track]);
-    mockStream.getVideoTracks.mockReturnValue([mockTrack]);
+    const audioTrack = new MediaStreamTrack();
+    const videoTrack = new MediaStreamTrack();
+    mockStream.getAudioTracks.mockReturnValue([audioTrack]);
+    mockStream.getVideoTracks.mockReturnValue([videoTrack]);
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
@@ -115,7 +115,7 @@ describe('Device Management', () => {
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
-      mockStream.getAudioTracks.mockReturnValue([track]);
+
       await createMicrophoneTrack({ deviceId: 'test-device-id-audio' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         audio: {
@@ -167,7 +167,6 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      mockStream.getVideoTracks.mockReturnValue([track]);
       await createCameraTrack({ deviceId: 'test-device-id-video' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         video: {
@@ -213,10 +212,11 @@ describe('Device Management', () => {
       .mockImplementation()
       .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
 
-    const track = new MediaStreamTrack();
-    const mockTrack = new MediaStreamTrack();
-    mockStream.getAudioTracks.mockReturnValue([track]);
-    mockStream.getVideoTracks.mockReturnValue([mockTrack]);
+    const audioTrack = new MediaStreamTrack();
+    const videoTrack = new MediaStreamTrack();
+    mockStream.getAudioTracks.mockReturnValue([audioTrack]);
+    mockStream.getVideoTracks.mockReturnValue([videoTrack]);
+
     it('should call getDisplayMedia', async () => {
       expect.assertions(1);
 
@@ -269,6 +269,22 @@ describe('Device Management', () => {
 
       expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
       expect(localComputerAudioTrack).toBeInstanceOf(LocalComputerAudioTrack);
+    });
+
+    it('should return a LocalDisplayTrack instance without LocalComputerAudioTrack instance', async () => {
+      expect.assertions(2);
+      mockStream.getAudioTracks.mockReturnValue([]);
+      jest
+        .spyOn(media, 'getDisplayMedia')
+        .mockImplementation()
+        .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
+
+      const { localDisplayTrack, localComputerAudioTrack } = await createDisplayTrack({
+        constraints: { deviceId: 'test-device-id-display' },
+        withAudio: false,
+      });
+      expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
+      expect(localComputerAudioTrack).toBeUndefined();
     });
   });
   describe('getDevices', () => {
