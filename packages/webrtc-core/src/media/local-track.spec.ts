@@ -2,7 +2,6 @@ import { createMockedStream } from '../util/test-utils';
 import { LocalTrack } from './local-track';
 import MediaStreamStub from '../mocks/media-stream-stub';
 import { createBrowserMock } from '../mocks/create-browser-mock';
-
 /**
  * A dummy LocalTrack implementation so we can instantiate it for testing.
  */
@@ -61,20 +60,12 @@ describe('LocalTrack', () => {
     const effect = {
       load: jest.fn(),
 
-      /**
-       *
-       */
       getUnderlyingStream: () => {
         return {
-          /**
-           *
-           */
           getAudioTracks: () => {
             return [];
           },
-          /**
-           *
-           */
+
           getVideoTracks: () => {
             return [videotrack];
           },
@@ -99,20 +90,11 @@ describe('LocalTrack', () => {
     const effect = {
       load: jest.fn(),
       dispose: jest.fn(),
-      /**
-       *
-       */
       getUnderlyingStream: () => {
         return {
-          /**
-           *
-           */
           getAudioTracks: () => {
             return [audioTrack];
           },
-          /**
-           *
-           */
           getVideoTracks: () => {
             return [];
           },

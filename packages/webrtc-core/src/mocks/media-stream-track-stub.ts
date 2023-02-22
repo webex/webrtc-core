@@ -35,6 +35,8 @@ class MediaStreamTrackStub {
   removeEventListener(event: string, handler: any): void {
     this.eventListeners.delete(event);
   }
+
+  applyConstraints(mediaTrackConstaints: MediaTrackConstraints): void {}
 }
 
 /**

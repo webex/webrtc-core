@@ -216,7 +216,6 @@ describe('Device Management', () => {
     const videoTrack = new MediaStreamTrack();
     mockStream.getAudioTracks.mockReturnValue([audioTrack]);
     mockStream.getVideoTracks.mockReturnValue([videoTrack]);
-
     it('should call getDisplayMedia', async () => {
       expect.assertions(1);
 
@@ -242,7 +241,6 @@ describe('Device Management', () => {
           width: 1920,
           height: 1080,
           frameRate: 30,
-          suppressLocalAudioPlayback: true,
         },
         withAudio: false,
       });
@@ -253,7 +251,6 @@ describe('Device Management', () => {
           width: 1920,
           height: 1080,
           frameRate: 30,
-          suppressLocalAudioPlayback: true,
         },
         audio: false,
       });
