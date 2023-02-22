@@ -77,6 +77,34 @@ describe('enumerateDevices', () => {
   });
 });
 
+describe('setOnDeviceChangeHandler', () => {
+  it('should call setOnDeviceChangeHandler correctly', async () => {
+    expect.assertions(1);
+    const mockedNavigatorStub = createBrowserMock(Navigator, 'navigator');
+    const mockHandler = jest.fn();
+    media.setOnDeviceChangeHandler(mockHandler);
+    expect(mockedNavigatorStub.mediaDevices.ondevicechange).toBe(mockHandler);
+  });
+});
+
+describe('checkDevicePermissions', () => {
+  it('should checkDevicePermissions for status: granted', async () => {
+    expect.assertions(1);
+
+    const mockedNavigatorStub = createBrowserMock(Navigator, 'navigator');
+    // mock 'granted' query response
+    mockedNavigatorStub.permissions.query
+      .mockReturnValueOnce(Promise.resolve(createPermissionStatus('granted')))
+      .mockReturnValueOnce(Promise.resolve(createPermissionStatus('granted')));
+
+    const permissionGranted = await media.checkDevicePermissions([
+      media.DeviceKind.AudioInput,
+      media.DeviceKind.VideoInput,
+    ]);
+    expect(permissionGranted).toBe(true);
+  });
+});
+
 describe('ensureDevicePermissions', () => {
   it('should call the callback.', async () => {
     expect.assertions(2);
