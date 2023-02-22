@@ -107,6 +107,17 @@ module.exports = {
         'react/react-in-jsx-scope': 0,
       },
     },
+    {
+      files: ['**/*.spec.ts'],
+      rules: {
+        'jsdoc/require-description': 0,
+        '@typescript-eslint/no-shadow': 0,
+        'jsdoc/require-jsdoc': 0,
+        'react/display-name': 0,
+        'react/prop-types': 0,
+        'react/react-in-jsx-scope': 0,
+      },
+    },
   ],
   settings: {
     'import/parsers': {
