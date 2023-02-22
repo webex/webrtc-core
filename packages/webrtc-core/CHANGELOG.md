@@ -1,3 +1,10 @@
+# [1.4.0-beta.4](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.3...v1.4.0-beta.4) (2023-02-22)
+
+
+### Bug Fixes
+
+* adding media unit tests ([a0ad45a](https://github.com/webex/webrtc-core/commit/a0ad45a72068e9b3af6809e8834150bb4d659cce))
+
 # [1.4.0-beta.3](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.2...v1.4.0-beta.3) (2023-02-21)
 
 
