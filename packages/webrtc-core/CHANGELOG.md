@@ -1,3 +1,10 @@
+# [1.4.0-beta.5](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.4...v1.4.0-beta.5) (2023-02-23)
+
+
+### Bug Fixes
+
+* conflct with track kind ([0237978](https://github.com/webex/webrtc-core/commit/023797801f591c672490f72a311b7479c50374d0))
+
 # [1.4.0-beta.4](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.3...v1.4.0-beta.4) (2023-02-22)
 
 
