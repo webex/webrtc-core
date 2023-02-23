@@ -1,3 +1,4 @@
+import { MediaStreamTrackKind } from '../peer-connection';
 import { createMockedStream } from '../util/test-utils';
 import { LocalTrack } from './local-track';
 import MediaStreamStub from '../mocks/media-stream-stub';
@@ -73,7 +74,7 @@ describe('LocalTrack', () => {
       },
     };
 
-    localTrack.kind = 'video';
+    localTrack.kind = MediaStreamTrackKind.Video;
     jest.spyOn(localTrack, 'setMediaStreamTrackWithEffects');
     jest.spyOn(effect, 'getUnderlyingStream');
     await localTrack.addEffect('videoEffect', effect);
@@ -102,7 +103,7 @@ describe('LocalTrack', () => {
       },
     };
 
-    localTrack.kind = 'audio';
+    localTrack.kind = MediaStreamTrackKind.Audio;
     jest.spyOn(localTrack, 'setMediaStreamTrackWithEffects');
     jest.spyOn(effect, 'getUnderlyingStream');
     await localTrack.addEffect('audioEffect', effect);

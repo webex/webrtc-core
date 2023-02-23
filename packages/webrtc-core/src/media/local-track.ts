@@ -1,15 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { EventMap } from '../event-emitter';
-import { MediaStreamTrackKind } from '../peer-connection';
 import { logger } from '../util/logger';
-import { Events, Track } from './track';
-
-export interface TrackState {
-  id: string;
-  label: string;
-  type: MediaStreamTrackKind;
-  muted: boolean;
-}
+import { Events, Track, TrackState } from './track';
 
 export type TrackEndEvent = {
   trackState: TrackState;

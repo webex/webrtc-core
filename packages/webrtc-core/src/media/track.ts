@@ -2,6 +2,7 @@
 import { EventMap } from 'typed-emitter';
 import { EventEmitter } from '../event-emitter';
 import { logger } from '../util/logger';
+import { MediaStreamTrackKind } from '../peer-connection';
 
 export enum Events {
   Ended = 'ended',
@@ -55,8 +56,8 @@ export interface TrackEvents extends EventMap {
   [Events.UnderlyingTrackChange]: () => void;
 }
 
-export type TrackEffect = any;
-// TBD: Fix this once types are published seperatly
+export type TrackEffect = unknown;
+// TBD: Fix this once types are published separately
 // export type TrackEffect = BaseMicrophoneEffect | BaseCameraEffect;
 
 /**
@@ -67,7 +68,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
 
   ID: string;
 
-  kind: string;
+  kind: MediaStreamTrackKind;
 
   status: TrackStatus;
 
@@ -80,15 +81,14 @@ export abstract class Track extends EventEmitter<TrackEvents> {
   /**
    * Constructor for the Track class. Creates an empty CoreLocalTrack or uses an existing one.
    *
-   * @param stream - The MediaStream for this LocalTrack.
-   * @param track
+   * @param track - Media stream track.
    */
   constructor(track: MediaStreamTrack) {
     super();
     this.ID = track.id;
     this.status = track.readyState as TrackStatus;
     this.label = track.label;
-    this.kind = track.kind;
+    this.kind = track.kind as MediaStreamTrackKind;
     this.#mediaStreamTrack = track;
 
     /**
@@ -104,8 +104,8 @@ export abstract class Track extends EventEmitter<TrackEvents> {
     this.#mediaStreamTrack.onmute = () => {
       this.emit(Events.Muted, {
         trackState: {
-          id: 'string',
-          label: 'string',
+          id: this.ID,
+          label: this.label,
           muted: this.#mediaStreamTrack.muted,
         },
       });
@@ -178,8 +178,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
    *
    * This method sets the track after applying effect.
    *
-   * @param track
-   * @returns #mediaStreamTrack of type MediaStreamTrack.
+   * @param track - Media stream track.
    */
   setMediaStreamTrackWithEffects(track: MediaStreamTrack): void {
     this.#mediaStreamTrackWithEffect = track;
