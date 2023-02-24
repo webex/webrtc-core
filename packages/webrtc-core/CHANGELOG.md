@@ -1,3 +1,10 @@
+# [1.4.0-beta.6](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.5...v1.4.0-beta.6) (2023-02-24)
+
+
+### Bug Fixes
+
+* export audio tracks ([d3f5573](https://github.com/webex/webrtc-core/commit/d3f5573ef7e5d74ec83078a7073e9fb2d380b4df))
+
 # [1.4.0-beta.5](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.4...v1.4.0-beta.5) (2023-02-23)
 
 
