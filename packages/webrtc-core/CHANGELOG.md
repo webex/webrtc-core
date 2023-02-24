@@ -1,3 +1,10 @@
+# [1.4.0-beta.7](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.6...v1.4.0-beta.7) (2023-02-24)
+
+
+### Bug Fixes
+
+* return track if effects are not active ([01941cc](https://github.com/webex/webrtc-core/commit/01941ccf0a6c0ccca6fb3cbd1fd04de05c2787b9))
+
 # [1.4.0-beta.6](https://github.com/webex/webrtc-core/compare/v1.4.0-beta.5...v1.4.0-beta.6) (2023-02-24)
 
 
