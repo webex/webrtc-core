@@ -2,8 +2,6 @@
 // support 'export * as ___ from ___' yet.
 import * as media from './media';
 
-// TODO: webex js sdk re export the types for device-manager
-
 export * from './device/device-management';
 export * from './media/local-camera-track';
 export * from './media/local-display-track';
@@ -11,6 +9,7 @@ export * from './media/local-computer-audio-track';
 export * from './media/local-microphone-track';
 export * from './media/local-track';
 export * from './media/local-video-track';
+export * from './media/local-audio-track';
 export * from './peer-connection';
 export * from './peer-connection-utils';
 export { media };

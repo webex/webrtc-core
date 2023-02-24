@@ -5,8 +5,6 @@ export type MicrophoneConstraints = Pick<
   'deviceId' | 'echoCancellation' | 'sampleRate' | 'sampleSize' | 'channelCount'
 >;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TrackEffect = any;
 /**
  * Represents a audio track for a audio source.
  */
