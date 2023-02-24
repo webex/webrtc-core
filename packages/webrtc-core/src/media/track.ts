@@ -171,7 +171,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
    * @returns #mediaStreamTrack of type MediaStreamTrack.
    */
   getMediaStreamTrackWithEffects(): MediaStreamTrack | undefined {
-    return this.#mediaStreamTrackWithEffect;
+    return this.#mediaStreamTrackWithEffect || this.#mediaStreamTrack;
   }
 
   /**
