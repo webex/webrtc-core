@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { EventMap } from '../event-emitter';
 import { logger } from '../util/logger';
-import { Events, Track, TrackState, TrackMuteEvent, TrackEndEvent } from './track';
+import { Events, Track, TrackState } from './track';
 
 export type TrackPublishEvent = {
   isPublished: boolean;
@@ -65,7 +65,7 @@ export abstract class LocalTrack extends Track {
       this.effects.forEach((effect: TrackEffect) => effect.dispose());
       this.effects.clear();
 
-      // TODO: on dispose restore the track and trigger trackChange event
+      this.setMediaStreamTrackWithEffects(null);
     }
   }
 

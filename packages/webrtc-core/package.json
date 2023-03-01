@@ -33,6 +33,7 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.0.1",
     "@types/sdp-transform": "^2.4.5",
+    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "chai": "^4.3.4",
@@ -104,6 +105,7 @@
     "events": "^3.3.0",
     "js-logger": "^1.6.1",
     "typed-emitter": "^2.1.0",
+    "uuid": "^9.0.0",
     "webrtc-adapter": "^8.1.2"
   }
 }

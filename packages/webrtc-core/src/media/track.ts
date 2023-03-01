@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { EventMap } from 'typed-emitter';
+import { v4 as uuidv4 } from 'uuid';
 import { EventEmitter } from '../event-emitter';
 import { logger } from '../util/logger';
 import { MediaStreamTrackKind } from '../peer-connection';
@@ -61,13 +62,7 @@ export type TrackEffect = unknown;
 export abstract class Track extends EventEmitter<TrackEvents> {
   static Events = Events;
 
-  ID: string;
-
-  kind: MediaStreamTrackKind;
-
-  status: TrackStatus;
-
-  label: string;
+  id: string;
 
   #mediaStreamTrack: MediaStreamTrack;
 
@@ -80,10 +75,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
    */
   constructor(track: MediaStreamTrack) {
     super();
-    this.ID = track.id;
-    this.status = track.readyState as TrackStatus;
-    this.label = track.label;
-    this.kind = track.kind as MediaStreamTrackKind;
+    this.id = uuidv4();
     this.#mediaStreamTrack = track;
 
     /**
@@ -102,21 +94,39 @@ export abstract class Track extends EventEmitter<TrackEvents> {
   }
 
   /**
-   * Get id of this track.
-   *
-   * @returns The id of this track.
-   */
-  get id(): string {
-    return this.#mediaStreamTrack.id;
-  }
-
-  /**
    * Get muted state of this track.
    *
    * @returns The muted state of this track.
    */
   get muted(): boolean {
     return !this.#mediaStreamTrack.enabled;
+  }
+
+  /**
+   * Gets label for this track.
+   *
+   * @returns The muted state of this track.
+   */
+  get label(): string {
+    return this.#mediaStreamTrack.label;
+  }
+
+  /**
+   * Gets kind for this track.
+   *
+   * @returns The muted state of this track.
+   */
+  get kind(): MediaStreamTrackKind {
+    return this.#mediaStreamTrack.kind as MediaStreamTrackKind;
+  }
+
+  /**
+   * Gets ready State for this track.
+   *
+   * @returns The muted state of this track.
+   */
+  get state(): TrackStatus {
+    return this.#mediaStreamTrack.readyState as TrackStatus;
   }
 
   /**
@@ -169,8 +179,13 @@ export abstract class Track extends EventEmitter<TrackEvents> {
    *
    * @param track - Media stream track.
    */
-  setMediaStreamTrackWithEffects(track: MediaStreamTrack): void {
-    this.#mediaStreamTrackWithEffect = track;
+  protected setMediaStreamTrackWithEffects(track?: MediaStreamTrack): void {
+    if (track) {
+      this.#mediaStreamTrackWithEffect = track;
+    } else {
+      this.#mediaStreamTrackWithEffect = undefined;
+    }
+
     this.emit(Events.UnderlyingTrackChange);
   }
 

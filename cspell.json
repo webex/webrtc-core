@@ -22,6 +22,7 @@
     "globby",
     "gohri",
     "libauth",
+    "uuidv4",
     "mkdir",
     "negotiatedneeded",
     "preprocessors",

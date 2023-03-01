@@ -12,4 +12,5 @@ export * from './media/local-video-track';
 export * from './media/local-audio-track';
 export * from './peer-connection';
 export * from './peer-connection-utils';
+export * from './error/WebrtcError';
 export { media };

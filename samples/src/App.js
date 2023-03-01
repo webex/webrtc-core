@@ -1,4 +1,4 @@
-import { VirtualBackgroundEffect } from '@webex-connect/web-media-effects';
+import { VirtualBackgroundEffect } from '@webex/web-media-effects';
 import 'bootswatch/dist/pulse/bootstrap.min.css';
 import { useState } from 'react';
 import { Col, Container, Navbar, Row } from 'react-bootstrap';
