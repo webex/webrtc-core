@@ -9,7 +9,7 @@ import { ErrorTypes, WebrtcError } from '../error/WebrtcError';
 import { LocalComputerAudioTrack } from '../media/local-computer-audio-track';
 
 /**
- * Creates a camera video track. Please note that the constraint params in second getUserMedia call would NOT take effect when:
+ * Creates a camera video track and microphone audio track. Please note that the constraint params in second getUserMedia call would NOT take effect when:
  *
  * 1. Previous captured video track from the same device is not stopped .
  * 2. Previous createCameraTrack() call for the same device is in progress.
@@ -32,7 +32,7 @@ export async function createMicrophoneAndCameraTracks(
     });
   } catch (error) {
     throw new WebrtcError(
-      ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
+      ErrorTypes.CREATE_MICROPHONE_CAMERA_TRACK_FAILED,
       `Failed to create camera track ${error}`
     );
   }
@@ -83,7 +83,7 @@ export async function createMicrophoneTrack(
   }
   return new LocalMicrophoneTrack(stream.getAudioTracks()[0]);
 }
-export interface createDisplayTrackConstraint {
+export interface DisplayTrackConstraint {
   constraints?: DisplayConstraints;
   withAudio?: boolean;
 }
@@ -99,12 +99,19 @@ export interface createDisplayTrackConstraint {
 export async function createDisplayTrack({
   constraints,
   withAudio,
-}: createDisplayTrackConstraint): Promise<{
+}: DisplayTrackConstraint): Promise<{
   localDisplayTrack: LocalDisplayTrack;
   localComputerAudioTrack?: LocalComputerAudioTrack;
 }> {
-  const stream = await media.getDisplayMedia({ video: constraints, audio: withAudio });
-
+  let stream;
+  try {
+    stream = await media.getDisplayMedia({ video: constraints, audio: withAudio });
+  } catch (error) {
+    throw new WebrtcError(
+      ErrorTypes.CREATE_DISPLAY_TRACK_FAILED,
+      `Failed to create microphone track ${error}`
+    );
+  }
   return {
     localDisplayTrack: new LocalDisplayTrack(stream.getVideoTracks()[0]),
     localComputerAudioTrack: stream.getAudioTracks()[0]

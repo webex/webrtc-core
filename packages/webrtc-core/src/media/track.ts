@@ -45,11 +45,6 @@ export enum TrackKind {
   VIDEO = 'video',
 }
 
-export type TrackPublishEvent = {
-  isPublished: boolean;
-  trackState: TrackState;
-};
-
 export interface TrackEvents extends EventMap {
   [Events.Ended]: (event: TrackEndEvent) => void;
   [Events.Muted]: (event: TrackMuteEvent) => void;
@@ -102,13 +97,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
      * Emit mute event when the underlying track gets muted.
      */
     this.#mediaStreamTrack.onmute = () => {
-      this.emit(Events.Muted, {
-        trackState: {
-          id: this.ID,
-          label: this.label,
-          muted: this.#mediaStreamTrack.muted,
-        },
-      });
+      this.emit(Events.Muted, { trackState: this.trackState });
     };
   }
 
@@ -170,7 +159,7 @@ export abstract class Track extends EventEmitter<TrackEvents> {
    *
    * @returns #mediaStreamTrack of type MediaStreamTrack.
    */
-  getMediaStreamTrackWithEffects(): MediaStreamTrack | undefined {
+  getMediaStreamTrackWithEffects(): MediaStreamTrack {
     return this.#mediaStreamTrackWithEffect || this.#mediaStreamTrack;
   }
 

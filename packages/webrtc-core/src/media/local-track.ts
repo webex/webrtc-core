@@ -1,15 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { EventMap } from '../event-emitter';
 import { logger } from '../util/logger';
-import { Events, Track, TrackState } from './track';
-
-export type TrackEndEvent = {
-  trackState: TrackState;
-};
-
-export type TrackMuteEvent = {
-  trackState: TrackState;
-};
+import { Events, Track, TrackState, TrackMuteEvent, TrackEndEvent } from './track';
 
 export type TrackPublishEvent = {
   isPublished: boolean;
