@@ -62,12 +62,9 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
       };
     });
 
-    this.connectionStateHandler.on(
-      ConnectionStateHandler.Events.ConnectionStateChanged,
-      (state: ConnectionState) => {
-        this.emit(PeerConnection.Events.ConnectionStateChange, state);
-      }
-    );
+    this.connectionStateHandler.Events.connectionStateChanged.on((state: ConnectionState) => {
+      this.emit(PeerConnection.Events.ConnectionStateChange, state);
+    });
 
     // Forward the connection state related events to connection state handler
     // eslint-disable-next-line jsdoc/require-jsdoc

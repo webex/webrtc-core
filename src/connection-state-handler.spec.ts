@@ -28,7 +28,7 @@ describe('ConnectionStateHandler', () => {
     expect.assertions(2);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
+    connStateHandler.Events.connectionStateChanged.on((state) => {
       expect(state).toStrictEqual(ConnectionState.Connecting);
     });
 
@@ -42,7 +42,7 @@ describe('ConnectionStateHandler', () => {
     expect.assertions(2);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
+    connStateHandler.Events.connectionStateChanged.on((state) => {
       expect(state).toStrictEqual(ConnectionState.Connecting);
     });
 

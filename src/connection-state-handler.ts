@@ -1,4 +1,4 @@
-import { EventEmitter, EventMap } from './event-emitter';
+import { TypedEvent, TypedEventImpl } from './event';
 import { logger } from './util/logger';
 
 // Overall connection state (based on the ICE and DTLS connection states)
@@ -11,13 +11,7 @@ export enum ConnectionState {
   Failed = 'Failed', // connection failed, an ICE restart is required
 }
 
-enum ConnectionStateEvents {
-  ConnectionStateChanged = 'ConnectionStateChanged',
-}
-
-interface ConnectionStateEventHandlers extends EventMap {
-  [ConnectionStateEvents.ConnectionStateChanged]: (state: ConnectionState) => void;
-}
+type ConnectionStateChangedHandler = (state: ConnectionState) => void;
 
 type GetCurrentStatesCallback = () => {
   connectionState: RTCPeerConnectionState;
@@ -28,8 +22,13 @@ type GetCurrentStatesCallback = () => {
  * Listens on the connection's ICE and DTLS state changes and emits a single
  * event that summarizes all the internal states into a single overall connection state.
  */
-export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHandlers> {
-  static Events = ConnectionStateEvents;
+export class ConnectionStateHandler {
+  private _connectionStateChangedEvent = new TypedEventImpl<ConnectionStateChangedHandler>();
+
+  Events = {
+    connectionStateChanged: this
+      ._connectionStateChangedEvent as TypedEvent<ConnectionStateChangedHandler>,
+  };
 
   private mediaConnectionState: ConnectionState;
 
@@ -42,7 +41,6 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *                                   from the peer connection.
    */
   constructor(getCurrentStatesCallback: GetCurrentStatesCallback) {
-    super();
     this.getCurrentStatesCallback = getCurrentStatesCallback;
     this.mediaConnectionState = this.evaluateMediaConnectionState();
   }
@@ -69,7 +67,7 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
 
     if (newConnectionState !== this.mediaConnectionState) {
       this.mediaConnectionState = newConnectionState;
-      this.emit(ConnectionStateEvents.ConnectionStateChanged, this.mediaConnectionState);
+      this._connectionStateChangedEvent.emit(this.mediaConnectionState);
     }
   }
 

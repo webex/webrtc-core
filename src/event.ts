@@ -18,7 +18,7 @@ type Handler = (...args: any[]) => void;
 /**
  * A typed event class that can be used for subscription and emission of events.
  */
-export class EventImpl<T extends Handler> {
+export class TypedEventImpl<T extends Handler> {
   private emitter = new EventEmitter<{
     ['event']: T;
   }>();
@@ -65,4 +65,4 @@ export class EventImpl<T extends Handler> {
  * A type which defines all methods of EventImpl that should be 'externally' accessible.
  * Instances of EventImpl should be exposed as this type to external entities for.
  */
-export type Event<T extends Handler> = Pick<EventImpl<T>, 'on' | 'once' | 'off'>;
+export type TypedEvent<T extends Handler> = Pick<TypedEventImpl<T>, 'on' | 'once' | 'off'>;
