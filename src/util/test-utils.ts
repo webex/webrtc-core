@@ -8,11 +8,12 @@ jest.mock('../mocks/media-stream-track-stub');
 /**
  * Create a mocked stream with a mocked MediaStreamTrack.
  *
+ * @param videoHeight - Video height.
  * @returns A Mocked MediaStreamStub type coerced to a MediaStream.
  */
-export const createMockedStream = (): MediaStream => {
+export const createMockedStream = (videoHeight = 360): MediaStream => {
   // eslint-disable-next-line no-use-before-define
-  return createMockedStreamWithSize(640, 480);
+  return createMockedStreamWithSize((videoHeight * 16) / 9, videoHeight);
 };
 
 /**
