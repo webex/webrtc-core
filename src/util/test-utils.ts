@@ -33,6 +33,7 @@ export const createMockedStreamWithSize = (width: number, height: number): Media
   });
   track.applyConstraints.mockImplementation((constraints?: MediaTrackConstraints) => {
     track.constraints = constraints || {};
+    return Promise.resolve();
   });
   track.getConstraints.mockImplementation(() => {
     return track.constraints;
