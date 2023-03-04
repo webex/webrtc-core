@@ -62,3 +62,24 @@ describe('LocalTrack', () => {
     expect(constraints).toStrictEqual({ autoGainControl: true });
   });
 });
+
+describe('LocalTrack getNumActiveSimulcastLayers', () => {
+  it('activeSimulcastLayers returns 3 if video height greater than 360', () => {
+    expect.hasAssertions();
+    const mockStream = createMockedStream(720);
+    const localTrack = new TestLocalTrack(mockStream);
+    expect(localTrack.getNumActiveSimulcastLayers()).toBe(3);
+  });
+  it('activeSimulcastLayers returns 2 if video height greater than 180 but less(equals) than 360', () => {
+    expect.hasAssertions();
+    const mockStream = createMockedStream(360);
+    const localTrack = new TestLocalTrack(mockStream);
+    expect(localTrack.getNumActiveSimulcastLayers()).toBe(2);
+  });
+  it('activeSimulcastLayers returns 1 if video height less(equals) than 180', () => {
+    expect.hasAssertions();
+    const mockStream = createMockedStream(180);
+    const localTrack = new TestLocalTrack(mockStream);
+    expect(localTrack.getNumActiveSimulcastLayers()).toBe(1);
+  });
+});

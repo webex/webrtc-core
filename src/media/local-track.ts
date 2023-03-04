@@ -17,6 +17,10 @@ export enum LocalTrackEvents {
    * Fires when there has been a change in the underlying track.
    */
   UnderlyingTrackChange = 'underlying-track-change',
+  /**
+   * Fires when the applyConstraints() has been called for the track.
+   */
+  TrackConstraintsChange = 'track-constraints-change',
 }
 
 export interface TrackState {
@@ -44,6 +48,7 @@ export interface TrackEvents extends EventMap {
   [LocalTrackEvents.Muted]: (event: TrackMuteEvent) => void;
   [LocalTrackEvents.PublishedStateUpdate]: (event: TrackPublishEvent) => void;
   [LocalTrackEvents.UnderlyingTrackChange]: () => void;
+  [LocalTrackEvents.TrackConstraintsChange]: () => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -276,7 +281,10 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
    */
   async applyConstraints(constraints?: MediaTrackConstraints): Promise<void> {
     logger.log(`Applying constraints to local track:`, constraints);
-    return this.underlyingTrack.applyConstraints(constraints);
+    const ret = this.underlyingTrack.applyConstraints(constraints).then(() => {
+      this.emit(LocalTrackEvents.TrackConstraintsChange);
+    });
+    return ret;
   }
 
   /**
@@ -295,5 +303,26 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
    */
   getSettings(): MediaTrackSettings {
     return this.underlyingTrack.getSettings();
+  }
+
+  /**
+   * Check the resolution and then return how many layers will be active.
+   *
+   * @returns The active layers count.
+   */
+  getNumActiveSimulcastLayers(): number {
+    let activeSimulcastLayersNumber = 0;
+    if (this.trackState.type === 'audio') {
+      return activeSimulcastLayersNumber;
+    }
+    const videoHeight = this.underlyingTrack.getSettings().height;
+    if ((videoHeight as number) <= 180) {
+      activeSimulcastLayersNumber = 1;
+    } else if ((videoHeight as number) <= 360) {
+      activeSimulcastLayersNumber = 2;
+    } else {
+      activeSimulcastLayersNumber = 3;
+    }
+    return activeSimulcastLayersNumber;
   }
 }

@@ -26,7 +26,9 @@ class MediaStreamTrackStub {
    */
   stop(): void {}
 
-  applyConstraints(constraints?: MediaTrackConstraints): void {}
+  applyConstraints(constraints?: MediaTrackConstraints): Promise<void> {
+    return Promise.resolve();
+  }
 
   getConstraints(): MediaTrackConstraints {
     return {} as MediaTrackConstraints;
