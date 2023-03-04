@@ -231,7 +231,7 @@ describe('PeerConnection', () => {
       expect.assertions(2);
       const connectionStateHandler = getInstantiatedConnectionStateHandler();
 
-      pc.on(PeerConnection.Events.ConnectionStateChange, (state) => {
+      pc.Events.connectionStateChange.on((state) => {
         expect(state).toStrictEqual(ConnectionState.Connecting);
       });
 

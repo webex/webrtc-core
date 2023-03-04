@@ -23,7 +23,7 @@ export function getLocalDescriptionWithIceCandidates(
         reject(new Error('Local description was null'));
       }
     };
-    peerConnection.on(PeerConnection.Events.IceGatheringStateChange, (e) => {
+    peerConnection.Events.iceGatheringStateChange.on((e) => {
       if ((e.target as RTCPeerConnection).iceGatheringState === 'complete') {
         getLocalDescAndResolve();
       }

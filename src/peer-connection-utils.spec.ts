@@ -20,14 +20,16 @@ describe('getLocalDescriptionWithIceCandidates', () => {
     const promise = new PromiseHelper(
       getLocalDescriptionWithIceCandidates(mockPc as unknown as PeerConnection)
     );
-    expect(mockPc.on.mock.calls).toHaveLength(1);
-    expect(mockPc.on.mock.calls[0][0]).toBe(PeerConnection.Events.IceGatheringStateChange);
+    expect(mockPc.Events.iceGatheringStateChange.on.mock.calls).toHaveLength(1);
+    //expect(mockPc.on.mock.calls).toHaveLength(1);
+    //expect(mockPc.on.mock.calls[0][0]).toBe(PeerConnection.Events.IceGatheringStateChange);
     // Grab the listener that was installed
-    const iceGatheringStateListener = mockPc.on.mock.calls[0][1];
+    //const iceGatheringStateListener = mockPc.on.mock.calls[0][1];
+    const iceGatheringStateListener = mockPc.Events.iceGatheringStateChange.on.mock.calls[0][0];
     iceGatheringStateListener({
       target: {
         iceGatheringState: 'gathering',
-      },
+      } as unknown as EventTarget,
     });
     // The reason for these nested calls to Promise.resolve is because, unlike many tests around
     // Promises, here we're trying to validate that a promise _wasn't_ resolved when it shouldn't
@@ -41,7 +43,7 @@ describe('getLocalDescriptionWithIceCandidates', () => {
       iceGatheringStateListener({
         target: {
           iceGatheringState: 'complete',
-        },
+        } as unknown as EventTarget,
       });
       // Make sure the helper has had a chance to resolve its promise before we check again
       Promise.resolve().then(() => {
@@ -56,11 +58,12 @@ describe('getLocalDescriptionWithIceCandidates', () => {
   test('rejects if the local description is null', async () => {
     mockPc.getLocalDescription.mockReturnValueOnce(null);
     const promise = getLocalDescriptionWithIceCandidates(mockPc as unknown as PeerConnection);
-    const iceGatheringStateListener = mockPc.on.mock.calls[0][1];
+    //const iceGatheringStateListener = mockPc.on.mock.calls[0][1];
+    const iceGatheringStateListener = mockPc.Events.iceGatheringStateChange.on.mock.calls[0][0];
     iceGatheringStateListener({
       target: {
         iceGatheringState: 'complete',
-      },
+      } as unknown as EventTarget,
     });
     await expect(promise).rejects.toStrictEqual(expect.any(Error));
   });
