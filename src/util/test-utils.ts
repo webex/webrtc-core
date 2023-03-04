@@ -30,6 +30,12 @@ export const createMockedStreamWithSize = (width: number, height: number): Media
     width,
     aspectRatio: width / height,
   });
+  track.applyConstraints.mockImplementation((constraints?: MediaTrackConstraints) => {
+    track.constraints = constraints || {};
+  });
+  track.getConstraints.mockImplementation(() => {
+    return track.constraints;
+  });
   mockStream.getVideoTracks.mockReturnValue([track as unknown as MediaStreamTrack]);
   mockStream.getTracks.mockReturnValue([track as unknown as MediaStreamTrack]);
   return mockStream as unknown as MediaStream;

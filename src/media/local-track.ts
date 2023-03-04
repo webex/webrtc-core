@@ -267,4 +267,33 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
       this.emit(LocalTrackEvents.UnderlyingTrackChange);
     }
   }
+
+  /**
+   * Apply constraints to the track.
+   *
+   * @param constraints - The constraints to apply to the track.
+   * @returns A promise which resolves when the constraints have been successfully applied.
+   */
+  async applyConstraints(constraints?: MediaTrackConstraints): Promise<void> {
+    logger.log(`Applying constraints to local track:`, constraints);
+    return this.underlyingTrack.applyConstraints(constraints);
+  }
+
+  /**
+   * Get the current constraints of the track.
+   *
+   * @returns The constraints of the track.
+   */
+  getConstraints(): MediaTrackConstraints {
+    return this.underlyingTrack.getConstraints();
+  }
+
+  /**
+   * Get the current settings of the track.
+   *
+   * @returns The settings of the track.
+   */
+  getSettings(): MediaTrackSettings {
+    return this.underlyingTrack.getSettings();
+  }
 }
