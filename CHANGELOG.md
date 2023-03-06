@@ -1,3 +1,16 @@
+# [1.4.0](https://github.com/webex/webrtc-core/compare/v1.3.0...v1.4.0) (2023-03-06)
+
+
+### Bug Fixes
+
+* update disposeEffects doc ([fa6d58b](https://github.com/webex/webrtc-core/commit/fa6d58b7917e29772167c4933042e444b2864e05))
+
+
+### Features
+
+* Method named getNumActiveSimulcastLayers & event to LocalTrack for constraints changed ([#35](https://github.com/webex/webrtc-core/issues/35)) ([9298169](https://github.com/webex/webrtc-core/commit/92981694b22ff7a8b9431d351c4a80a53b585a51))
+* support applying music mode constraints ([#27](https://github.com/webex/webrtc-core/issues/27)) ([081b8b2](https://github.com/webex/webrtc-core/commit/081b8b23683bbd63c22e597ef88167391a511d51))
+
 # [1.3.0](https://github.com/webex/webrtc-core/compare/v1.2.0...v1.3.0) (2022-12-20)
 
 
