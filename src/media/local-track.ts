@@ -261,7 +261,7 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
   }
 
   /**
-   * Cleanup local microphone track.
+   * Cleanup the local microphone track.
    */
   disposeEffects(): void {
     if (this.effects.size > 0) {
