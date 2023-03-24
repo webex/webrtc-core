@@ -59,7 +59,7 @@ export type TrackEffect = any;
 /**
  * Basic Track class. Wrapper for LocalTrack from 'webrtc-core'.
  */
-export abstract class LocalTrack extends EventEmitter<TrackEvents> {
+export abstract class LocalTrack<T extends TrackEvents> extends EventEmitter<T> {
   static Events = LocalTrackEvents;
 
   /**

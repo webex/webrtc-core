@@ -1,7 +1,8 @@
+/* eslint-disable jsdoc/require-jsdoc */
 import * as media from '../media';
 import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
-import { LocalMicrophoneTrack } from '../media/local-microphone-track';
+import { LocalMicrophoneTrack, MicrophoneEvents } from '../media/local-microphone-track';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
@@ -69,15 +70,18 @@ export async function createCameraTrack(
   return new LocalCameraTrack(stream);
 }
 
+type Constructor<T> = new (...args: any[]) => T;
+
 /**
  * Creates a microphone audio track.
  *
  * @param constraints - Audio device constraints.
  * @returns A LocalTrack object or an error.
  */
-export async function createMicrophoneTrack(
-  constraints?: AudioDeviceConstraints
-): Promise<LocalMicrophoneTrack> {
+export async function createMicrophoneTrack<
+  E extends MicrophoneEvents,
+  T extends LocalMicrophoneTrack<E>
+>(Type: Constructor<T>, constraints?: AudioDeviceConstraints): Promise<T> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ audio: { ...constraints } });
@@ -87,7 +91,7 @@ export async function createMicrophoneTrack(
       `Failed to create microphone track ${error}`
     );
   }
-  return new LocalMicrophoneTrack(stream);
+  return new Type(stream);
 }
 
 /**
