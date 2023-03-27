@@ -26,7 +26,7 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createMicrophoneTrack({ deviceId: 'test-device-id' });
+      await createMicrophoneTrack(LocalMicrophoneTrack, { deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         audio: {
           deviceId: 'test-device-id',
@@ -37,7 +37,9 @@ describe('Device Management', () => {
     it('should return a LocalMicrophoneTrack instance', async () => {
       expect.assertions(1);
 
-      const localMicrophoneTrack = await createMicrophoneTrack({ deviceId: 'test-device-id' });
+      const localMicrophoneTrack = await createMicrophoneTrack(LocalMicrophoneTrack, {
+        deviceId: 'test-device-id',
+      });
       expect(localMicrophoneTrack).toBeInstanceOf(LocalMicrophoneTrack);
     });
   });
@@ -51,7 +53,7 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createCameraTrack({ deviceId: 'test-device-id' });
+      await createCameraTrack(LocalCameraTrack, { deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         video: {
           deviceId: 'test-device-id',
@@ -62,7 +64,7 @@ describe('Device Management', () => {
     it('should call getUserMedia with constraints', async () => {
       expect.assertions(1);
 
-      await createCameraTrack({
+      await createCameraTrack(LocalCameraTrack, {
         deviceId: 'test-device-id',
         aspectRatio: 1.777,
         width: 1920,
@@ -85,7 +87,9 @@ describe('Device Management', () => {
     it('should return a LocalCameraTrack instance', async () => {
       expect.assertions(1);
 
-      const localCameraTrack = await createCameraTrack({ deviceId: 'test-device-id' });
+      const localCameraTrack = await createCameraTrack(LocalCameraTrack, {
+        deviceId: 'test-device-id',
+      });
       expect(localCameraTrack).toBeInstanceOf(LocalCameraTrack);
     });
   });
@@ -99,14 +103,14 @@ describe('Device Management', () => {
     it('should call getDisplayMedia', async () => {
       expect.assertions(1);
 
-      await createDisplayTrack();
+      await createDisplayTrack(LocalDisplayTrack);
       expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true });
     });
 
     it('should return a LocalDisplayTrack instance', async () => {
       expect.assertions(1);
 
-      const localDisplayTrack = await createDisplayTrack();
+      const localDisplayTrack = await createDisplayTrack(LocalDisplayTrack);
       expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
     });
   });

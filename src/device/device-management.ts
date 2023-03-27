@@ -1,13 +1,14 @@
 import * as media from '../media';
-import { LocalCameraTrack } from '../media/local-camera-track';
-import { LocalDisplayTrack } from '../media/local-display-track';
-import { LocalMicrophoneTrack } from '../media/local-microphone-track';
+import { LocalTrack } from '../media/local-track';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
   CREATE_CAMERA_TRACK_FAILED = 'CREATE_CAMERA_TRACK_FAILED',
   CREATE_MICROPHONE_TRACK_FAILED = 'CREATE_MICROPHONE_TRACK_FAILED',
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Constructor<T> = new (...args: any[]) => T;
 
 /**
  * Represents a WCME error, which contains error type and error message.
@@ -51,12 +52,14 @@ export type VideoDeviceConstraints = {
  * 1. Previous captured video track from the same device is not stopped .
  * 2. Previous createCameraTrack() call for the same device is in progress.
  *
+ * @param constructor - Constructor for the local camera track.
  * @param constraints - Video device constraints.
  * @returns A LocalTrack object or an error.
  */
-export async function createCameraTrack(
+export async function createCameraTrack<T extends LocalTrack>(
+  constructor: Constructor<T>,
   constraints?: VideoDeviceConstraints
-): Promise<LocalCameraTrack> {
+): Promise<T> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ video: { ...constraints } });
@@ -66,18 +69,20 @@ export async function createCameraTrack(
       `Failed to create camera track ${error}`
     );
   }
-  return new LocalCameraTrack(stream);
+  return new constructor(stream);
 }
 
 /**
  * Creates a microphone audio track.
  *
+ * @param constructor - Constructor for the local microphone track.
  * @param constraints - Audio device constraints.
  * @returns A LocalTrack object or an error.
  */
-export async function createMicrophoneTrack(
+export async function createMicrophoneTrack<T extends LocalTrack>(
+  constructor: Constructor<T>,
   constraints?: AudioDeviceConstraints
-): Promise<LocalMicrophoneTrack> {
+): Promise<T> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ audio: { ...constraints } });
@@ -87,17 +92,20 @@ export async function createMicrophoneTrack(
       `Failed to create microphone track ${error}`
     );
   }
-  return new LocalMicrophoneTrack(stream);
+  return new constructor(stream);
 }
 
 /**
  * Creates a display video track.
  *
+ * @param constructor - Constructor for the local display track.
  * @returns A Promise that resolves to a LocalDisplayTrack.
  */
-export async function createDisplayTrack(): Promise<LocalDisplayTrack> {
+export async function createDisplayTrack<T extends LocalTrack>(
+  constructor: Constructor<T>
+): Promise<T> {
   const stream = await media.getDisplayMedia({ video: true });
-  return new LocalDisplayTrack(stream);
+  return new constructor(stream);
 }
 
 /**
