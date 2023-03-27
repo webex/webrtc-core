@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/require-jsdoc */
 import { LocalTrack, TrackEvents } from './local-track';
 
 export enum MicEvents {
@@ -11,4 +12,8 @@ export interface MicrophoneEvents extends TrackEvents {
 /**
  * Represents a local track for a microphone source.
  */
-export class LocalMicrophoneTrack<T extends MicrophoneEvents> extends LocalTrack<T> {}
+export class LocalMicrophoneTrack extends LocalTrack<MicrophoneEvents> {
+  someFunc(): void {
+    this.emit(MicEvents.SomeMicEvent, 'test string');
+  }
+}
