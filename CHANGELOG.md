@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/webex/webrtc-core/compare/v1.4.0...v1.4.1) (2023-03-27)
+
+
+### Bug Fixes
+
+* made create*Track() functions generic ([#38](https://github.com/webex/webrtc-core/issues/38)) ([5493d89](https://github.com/webex/webrtc-core/commit/5493d8960f6e92e8706ab15474d7e6b3141ccb20))
+
 # [1.4.0](https://github.com/webex/webrtc-core/compare/v1.3.0...v1.4.0) (2023-03-06)
 
 
