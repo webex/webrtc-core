@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/webex/webrtc-core/compare/v1.4.1...v1.5.0) (2023-03-29)
+
+
+### Features
+
+* add support for videocontenthint on display tracks ([#39](https://github.com/webex/webrtc-core/issues/39)) ([e4a1bb1](https://github.com/webex/webrtc-core/commit/e4a1bb14868cc6044f9fa0dcb08f1d3b6fbac3b6))
+
 ## [1.4.1](https://github.com/webex/webrtc-core/compare/v1.4.0...v1.4.1) (2023-03-27)
 
 
