@@ -1,3 +1,4 @@
+import { VideoContentHint } from '../media/local-display-track';
 import * as media from '../media';
 import { LocalTrack } from '../media/local-track';
 
@@ -99,13 +100,15 @@ export async function createMicrophoneTrack<T extends LocalTrack>(
  * Creates a display video track.
  *
  * @param constructor - Constructor for the local display track.
+ * @param videoContentHint - An optional parameters to give a hint for the content of the track.
  * @returns A Promise that resolves to a LocalDisplayTrack.
  */
 export async function createDisplayTrack<T extends LocalTrack>(
-  constructor: Constructor<T>
+  constructor: Constructor<T>,
+  videoContentHint?: VideoContentHint
 ): Promise<T> {
   const stream = await media.getDisplayMedia({ video: true });
-  return new constructor(stream);
+  return new constructor(stream, videoContentHint);
 }
 
 /**

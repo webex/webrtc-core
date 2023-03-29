@@ -108,10 +108,18 @@ describe('Device Management', () => {
     });
 
     it('should return a LocalDisplayTrack instance', async () => {
-      expect.assertions(1);
+      expect.assertions(2);
 
       const localDisplayTrack = await createDisplayTrack(LocalDisplayTrack);
       expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
+      expect(localDisplayTrack.videoContentHint).toBeUndefined();
+    });
+
+    it('should preserve the content hint', async () => {
+      expect.assertions(1);
+
+      const localDisplayTrack = await createDisplayTrack(LocalDisplayTrack, 'motion');
+      expect(localDisplayTrack.videoContentHint).toBe('motion');
     });
   });
 });
