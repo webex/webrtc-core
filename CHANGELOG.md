@@ -1,3 +1,12 @@
+## [1.5.1](https://github.com/webex/webrtc-core/compare/v1.5.0...v1.5.1) (2023-04-07)
+
+
+### Bug Fixes
+
+* (another) attempt at fixing semantic-release permissions ([#42](https://github.com/webex/webrtc-core/issues/42)) ([bc86e66](https://github.com/webex/webrtc-core/commit/bc86e66093681a6d6f6dff937f38f3c04716dfb1))
+* export logger ([#40](https://github.com/webex/webrtc-core/issues/40)) ([7cd4416](https://github.com/webex/webrtc-core/commit/7cd441681f8bb489c8a4c3860f8cd9aed19c80a1))
+* fix workflow token ([#41](https://github.com/webex/webrtc-core/issues/41)) ([439c30f](https://github.com/webex/webrtc-core/commit/439c30f5d2bc099e8496318f8811be03ad232771))
+
 # [1.5.0](https://github.com/webex/webrtc-core/compare/v1.4.1...v1.5.0) (2023-03-29)
 
 
