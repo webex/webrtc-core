@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/webex/webrtc-core/compare/v1.5.1...v1.6.0) (2023-04-13)
+
+
+### Features
+
+* add getEffects and fix disposeEffects to be async ([#43](https://github.com/webex/webrtc-core/issues/43)) ([f5117f2](https://github.com/webex/webrtc-core/commit/f5117f231cbe819168e39052707175a9203733c8))
+
 ## [1.5.1](https://github.com/webex/webrtc-core/compare/v1.5.0...v1.5.1) (2023-04-07)
 
 
