@@ -274,7 +274,9 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
    */
   async disposeEffects(): Promise<void> {
     if (this.effects.size > 0) {
-      await Promise.all(Array.from(this.effects, (effect: TrackEffect) => effect.dispose()));
+      await Promise.all(
+        Array.from(this.effects.values(), (effect: TrackEffect) => effect.dispose())
+      );
       this.effects.clear();
 
       this.underlyingStream = this.originalStream;
