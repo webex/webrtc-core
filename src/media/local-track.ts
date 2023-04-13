@@ -261,11 +261,20 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
   }
 
   /**
+   * Get a copy of the effects Map.
+   *
+   * @returns A copy of the effects map.
+   */
+  getEffects(): Map<string, TrackEffect> {
+    return new Map(this.effects);
+  }
+
+  /**
    * Cleanup the local microphone track.
    */
-  disposeEffects(): void {
+  async disposeEffects(): Promise<void> {
     if (this.effects.size > 0) {
-      this.effects.forEach((effect: TrackEffect) => effect.dispose());
+      await Promise.all(Array.from(this.effects, (effect: TrackEffect) => effect.dispose()));
       this.effects.clear();
 
       this.underlyingStream = this.originalStream;
