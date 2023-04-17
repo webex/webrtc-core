@@ -101,7 +101,7 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
     }
 
     logger.log(
-      `iceConnectionState=${iceState} connectionState=${connectionState} => ${this.mediaConnectionState}`
+      `iceConnectionState=${iceState} connectionState=${connectionState} => ${mediaConnectionState}`
     );
 
     return mediaConnectionState;
