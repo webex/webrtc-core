@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/webex/webrtc-core/compare/v1.6.0...v1.6.1) (2023-04-18)
+
+
+### Bug Fixes
+
+* incorrect log ([#44](https://github.com/webex/webrtc-core/issues/44)) ([3e33f79](https://github.com/webex/webrtc-core/commit/3e33f79fc1b6e57bd029000c396c57b08c6057e3))
+
 # [1.6.0](https://github.com/webex/webrtc-core/compare/v1.5.1...v1.6.0) (2023-04-13)
 
 
