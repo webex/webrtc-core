@@ -1,3 +1,11 @@
+## [1.6.2](https://github.com/webex/webrtc-core/compare/v1.6.1...v1.6.2) (2023-04-19)
+
+
+### Bug Fixes
+
+* ci ([#46](https://github.com/webex/webrtc-core/issues/46)) ([b0502e3](https://github.com/webex/webrtc-core/commit/b0502e36d8a5fed490c3f304de70d7398e19e641))
+* ci token ([#45](https://github.com/webex/webrtc-core/issues/45)) ([abc7038](https://github.com/webex/webrtc-core/commit/abc703816f8cb95cc5e679d64b86b8fb3bc651b0))
+
 ## [1.6.1](https://github.com/webex/webrtc-core/compare/v1.6.0...v1.6.1) (2023-04-18)
 
 
