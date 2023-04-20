@@ -94,7 +94,10 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
       mediaConnectionState = ConnectionState.Failed;
     } else if (connectionStates.some((value) => value === 'disconnected')) {
       mediaConnectionState = ConnectionState.Disconnected;
-    } else if (connectionStates.every((value) => value === 'connected' || value === 'completed')) {
+    } else if (
+      (iceState === 'connected' || iceState === 'completed') &&
+      (connectionState === 'connected' || connectionState === 'connecting')
+    ) {
       mediaConnectionState = ConnectionState.Connected;
     } else {
       mediaConnectionState = ConnectionState.Connecting;
