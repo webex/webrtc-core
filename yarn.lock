@@ -2607,6 +2607,14 @@
   dependencies:
     "@wdio/logger" "6.10.10"
 
+"@webex/ts-events@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@webex/ts-events/-/ts-events-1.1.0.tgz#c96ceefc7f2c9fefd87bb1ccf101d7ffc335f5cc"
+  integrity sha512-ZjG87HeUXPyyPMq6q9nvwvMoIBDAa8s0axgnd6lle566te6fS8cq1a6nUY/FgAdJBIvQMRrwOM+aVC0qA60AWA==
+  dependencies:
+    events "^3.3.0"
+    typed-emitter "^2.1.0"
+
 "@yarn-tool/resolve-package@^1.0.40":
   version "1.0.47"
   resolved "https://registry.yarnpkg.com/@yarn-tool/resolve-package/-/resolve-package-1.0.47.tgz#8ec25f291a316280a281632331e88926a66fdf19"
