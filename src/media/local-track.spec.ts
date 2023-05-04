@@ -2,6 +2,22 @@ import { createMockedStream } from '../util/test-utils';
 import { LocalTrack } from './local-track';
 
 /**
+ * Create a mocked track effect.
+ *
+ * @returns A mocked TrackEvent.
+ */
+const createMockedTrackEffect = () => {
+  const effectStream = createMockedStream();
+  const effect = {
+    dispose: jest.fn().mockResolvedValue(undefined),
+    getUnderlyingStream: jest.fn().mockReturnValue(effectStream),
+    load: jest.fn().mockResolvedValue(undefined),
+  };
+
+  return { effectStream, effect };
+};
+
+/**
  * A dummy LocalTrack implementation so we can instantiate it for testing.
  */
 class TestLocalTrack extends LocalTrack {}
@@ -81,5 +97,62 @@ describe('LocalTrack getNumActiveSimulcastLayers', () => {
     const mockStream = createMockedStream(180);
     const localTrack = new TestLocalTrack(mockStream);
     expect(localTrack.getNumActiveSimulcastLayers()).toBe(1);
+  });
+});
+
+describe('LocalTrack addEffect', () => {
+  // eslint-disable-next-line jsdoc/require-jsdoc
+  const setup = () => {
+    const localStream = createMockedStream();
+    const localTrack = new TestLocalTrack(localStream);
+    const { effectStream, effect } = createMockedTrackEffect();
+    const emitCounts = { [LocalTrack.Events.UnderlyingTrackChange]: 0 };
+
+    localTrack.on(LocalTrack.Events.UnderlyingTrackChange, () => {
+      emitCounts[LocalTrack.Events.UnderlyingTrackChange] += 1;
+    });
+
+    return { localStream, localTrack, effectStream, effect, emitCounts };
+  };
+
+  it('loads and uses the effect when there is no loading effect', async () => {
+    expect.hasAssertions();
+
+    const { localTrack, effectStream, effect, emitCounts } = setup();
+
+    const addEffectPromise = localTrack.addEffect('test-effect', effect);
+
+    await expect(addEffectPromise).resolves.toBeUndefined();
+    expect(localTrack.underlyingStream).toBe(effectStream);
+    expect(emitCounts[LocalTrack.Events.UnderlyingTrackChange]).toBe(1);
+  });
+
+  it('does not use the effect when the loading effect is cleared during load', async () => {
+    expect.hasAssertions();
+
+    const { localStream, localTrack, effect, emitCounts } = setup();
+
+    // Add effect and immediately dispose all effects to clear loading effects
+    const addEffectPromise = localTrack.addEffect('test-effect', effect);
+    await localTrack.disposeEffects();
+
+    await expect(addEffectPromise).rejects.toThrow('not required after loading');
+    expect(localTrack.underlyingStream).toBe(localStream);
+    expect(emitCounts[LocalTrack.Events.UnderlyingTrackChange]).toBe(0);
+  });
+
+  it('loads and uses the latest effect when the loading effect changes during load', async () => {
+    expect.hasAssertions();
+
+    const { effect: firstEffect } = createMockedTrackEffect();
+    const { localTrack, effectStream, effect: secondEffect, emitCounts } = setup();
+
+    const firstAddEffectPromise = localTrack.addEffect('test-effect', firstEffect);
+    const secondAddEffectPromise = localTrack.addEffect('test-effect', secondEffect);
+
+    await expect(firstAddEffectPromise).rejects.toThrow('not required after loading');
+    await expect(secondAddEffectPromise).resolves.toBeUndefined();
+    expect(localTrack.underlyingStream).toBe(effectStream);
+    expect(emitCounts[LocalTrack.Events.UnderlyingTrackChange]).toBe(1);
   });
 });
