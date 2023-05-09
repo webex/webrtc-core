@@ -77,6 +77,8 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
 
   private isPublished = false;
 
+  private loadingEffects: Map<string, TrackEffect> = new Map();
+
   private effects: Map<string, TrackEffect> = new Map();
 
   label: string;
@@ -238,9 +240,20 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
    * @param effect - The effect to add.
    */
   async addEffect(name: string, effect: TrackEffect): Promise<void> {
+    // Load the effect
+    this.loadingEffects.set(name, effect);
     await effect.load(this.underlyingStream);
+
+    // Check that the loaded effect is the latest one and dispose if not
+    if (effect !== this.loadingEffects.get(name)) {
+      await effect.dispose();
+      throw new Error(`Effect "${name}" not required after loading`);
+    }
+
+    // Use the loaded effect
     this.underlyingStream = effect.getUnderlyingStream();
     this.effects.set(name, effect);
+    this.loadingEffects.delete(name);
     this.emit(LocalTrackEvents.UnderlyingTrackChange);
   }
 
@@ -273,6 +286,10 @@ export abstract class LocalTrack extends EventEmitter<TrackEvents> {
    * Cleanup the local microphone track.
    */
   async disposeEffects(): Promise<void> {
+    // Clear effects that are loading to indicate that they are not needed
+    this.loadingEffects.clear();
+
+    // Dispose of any effects currently in use
     if (this.effects.size > 0) {
       await Promise.all(
         Array.from(this.effects.values(), (effect: TrackEffect) => effect.dispose())
