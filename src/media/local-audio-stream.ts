@@ -13,6 +13,7 @@ export type AudioConstraints = Pick<
   | 'echoCancellation'
   | 'noiseSuppression'
   | 'sampleRate'
+  | 'sampleSize'
   | 'suppressLocalAudioPlayback'
 >;
 

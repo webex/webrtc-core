@@ -1,11 +1,11 @@
+import { LocalMicrophoneStream } from '../media/local-microphone-stream';
 import * as media from '../media';
 import { LocalCameraTrack } from '../media/local-camera-track';
 import { LocalDisplayTrack } from '../media/local-display-track';
-import { LocalMicrophoneTrack } from '../media/local-microphone-track';
 import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
 import { mocked } from '../mocks/mock';
-import { createCameraTrack, createDisplayTrack, createMicrophoneTrack } from './device-management';
+import { createCameraTrack, createDisplayTrack, createMicrophoneStream } from './device-management';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -17,7 +17,7 @@ describe('Device Management', () => {
   const track = new MediaStreamTrack();
   mockStream.getTracks.mockReturnValue([track]);
 
-  describe('createMicrophoneTrack', () => {
+  describe('createMicrophoneStream', () => {
     jest
       .spyOn(media, 'getUserMedia')
       .mockImplementation()
@@ -26,7 +26,7 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createMicrophoneTrack(LocalMicrophoneTrack, { deviceId: 'test-device-id' });
+      await createMicrophoneStream({ deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         audio: {
           deviceId: 'test-device-id',
@@ -34,13 +34,13 @@ describe('Device Management', () => {
       });
     });
 
-    it('should return a LocalMicrophoneTrack instance', async () => {
+    it('should return a LocalMicrophoneStream instance', async () => {
       expect.assertions(1);
 
-      const localMicrophoneTrack = await createMicrophoneTrack(LocalMicrophoneTrack, {
+      const localMicrophoneStream = await createMicrophoneStream({
         deviceId: 'test-device-id',
       });
-      expect(localMicrophoneTrack).toBeInstanceOf(LocalMicrophoneTrack);
+      expect(localMicrophoneStream).toBeInstanceOf(LocalMicrophoneStream);
     });
   });
 

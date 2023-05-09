@@ -1,3 +1,4 @@
+import { LocalMicrophoneStream } from '../media/local-microphone-stream';
 import { VideoContentHint } from '../media/local-display-track';
 import * as media from '../media';
 import { LocalTrack } from '../media/local-track';
@@ -31,12 +32,17 @@ export class WcmeError {
   }
 }
 
-export type AudioDeviceConstraints = {
-  deviceId?: string;
-  autoGainControl?: boolean;
-  echoCancellation?: boolean;
-  noiseSuppression?: boolean;
-};
+export type AudioDeviceConstraints = Pick<
+  MediaTrackConstraints,
+  | 'autoGainControl'
+  | 'channelCount'
+  | 'deviceId'
+  | 'echoCancellation'
+  | 'noiseSuppression'
+  | 'sampleRate'
+  | 'sampleSize'
+  | 'suppressLocalAudioPlayback'
+>;
 
 export type VideoDeviceConstraints = {
   deviceId?: ConstrainDOMString;
@@ -74,16 +80,14 @@ export async function createCameraTrack<T extends LocalTrack>(
 }
 
 /**
- * Creates a microphone audio track.
+ * Creates a LocalMicrophoneStream with the given constraints.
  *
- * @param constructor - Constructor for the local microphone track.
  * @param constraints - Audio device constraints.
  * @returns A LocalTrack object or an error.
  */
-export async function createMicrophoneTrack<T extends LocalTrack>(
-  constructor: Constructor<T>,
+export async function createMicrophoneStream(
   constraints?: AudioDeviceConstraints
-): Promise<T> {
+): Promise<LocalMicrophoneStream> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ audio: { ...constraints } });
@@ -93,7 +97,7 @@ export async function createMicrophoneTrack<T extends LocalTrack>(
       `Failed to create microphone track ${error}`
     );
   }
-  return new constructor(stream);
+  return new LocalMicrophoneStream(stream);
 }
 
 /**
