@@ -1,5 +1,6 @@
+import { LocalDisplayStream } from '../media/local-display-stream';
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
-import { VideoContentHint } from '../media/local-display-track';
+import { VideoContentHint } from '../media/local-video-stream';
 import * as media from '../media';
 import { LocalTrack } from '../media/local-track';
 
@@ -101,18 +102,20 @@ export async function createMicrophoneStream(
 }
 
 /**
- * Creates a display video track.
+ * Creates a LocalDisplayStream with the given parameters.
  *
- * @param constructor - Constructor for the local display track.
- * @param videoContentHint - An optional parameters to give a hint for the content of the track.
- * @returns A Promise that resolves to a LocalDisplayTrack.
+ * @param videoContentHint - An optional parameter to give a hint for the content of the track.
+ * @returns A Promise that resolves to a LocalDisplayStream.
  */
-export async function createDisplayTrack<T extends LocalTrack>(
-  constructor: Constructor<T>,
+export async function createDisplayStream(
   videoContentHint?: VideoContentHint
-): Promise<T> {
+): Promise<LocalDisplayStream> {
   const stream = await media.getDisplayMedia({ video: true });
-  return new constructor(stream, videoContentHint);
+  const localDisplayStream = new LocalDisplayStream(stream);
+  if (videoContentHint) {
+    localDisplayStream.contentHint = videoContentHint;
+  }
+  return localDisplayStream;
 }
 
 /**

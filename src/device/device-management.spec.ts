@@ -1,11 +1,15 @@
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
 import * as media from '../media';
 import { LocalCameraTrack } from '../media/local-camera-track';
-import { LocalDisplayTrack } from '../media/local-display-track';
 import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
 import { mocked } from '../mocks/mock';
-import { createCameraTrack, createDisplayTrack, createMicrophoneStream } from './device-management';
+import {
+  createCameraTrack,
+  createDisplayStream,
+  createMicrophoneStream,
+} from './device-management';
+import { LocalDisplayStream } from '../media/local-display-stream';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -94,7 +98,7 @@ describe('Device Management', () => {
     });
   });
 
-  describe('createDisplayTrack', () => {
+  describe('createDisplayStream', () => {
     jest
       .spyOn(media, 'getDisplayMedia')
       .mockImplementation()
@@ -103,23 +107,23 @@ describe('Device Management', () => {
     it('should call getDisplayMedia', async () => {
       expect.assertions(1);
 
-      await createDisplayTrack(LocalDisplayTrack);
+      await createDisplayStream();
       expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true });
     });
 
-    it('should return a LocalDisplayTrack instance', async () => {
+    it('should return a LocalDisplayStream instance', async () => {
       expect.assertions(2);
 
-      const localDisplayTrack = await createDisplayTrack(LocalDisplayTrack);
-      expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
-      expect(localDisplayTrack.videoContentHint).toBeUndefined();
+      const localDisplayStream = await createDisplayStream();
+      expect(localDisplayStream).toBeInstanceOf(LocalDisplayStream);
+      expect(localDisplayStream.contentHint).toBeUndefined();
     });
 
     it('should preserve the content hint', async () => {
       expect.assertions(1);
 
-      const localDisplayTrack = await createDisplayTrack(LocalDisplayTrack, 'motion');
-      expect(localDisplayTrack.videoContentHint).toBe('motion');
+      const localDisplayStream = await createDisplayStream('motion');
+      expect(localDisplayStream.contentHint).toBe('motion');
     });
   });
 });

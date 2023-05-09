@@ -6,6 +6,11 @@ export type VideoConstraints = Partial<
   Pick<MediaTrackConstraints, 'aspectRatio' | 'facingMode' | 'frameRate' | 'height' | 'width'>
 >;
 
+/**
+ * See https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/contentHint.
+ */
+export type VideoContentHint = 'motion' | 'detail' | 'text' | '';
+
 // TODO: content hint api/type should move here
 
 /**
@@ -23,6 +28,24 @@ export class LocalVideoStream extends LocalStream {
     return this.originTrack.applyConstraints(constraints).then(() => {
       this[LocalStreamEventNames.ConstraintsChange].emit();
     });
+  }
+
+  /**
+   * Get the content hint for this stream.
+   *
+   * @returns The content hint setting for this stream, or undefined if none has been set.
+   */
+  get contentHint(): VideoContentHint {
+    return this.originTrack.contentHint as VideoContentHint;
+  }
+
+  /**
+   * Set the content hint for this stream.
+   *
+   * @param hint - The content hint to set.
+   */
+  set contentHint(hint: VideoContentHint) {
+    this.originTrack.contentHint = hint;
   }
 
   /**
