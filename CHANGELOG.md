@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/webex/webrtc-core/compare/v1.6.2...v1.6.3) (2023-05-09)
+
+
+### Bug Fixes
+
+* keep track of loading effects and dispose them if unrequired after load ([#48](https://github.com/webex/webrtc-core/issues/48)) ([c3e8ebc](https://github.com/webex/webrtc-core/commit/c3e8ebc01897be97cf8819d781f383362a04f4c5))
+
 ## [1.6.2](https://github.com/webex/webrtc-core/compare/v1.6.1...v1.6.2) (2023-04-19)
 
 
