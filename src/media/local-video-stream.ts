@@ -25,7 +25,7 @@ export class LocalVideoStream extends LocalStream {
    */
   async applyConstraints(constraints?: VideoConstraints): Promise<void> {
     logger.log(`Applying constraints to local track:`, constraints);
-    return this.originTrack.applyConstraints(constraints).then(() => {
+    return this.inputTrack.applyConstraints(constraints).then(() => {
       this[LocalStreamEventNames.ConstraintsChange].emit();
     });
   }
@@ -36,7 +36,7 @@ export class LocalVideoStream extends LocalStream {
    * @returns The content hint setting for this stream, or undefined if none has been set.
    */
   get contentHint(): VideoContentHint {
-    return this.originTrack.contentHint as VideoContentHint;
+    return this.inputTrack.contentHint as VideoContentHint;
   }
 
   /**
@@ -45,7 +45,7 @@ export class LocalVideoStream extends LocalStream {
    * @param hint - The content hint to set.
    */
   set contentHint(hint: VideoContentHint) {
-    this.originTrack.contentHint = hint;
+    this.inputTrack.contentHint = hint;
   }
 
   /**
@@ -55,7 +55,7 @@ export class LocalVideoStream extends LocalStream {
    */
   getNumActiveSimulcastLayers(): number {
     let activeSimulcastLayersNumber = 0;
-    const videoHeight = this.originTrack.getSettings().height;
+    const videoHeight = this.inputTrack.getSettings().height;
     if ((videoHeight as number) <= 180) {
       activeSimulcastLayersNumber = 1;
     } else if ((videoHeight as number) <= 360) {

@@ -36,7 +36,7 @@ abstract class _LocalStream extends Stream {
    * @returns The track within the MediaStream with which this LocalStream
    * was created.
    */
-  protected get originTrack(): MediaStreamTrack {
+  protected get inputTrack(): MediaStreamTrack {
     return this.inputStream.getTracks()[0];
   }
 
@@ -46,7 +46,7 @@ abstract class _LocalStream extends Stream {
    * @returns True if this stream is muted, false otherwise.
    */
   get muted(): boolean {
-    return !this.originTrack.enabled;
+    return !this.inputTrack.enabled;
   }
 
   /**
@@ -55,8 +55,8 @@ abstract class _LocalStream extends Stream {
    * @param isMuted - True to mute, false to unmute.
    */
   setMuted(isMuted: boolean): void {
-    if (this.originTrack.enabled === isMuted) {
-      this.originTrack.enabled = !isMuted;
+    if (this.inputTrack.enabled === isMuted) {
+      this.inputTrack.enabled = !isMuted;
       this[StreamEventNames.Muted].emit(isMuted);
     }
   }
