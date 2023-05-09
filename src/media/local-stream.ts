@@ -18,7 +18,7 @@ abstract class _LocalStream extends Stream {
   // The output stream can change to reflect any effects that have
   // been added.  This member will always point to the MediaStream
   // that this LocalStream was originally created with.
-  protected originStream: MediaStream;
+  protected inputStream: MediaStream;
 
   /**
    * Create a LocalStream from the given values.
@@ -27,7 +27,7 @@ abstract class _LocalStream extends Stream {
    */
   constructor(stream: MediaStream) {
     super(stream);
-    this.originStream = stream;
+    this.inputStream = stream;
   }
 
   /**
@@ -37,7 +37,7 @@ abstract class _LocalStream extends Stream {
    * was created.
    */
   protected get originTrack(): MediaStreamTrack {
-    return this.originStream.getTracks()[0];
+    return this.inputStream.getTracks()[0];
   }
 
   /**
