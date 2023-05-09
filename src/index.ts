@@ -3,7 +3,6 @@
 import * as media from './media';
 
 export * from './device/device-management';
-export * from './media/local-camera-track';
 export * from './media/local-track';
 export * from './peer-connection';
 export * from './peer-connection-utils';

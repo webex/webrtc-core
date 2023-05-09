@@ -1,15 +1,15 @@
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
 import * as media from '../media';
-import { LocalCameraTrack } from '../media/local-camera-track';
 import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
 import { mocked } from '../mocks/mock';
 import {
-  createCameraTrack,
+  createCameraStream,
   createDisplayStream,
   createMicrophoneStream,
 } from './device-management';
 import { LocalDisplayStream } from '../media/local-display-stream';
+import { LocalCameraStream } from '../media/local-camera-stream';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -48,7 +48,7 @@ describe('Device Management', () => {
     });
   });
 
-  describe('createCameraTrack', () => {
+  describe('createCameraStream', () => {
     jest
       .spyOn(media, 'getUserMedia')
       .mockImplementation()
@@ -57,7 +57,7 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createCameraTrack(LocalCameraTrack, { deviceId: 'test-device-id' });
+      await createCameraStream({ deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         video: {
           deviceId: 'test-device-id',
@@ -68,7 +68,7 @@ describe('Device Management', () => {
     it('should call getUserMedia with constraints', async () => {
       expect.assertions(1);
 
-      await createCameraTrack(LocalCameraTrack, {
+      await createCameraStream({
         deviceId: 'test-device-id',
         aspectRatio: 1.777,
         width: 1920,
@@ -88,13 +88,13 @@ describe('Device Management', () => {
       });
     });
 
-    it('should return a LocalCameraTrack instance', async () => {
+    it('should return a LocalCameraStream instance', async () => {
       expect.assertions(1);
 
-      const localCameraTrack = await createCameraTrack(LocalCameraTrack, {
+      const localCameraStream = await createCameraStream({
         deviceId: 'test-device-id',
       });
-      expect(localCameraTrack).toBeInstanceOf(LocalCameraTrack);
+      expect(localCameraStream).toBeInstanceOf(LocalCameraStream);
     });
   });
 

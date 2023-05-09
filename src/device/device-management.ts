@@ -2,16 +2,13 @@ import { LocalDisplayStream } from '../media/local-display-stream';
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
 import { VideoContentHint } from '../media/local-video-stream';
 import * as media from '../media';
-import { LocalTrack } from '../media/local-track';
+import { LocalCameraStream } from '../media/local-camera-stream';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
   CREATE_CAMERA_TRACK_FAILED = 'CREATE_CAMERA_TRACK_FAILED',
   CREATE_MICROPHONE_TRACK_FAILED = 'CREATE_MICROPHONE_TRACK_FAILED',
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Constructor<T> = new (...args: any[]) => T;
 
 /**
  * Represents a WCME error, which contains error type and error message.
@@ -55,19 +52,17 @@ export type VideoDeviceConstraints = {
 };
 
 /**
- * Creates a camera video track. Please note that the constraint params in second getUserMedia call would NOT take effect when:
+ * Creates a camera stream. Please note that the constraint params in second getUserMedia call would NOT take effect when:
  *
  * 1. Previous captured video track from the same device is not stopped .
- * 2. Previous createCameraTrack() call for the same device is in progress.
+ * 2. Previous createCameraStream() call for the same device is in progress.
  *
- * @param constructor - Constructor for the local camera track.
  * @param constraints - Video device constraints.
- * @returns A LocalTrack object or an error.
+ * @returns A LocalCameraStream object or an error.
  */
-export async function createCameraTrack<T extends LocalTrack>(
-  constructor: Constructor<T>,
+export async function createCameraStream(
   constraints?: VideoDeviceConstraints
-): Promise<T> {
+): Promise<LocalCameraStream> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ video: { ...constraints } });
@@ -77,7 +72,7 @@ export async function createCameraTrack<T extends LocalTrack>(
       `Failed to create camera track ${error}`
     );
   }
-  return new constructor(stream);
+  return new LocalCameraStream(stream);
 }
 
 /**
