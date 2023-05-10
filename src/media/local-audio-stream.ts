@@ -13,6 +13,7 @@ export type AudioConstraints = Pick<
   | 'echoCancellation'
   | 'noiseSuppression'
   | 'sampleRate'
+  | 'sampleSize'
   | 'suppressLocalAudioPlayback'
 >;
 
@@ -28,7 +29,7 @@ export class LocalAudioStream extends LocalStream {
    */
   async applyConstraints(constraints?: AudioConstraints): Promise<void> {
     logger.log(`Applying constraints to local track:`, constraints);
-    return this.originTrack.applyConstraints(constraints).then(() => {
+    return this.inputTrack.applyConstraints(constraints).then(() => {
       this[LocalStreamEventNames.ConstraintsChange].emit();
     });
   }
