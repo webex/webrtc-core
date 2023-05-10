@@ -1,4 +1,5 @@
 import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
+import { BaseEffect, EffectEvent } from '@webex/web-media-effects';
 import { Stream, StreamEventNames } from './stream';
 
 export enum LocalStreamEventNames {
@@ -9,11 +10,29 @@ interface LocalStreamEvents {
   [LocalStreamEventNames.ConstraintsChange]: TypedEvent<() => void>;
 }
 
+export type TrackEffect = BaseEffect;
+
+type EffectItem = { name: string; effect: TrackEffect };
+
+/**
+ * Replace an existing track on a media stream for a new track. This method assumes a single track
+ * per stream.
+ *
+ * @param stream - The stream in which the track is to be replaced.
+ * @param track - The track to add to the stream.
+ */
+const replaceTrack = (stream: MediaStream, track: MediaStreamTrack) => {
+  stream.removeTrack(stream.getTracks()[0]);
+  stream.addTrack(track);
+};
+
 /**
  * A stream which originates on the local device.
  */
 abstract class _LocalStream extends Stream {
   [LocalStreamEventNames.ConstraintsChange] = new TypedEvent<() => void>();
+
+  effects: EffectItem[] = [];
 
   // The output stream can change to reflect any effects that have
   // been added.  This member will always point to the MediaStream
@@ -58,6 +77,50 @@ abstract class _LocalStream extends Stream {
     if (this.inputTrack.enabled === isMuted) {
       this.inputTrack.enabled = !isMuted;
       this[StreamEventNames.Muted].emit(isMuted);
+    }
+  }
+
+  /**
+   * Adds an effect to a local stream.
+   *
+   * @param name - The name of the effect.
+   * @param effect - The effect to add.
+   */
+  async addEffect(name: string, effect: TrackEffect): Promise<void> {
+    const outputTrack = await effect.load(this.outputStream.getTracks()[0]);
+    this.effects.push({ name, effect });
+    replaceTrack(this.outputStream, outputTrack);
+
+    // When the effect's track is updated, update the next effect or output stream.
+    effect.on(EffectEvent.TrackUpdated, (track: MediaStreamTrack) => {
+      const effectIndex = this.effects.findIndex((i) => i.name === name);
+      if (effectIndex === this.effects.length - 1) {
+        replaceTrack(this.outputStream, track);
+      } else {
+        this.effects[effectIndex + 1]?.effect.replaceInputTrack(track);
+      }
+    });
+  }
+
+  /**
+   * Get an effect from the effects list.
+   *
+   * @param name - The name of the effect you want to get.
+   * @returns The effect or undefined.
+   */
+  getEffect(name: string): TrackEffect | undefined {
+    return this.effects.find((i) => i.name === name)?.effect;
+  }
+
+  /**
+   * Cleanup the local effects.
+   */
+  async disposeEffects(): Promise<void> {
+    // Dispose of any effects currently in use
+    if (this.effects.length > 0) {
+      replaceTrack(this.outputStream, this.inputTrack);
+      await Promise.all(this.effects.map((item: EffectItem) => item.effect.dispose()));
+      this.effects = [];
     }
   }
 }
