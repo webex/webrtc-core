@@ -32,7 +32,9 @@ const replaceTrack = (stream: MediaStream, track: MediaStreamTrack) => {
 abstract class _LocalStream extends Stream {
   [LocalStreamEventNames.ConstraintsChange] = new TypedEvent<() => void>();
 
-  effects: EffectItem[] = [];
+  private effects: EffectItem[] = [];
+
+  private loadingEffects: Map<string, TrackEffect> = new Map();
 
   // The output stream can change to reflect any effects that have
   // been added.  This member will always point to the MediaStream
@@ -87,13 +89,24 @@ abstract class _LocalStream extends Stream {
    * @param effect - The effect to add.
    */
   async addEffect(name: string, effect: TrackEffect): Promise<void> {
+    // Load the effect
+    this.loadingEffects.set(name, effect);
     const outputTrack = await effect.load(this.outputStream.getTracks()[0]);
+
+    // Check that the loaded effect is the latest one and dispose if not
+    if (effect !== this.loadingEffects.get(name)) {
+      await effect.dispose();
+      throw new Error(`Effect "${name}" not required after loading`);
+    }
+
+    // Use the effect
+    this.loadingEffects.delete(name);
     this.effects.push({ name, effect });
     replaceTrack(this.outputStream, outputTrack);
 
     // When the effect's track is updated, update the next effect or output stream.
     effect.on(EffectEvent.TrackUpdated, (track: MediaStreamTrack) => {
-      const effectIndex = this.effects.findIndex((i) => i.name === name);
+      const effectIndex = this.effects.findIndex((e) => e.name === name);
       if (effectIndex === this.effects.length - 1) {
         replaceTrack(this.outputStream, track);
       } else {
@@ -109,7 +122,7 @@ abstract class _LocalStream extends Stream {
    * @returns The effect or undefined.
    */
   getEffect(name: string): TrackEffect | undefined {
-    return this.effects.find((i) => i.name === name)?.effect;
+    return this.effects.find((e) => e.name === name)?.effect;
   }
 
   /**
@@ -121,6 +134,7 @@ abstract class _LocalStream extends Stream {
       replaceTrack(this.outputStream, this.inputTrack);
       await Promise.all(this.effects.map((item: EffectItem) => item.effect.dispose()));
       this.effects = [];
+      this.loadingEffects.clear();
     }
   }
 }
