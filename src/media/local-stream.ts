@@ -129,12 +129,13 @@ abstract class _LocalStream extends Stream {
    * Cleanup the local effects.
    */
   async disposeEffects(): Promise<void> {
+    this.loadingEffects.clear();
+
     // Dispose of any effects currently in use
     if (this.effects.length > 0) {
       replaceTrack(this.outputStream, this.inputTrack);
       await Promise.all(this.effects.map((item: EffectItem) => item.effect.dispose()));
       this.effects = [];
-      this.loadingEffects.clear();
     }
   }
 }
