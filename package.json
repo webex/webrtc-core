@@ -107,7 +107,7 @@
   },
   "dependencies": {
     "@webex/ts-events": "^1.1.0",
-    "@webex/web-media-effects": "^2.6.2",
+    "@webex/web-media-effects": "^2.7.0",
     "events": "^3.3.0",
     "js-logger": "^1.6.1",
     "typed-emitter": "^2.1.0",

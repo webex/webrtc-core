@@ -2448,9 +2448,9 @@
   integrity sha512-yxDeaQIAJlMav7fH5AQqPH1u8YIuhYJXYBzxaQ4PifsU0GDO38MSdmEDeRlIxrKbC6NbEaaEHDanWb+y30U8SQ==
 
 "@types/node@>=13.7.0":
-  version "20.1.1"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.1.1.tgz#afc492e8dbe7f672dd3a13674823522b467a45ad"
-  integrity sha512-uKBEevTNb+l6/aCQaKVnUModfEMjAl98lw2Si9P5y4hLu9tm6AlX2ZIoXZX6Wh9lJueYPrGPKk5WMCNHg/u6/A==
+  version "20.2.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.2.3.tgz#b31eb300610c3835ac008d690de6f87e28f9b878"
+  integrity sha512-pg9d0yC4rVNWQzX8U7xb4olIOFuuVL9za3bzMT2pu2SU0SNEi66i2qrvhE2qt0HvkhuCaWJu7pLNOt/Pj8BIrw==
 
 "@types/node@^16.0.1":
   version "16.11.65"
@@ -2685,10 +2685,10 @@
     events "^3.3.0"
     typed-emitter "^2.1.0"
 
-"@webex/web-media-effects@^2.6.2":
-  version "2.6.2"
-  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.6.2.tgz#852af9a5262252a9a85d45dd4b1d280d2f62211d"
-  integrity sha512-HO+OKFb0tyPNMP3kJIfqQkBsuZmqWl8Z9orTzTBl8ZtNy8QGjlJRH1sF12g4M93siG5UknSUBZogeFMvUuZokA==
+"@webex/web-media-effects@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.7.0.tgz#f203f9512fb95d0639c74c10f39eda2e58663739"
+  integrity sha512-CfmygG0Q2Zm8plHZG0VIUX/1SFwmNiUx+IZCbutIh4uAKnE/RRx2cmYetBZlMbNqDSJcGJnHVVUOvu1MGo4eCQ==
   dependencies:
     "@webex/ladon-ts" "^4.0.0"
     events "^3.3.0"
