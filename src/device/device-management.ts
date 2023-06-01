@@ -1,5 +1,5 @@
-import { VideoContentHint } from '../media/local-display-track';
 import * as media from '../media';
+import { VideoContentHint } from '../media/local-display-track';
 import { LocalTrack } from '../media/local-track';
 
 export enum ErrorTypes {
@@ -109,6 +109,30 @@ export async function createDisplayTrack<T extends LocalTrack>(
 ): Promise<T> {
   const stream = await media.getDisplayMedia({ video: true });
   return new constructor(stream, videoContentHint);
+}
+
+/**
+ * Creates a display video track and a system audio track.
+ *
+ * @param videoTrackConstructor - Constructor for the local display track.
+ * @param audioTrackConstructor - Constructor for the local system audio track.
+ * @param videoContentHint - An optional parameters to give a hint for the content of the track.
+ * @returns A Promise that resolves to a LocalDisplayTrack and a LocalSystemAudioTrack.
+ */
+export async function createDisplayTrackWithAudio<T extends LocalTrack, U extends LocalTrack>(
+  videoTrackConstructor: Constructor<T>,
+  audioTrackConstructor: Constructor<U>,
+  videoContentHint?: VideoContentHint
+): Promise<[T, U]> {
+  const stream = await media.getDisplayMedia({ video: true, audio: true });
+  // eslint-disable-next-line new-cap
+  const videoTrack = new videoTrackConstructor(
+    new MediaStream(stream.getVideoTracks()),
+    videoContentHint
+  );
+  // eslint-disable-next-line new-cap
+  const audioTrack = new audioTrackConstructor(new MediaStream(stream.getAudioTracks()));
+  return [videoTrack, audioTrack];
 }
 
 /**
