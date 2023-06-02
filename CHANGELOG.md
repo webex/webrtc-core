@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/webex/webrtc-core/compare/v1.7.0...v1.7.1) (2023-06-02)
+
+
+### Bug Fixes
+
+* resolve system audio as null if unavailable ([#54](https://github.com/webex/webrtc-core/issues/54)) ([c90617b](https://github.com/webex/webrtc-core/commit/c90617b8f80430ada8ad76f101f71bd5dc016cb6))
+
 # [1.7.0](https://github.com/webex/webrtc-core/compare/v1.6.3...v1.7.0) (2023-06-02)
 
 
