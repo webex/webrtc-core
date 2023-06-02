@@ -116,22 +116,26 @@ export async function createDisplayTrack<T extends LocalTrack>(
  *
  * @param videoTrackConstructor - Constructor for the local display track.
  * @param audioTrackConstructor - Constructor for the local system audio track.
- * @param videoContentHint - An optional parameters to give a hint for the content of the track.
- * @returns A Promise that resolves to a LocalDisplayTrack and a LocalSystemAudioTrack.
+ * @param videoContentHint - An optional parameter to give a hint for the content of the track.
+ * @returns A Promise that resolves to a LocalDisplayTrack and a LocalSystemAudioTrack. If no system
+ * audio is available, the LocalSystemAudioTrack will be resolved as null instead.
  */
 export async function createDisplayTrackWithAudio<T extends LocalTrack, U extends LocalTrack>(
   videoTrackConstructor: Constructor<T>,
   audioTrackConstructor: Constructor<U>,
   videoContentHint?: VideoContentHint
-): Promise<[T, U]> {
+): Promise<[T, U | null]> {
   const stream = await media.getDisplayMedia({ video: true, audio: true });
   // eslint-disable-next-line new-cap
   const videoTrack = new videoTrackConstructor(
     new MediaStream(stream.getVideoTracks()),
     videoContentHint
   );
-  // eslint-disable-next-line new-cap
-  const audioTrack = new audioTrackConstructor(new MediaStream(stream.getAudioTracks()));
+  let audioTrack = null;
+  if (stream.getAudioTracks().length > 0) {
+    // eslint-disable-next-line new-cap
+    audioTrack = new audioTrackConstructor(new MediaStream(stream.getAudioTracks()));
+  }
   return [videoTrack, audioTrack];
 }
 
