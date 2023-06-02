@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/webex/webrtc-core/compare/v1.6.3...v1.7.0) (2023-06-02)
+
+
+### Features
+
+* add support for getting slides audio ([#53](https://github.com/webex/webrtc-core/issues/53)) ([7b9fea4](https://github.com/webex/webrtc-core/commit/7b9fea47bea70ec0281922e5f9bb1f121efa39b6))
+
 ## [1.6.3](https://github.com/webex/webrtc-core/compare/v1.6.2...v1.6.3) (2023-05-09)
 
 
