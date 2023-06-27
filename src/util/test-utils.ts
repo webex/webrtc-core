@@ -38,6 +38,7 @@ export const createMockedStreamWithSize = (width: number, height: number): Media
   track.getConstraints.mockImplementation(() => {
     return track.constraints;
   });
+  mockStream.getAudioTracks.mockReturnValue([track as unknown as MediaStreamTrack]);
   mockStream.getVideoTracks.mockReturnValue([track as unknown as MediaStreamTrack]);
   mockStream.getTracks.mockReturnValue([track as unknown as MediaStreamTrack]);
   return mockStream as unknown as MediaStream;

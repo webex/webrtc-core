@@ -51,15 +51,37 @@ describe('LocalStream', () => {
     localStream = new TestLocalStream(mockStream);
   });
 
-  it('should change the underlying track state based on being muted & unmuted', () => {
-    expect.assertions(2);
-    // Simulate the default state of the track's enabled state.
-    mockStream.getTracks()[0].enabled = true;
+  describe('setMuted', () => {
+    it('should change the output track state based on being muted & unmuted', () => {
+      expect.assertions(2);
+      // Simulate the default state of the track's enabled state.
+      mockStream.getTracks()[0].enabled = true;
 
-    localStream.setMuted(true);
-    expect(mockStream.getTracks()[0].enabled).toBe(false);
-    localStream.setMuted(false);
-    expect(mockStream.getTracks()[0].enabled).toBe(true);
+      localStream.setMuted(true);
+      expect(mockStream.getTracks()[0].enabled).toBe(false);
+      localStream.setMuted(false);
+      expect(mockStream.getTracks()[0].enabled).toBe(true);
+    });
+  });
+
+  describe('getSettings', () => {
+    it('should get the settings of the output track', () => {
+      expect.assertions(1);
+
+      const settings = localStream.getSettings();
+      expect(settings).toBe(mockStream.getTracks()[0].getSettings());
+    });
+  });
+
+  describe('stop', () => {
+    it('should call the stop method of the output track', () => {
+      expect.assertions(1);
+
+      const spy = jest.spyOn(mockStream.getTracks()[0], 'stop');
+
+      localStream.stop();
+      expect(spy).toHaveBeenCalledWith();
+    });
   });
 });
 

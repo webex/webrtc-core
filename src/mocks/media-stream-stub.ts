@@ -31,6 +31,10 @@ class MediaStreamStub {
   getVideoTracks(): MediaStreamTrack[] {
     return [];
   }
+
+  getAudioTracks(): MediaStreamTrack[] {
+    return [];
+  }
 }
 
 /**
