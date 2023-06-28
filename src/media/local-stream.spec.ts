@@ -24,25 +24,7 @@ const createMockedTrackEffect = () => {
 /**
  * A dummy LocalStream implementation so we can instantiate it for testing.
  */
-class TestLocalStream extends LocalStream {
-  /**
-   * Fake method to get output stream.
-   *
-   * @returns The output stream.
-   */
-  getOutputStream() {
-    return this.outputStream;
-  }
-
-  /**
-   * Fake method to get output track.
-   *
-   * @returns The output track.
-   */
-  getOutputTrack() {
-    return this.outputStream.getTracks()[0];
-  }
-}
+class TestLocalStream extends LocalStream {}
 
 describe('LocalStream', () => {
   const mockStream = createMockedStream();
@@ -102,7 +84,7 @@ describe('LocalTrack addEffect', () => {
     const addEffectPromise = localStream.addEffect('test-effect', effect as unknown as BaseEffect);
 
     await expect(addEffectPromise).resolves.toBeUndefined();
-    expect(localStream.getOutputTrack()).toBe(effectTrack);
+    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
   });
 
   it('does not use the effect when the loading effect is cleared during load', async () => {
@@ -115,7 +97,7 @@ describe('LocalTrack addEffect', () => {
     await localStream.disposeEffects();
 
     await expect(addEffectPromise).rejects.toThrow('not required after loading');
-    expect(localStream.getOutputStream()).toBe(mockedStream);
+    expect(localStream.outputStream).toBe(mockedStream);
   });
 
   it('loads and uses the latest effect when the loading effect changes during load', async () => {
@@ -134,6 +116,6 @@ describe('LocalTrack addEffect', () => {
     await expect(firstAddEffectPromise).rejects.toThrow('not required after loading');
     await expect(secondAddEffectPromise).resolves.toBeUndefined();
 
-    expect(localStream.getOutputTrack()).toBe(effectTrack);
+    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
   });
 });

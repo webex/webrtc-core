@@ -54,6 +54,16 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
+   * Get the track within the MediaStream with which effects were added.
+   *
+   * @returns The track within the MediaStream with which this LocalStream
+   * was created.
+   */
+  private get outputTrack(): MediaStreamTrack {
+    return this.inputStream.getTracks()[0];
+  }
+
+  /**
    * @inheritdoc
    */
   get muted(): boolean {
@@ -78,7 +88,7 @@ abstract class _LocalStream extends Stream {
    * @returns The settings of the track.
    */
   getSettings(): MediaTrackSettings {
-    return this.outputStream.getTracks()[0].getSettings();
+    return this.outputTrack.getSettings();
   }
 
   /**
@@ -87,7 +97,7 @@ abstract class _LocalStream extends Stream {
    * @returns The label of the track.
    */
   get label(): string {
-    return this.outputStream.getTracks()[0].label;
+    return this.outputTrack.label;
   }
 
   /**
@@ -96,7 +106,7 @@ abstract class _LocalStream extends Stream {
    * @param newTrack - The track to add to the stream.
    */
   private replaceTrack(newTrack: MediaStreamTrack): void {
-    this.outputStream.removeTrack(this.outputStream.getTracks()[0]);
+    this.outputStream.removeTrack(this.outputTrack);
     this.outputStream.addTrack(newTrack);
     this[LocalStreamEventNames.OutputTrackChange].emit(newTrack);
   }
@@ -105,7 +115,7 @@ abstract class _LocalStream extends Stream {
    * Stop the output track on this stream.
    */
   stop(): void {
-    this.outputStream.getTracks()[0].stop();
+    this.outputTrack.stop();
     this[StreamEventNames.Ended].emit();
   }
 
@@ -118,7 +128,7 @@ abstract class _LocalStream extends Stream {
   async addEffect(name: string, effect: TrackEffect): Promise<void> {
     // Load the effect
     this.loadingEffects.set(name, effect);
-    const outputTrack = await effect.load(this.outputStream.getTracks()[0]);
+    const outputTrack = await effect.load(this.outputTrack);
 
     // Check that the loaded effect is the latest one and dispose if not
     if (effect !== this.loadingEffects.get(name)) {
