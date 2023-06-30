@@ -21,7 +21,7 @@ describe('localVideoStream', () => {
 
   it('should work', () => {
     expect.hasAssertions();
-    videoStream.on(StreamEventNames.Muted, (muted: boolean) => {
+    videoStream.on(StreamEventNames.MuteStateChange, (muted: boolean) => {
       // eslint-disable-next-line no-console
       console.log(`stream is muted? ${muted}`);
     });
