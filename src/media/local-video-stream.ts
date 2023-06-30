@@ -1,17 +1,16 @@
 import { logger } from '../util/logger';
 import { LocalStream, LocalStreamEventNames } from './local-stream';
 
-// TODO: see note on AudioConstraints in local-audio-stream
-export type VideoConstraints = Partial<
-  Pick<MediaTrackConstraints, 'aspectRatio' | 'facingMode' | 'frameRate' | 'height' | 'width'>
+// These are the video constraints that can be applied via applyConstraints.
+export type AppliableVideoConstraints = Pick<
+  MediaTrackConstraints,
+  'aspectRatio' | 'frameRate' | 'height' | 'width'
 >;
 
 /**
  * See https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/contentHint.
  */
 export type VideoContentHint = 'motion' | 'detail' | 'text' | '';
-
-// TODO: content hint api/type should move here
 
 /**
  * A video LocalStream.
@@ -23,7 +22,7 @@ export class LocalVideoStream extends LocalStream {
    * @param constraints - The constraints to apply.
    * @returns A promise which resolves when the constraints have been successfully applied.
    */
-  async applyConstraints(constraints?: VideoConstraints): Promise<void> {
+  async applyConstraints(constraints?: AppliableVideoConstraints): Promise<void> {
     logger.log(`Applying constraints to local track:`, constraints);
     return this.inputTrack.applyConstraints(constraints).then(() => {
       this[LocalStreamEventNames.ConstraintsChange].emit();
