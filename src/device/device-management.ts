@@ -43,14 +43,10 @@ export type AudioDeviceConstraints = Pick<
   | 'suppressLocalAudioPlayback'
 >;
 
-export type VideoDeviceConstraints = {
-  deviceId?: ConstrainDOMString;
-  width?: ConstrainULong;
-  height?: ConstrainULong;
-  aspectRatio?: ConstrainDouble;
-  frameRate?: ConstrainDouble;
-  facingMode?: ConstrainDOMString;
-};
+export type VideoDeviceConstraints = Pick<
+  MediaTrackConstraints,
+  'aspectRatio' | 'deviceId' | 'facingMode' | 'frameRate' | 'height' | 'width'
+>;
 
 /**
  * Creates a camera stream. Please note that the constraint params in second getUserMedia call would NOT take effect when:
