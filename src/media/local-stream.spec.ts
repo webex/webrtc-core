@@ -24,25 +24,7 @@ const createMockedTrackEffect = () => {
 /**
  * A dummy LocalStream implementation so we can instantiate it for testing.
  */
-class TestLocalStream extends LocalStream {
-  /**
-   * Fake method to get output stream.
-   *
-   * @returns The output stream.
-   */
-  getOutputStream() {
-    return this.outputStream;
-  }
-
-  /**
-   * Fake method to get output track.
-   *
-   * @returns The output track.
-   */
-  getOutputTrack() {
-    return this.outputStream.getTracks()[0];
-  }
-}
+class TestLocalStream extends LocalStream {}
 
 describe('LocalStream', () => {
   const mockStream = createMockedStream();
@@ -51,15 +33,37 @@ describe('LocalStream', () => {
     localStream = new TestLocalStream(mockStream);
   });
 
-  it('should change the underlying track state based on being muted & unmuted', () => {
-    expect.assertions(2);
-    // Simulate the default state of the track's enabled state.
-    mockStream.getTracks()[0].enabled = true;
+  describe('setMuted', () => {
+    it('should change the output track state based on being muted & unmuted', () => {
+      expect.assertions(2);
+      // Simulate the default state of the track's enabled state.
+      mockStream.getTracks()[0].enabled = true;
 
-    localStream.setMuted(true);
-    expect(mockStream.getTracks()[0].enabled).toBe(false);
-    localStream.setMuted(false);
-    expect(mockStream.getTracks()[0].enabled).toBe(true);
+      localStream.setMuted(true);
+      expect(mockStream.getTracks()[0].enabled).toBe(false);
+      localStream.setMuted(false);
+      expect(mockStream.getTracks()[0].enabled).toBe(true);
+    });
+  });
+
+  describe('getSettings', () => {
+    it('should get the settings of the output track', () => {
+      expect.assertions(1);
+
+      const settings = localStream.getSettings();
+      expect(settings).toBe(mockStream.getTracks()[0].getSettings());
+    });
+  });
+
+  describe('stop', () => {
+    it('should call the stop method of the output track', () => {
+      expect.assertions(1);
+
+      const spy = jest.spyOn(mockStream.getTracks()[0], 'stop');
+
+      localStream.stop();
+      expect(spy).toHaveBeenCalledWith();
+    });
   });
 });
 
@@ -80,7 +84,7 @@ describe('LocalTrack addEffect', () => {
     const addEffectPromise = localStream.addEffect('test-effect', effect as unknown as BaseEffect);
 
     await expect(addEffectPromise).resolves.toBeUndefined();
-    expect(localStream.getOutputTrack()).toBe(effectTrack);
+    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
   });
 
   it('does not use the effect when the loading effect is cleared during load', async () => {
@@ -93,7 +97,7 @@ describe('LocalTrack addEffect', () => {
     await localStream.disposeEffects();
 
     await expect(addEffectPromise).rejects.toThrow('not required after loading');
-    expect(localStream.getOutputStream()).toBe(mockedStream);
+    expect(localStream.outputStream).toBe(mockedStream);
   });
 
   it('loads and uses the latest effect when the loading effect changes during load', async () => {
@@ -112,6 +116,6 @@ describe('LocalTrack addEffect', () => {
     await expect(firstAddEffectPromise).rejects.toThrow('not required after loading');
     await expect(secondAddEffectPromise).resolves.toBeUndefined();
 
-    expect(localStream.getOutputTrack()).toBe(effectTrack);
+    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
   });
 });

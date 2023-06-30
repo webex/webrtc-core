@@ -2,6 +2,7 @@ import * as media from '../media';
 import { LocalCameraStream } from '../media/local-camera-stream';
 import { LocalDisplayStream } from '../media/local-display-stream';
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
+import { LocalSystemAudioStream } from '../media/local-system-audio-stream';
 import { VideoContentHint } from '../media/local-video-stream';
 
 export enum ErrorTypes {
@@ -107,6 +108,28 @@ export async function createDisplayStream(
     localDisplayStream.contentHint = videoContentHint;
   }
   return localDisplayStream;
+}
+
+/**
+ * Creates a LocalDisplayStream and a LocalSystemAudioStream with the given parameters.
+ *
+ * @param videoContentHint - An optional parameter to give a hint for the content of the track.
+ * @returns A Promise that resolves to a LocalDisplayStream and a LocalSystemAudioStream. If no system
+ * audio is available, the LocalSystemAudioStream will be resolved as null instead.
+ */
+export async function createDisplayStreamWithAudio(
+  videoContentHint?: VideoContentHint
+): Promise<[LocalDisplayStream, LocalSystemAudioStream | null]> {
+  const stream = await media.getDisplayMedia({ video: true, audio: true });
+  const localDisplayStream = new LocalDisplayStream(new MediaStream(stream.getVideoTracks()));
+  if (videoContentHint) {
+    localDisplayStream.contentHint = videoContentHint;
+  }
+  let localSystemAudioStream = null;
+  if (stream.getAudioTracks().length > 0) {
+    localSystemAudioStream = new LocalSystemAudioStream(new MediaStream(stream.getAudioTracks()));
+  }
+  return [localDisplayStream, localSystemAudioStream];
 }
 
 /**
