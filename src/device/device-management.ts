@@ -1,8 +1,8 @@
+import * as media from '../media';
+import { LocalCameraStream } from '../media/local-camera-stream';
 import { LocalDisplayStream } from '../media/local-display-stream';
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
 import { VideoContentHint } from '../media/local-video-stream';
-import * as media from '../media';
-import { LocalCameraStream } from '../media/local-camera-stream';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
@@ -42,14 +42,10 @@ export type AudioDeviceConstraints = Pick<
   | 'suppressLocalAudioPlayback'
 >;
 
-export type VideoDeviceConstraints = {
-  deviceId?: ConstrainDOMString;
-  width?: ConstrainULong;
-  height?: ConstrainULong;
-  aspectRatio?: ConstrainDouble;
-  frameRate?: ConstrainDouble;
-  facingMode?: ConstrainDOMString;
-};
+export type VideoDeviceConstraints = Pick<
+  MediaTrackConstraints,
+  'aspectRatio' | 'deviceId' | 'facingMode' | 'frameRate' | 'height' | 'width'
+>;
 
 /**
  * Creates a camera stream. Please note that the constraint params in second getUserMedia call would NOT take effect when:
