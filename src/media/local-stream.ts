@@ -90,23 +90,30 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
-   * Change the track of the output stream to a different track. If the new track is the input
-   * track, then set the output stream to be the input stream. If the input and output tracks are
-   * currently the same, then set the output stream to a new stream with the new track. Otherwise,
-   * remove the old track from the output stream and add the new one.
+   * Change the track of the output stream to a different track.
+   *
+   * Note: this method assumes and enforces that if both input and output streams have the same
+   * track, then they must also be the same stream.
    *
    * @param newTrack - The track to be used in the output stream.
    */
   private changeOutputTrack(newTrack: MediaStreamTrack): void {
-    if (this.inputTrack.id === newTrack.id) {
-      this._outputStream = this.inputStream;
-    } else if (this.inputTrack.id === this.outputTrack.id) {
-      this._outputStream = new MediaStream([newTrack]);
-    } else {
+    if (this.outputTrack.id !== newTrack.id) {
+      // input track is same as old output track, so separate the input stream into a new stream
+      if (this.inputTrack.id === this.outputTrack.id) {
+        this.inputStream = new MediaStream(this.inputStream);
+      }
+
       this.outputStream.removeTrack(this.outputTrack);
       this.outputStream.addTrack(newTrack);
+
+      // input track is same as new output track, so set the streams to be the same
+      if (this.inputTrack.id === this.outputTrack.id) {
+        this.inputStream = this.outputStream;
+      }
+
+      this[LocalStreamEventNames.OutputTrackChange].emit(newTrack);
     }
-    this[LocalStreamEventNames.OutputTrackChange].emit(newTrack);
   }
 
   /**
