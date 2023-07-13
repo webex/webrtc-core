@@ -129,6 +129,11 @@ describe('Device Management', () => {
       .spyOn(media, 'getDisplayMedia')
       .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
 
+    // This mock implementation is needed because createDisplayStreamWithAudio will create a new
+    // MediaStream from the video track of the mocked stream, so we need to make sure this new
+    // stream can get the mocked stream's track as well.
+    jest.spyOn(MediaStream.prototype, 'getTracks').mockImplementation(() => mockStream.getTracks());
+
     it('should call getDisplayMedia with audio', async () => {
       expect.assertions(1);
 
@@ -159,13 +164,6 @@ describe('Device Management', () => {
 
     it('should preserve the content hint', async () => {
       expect.assertions(1);
-
-      // This mock implementation is needed because createDisplayStreamWithAudio will create a new
-      // MediaStream from the video track of the mocked stream, so we need to make sure this new
-      // stream can get the mocked stream's track as well.
-      jest
-        .spyOn(MediaStream.prototype, 'getTracks')
-        .mockImplementation(() => mockStream.getTracks());
 
       const [localDisplayStream] = await createDisplayStreamWithAudio('motion');
       expect(localDisplayStream.contentHint).toBe('motion');

@@ -54,16 +54,6 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
-   * Get the track within the MediaStream with which effects were added.
-   *
-   * @returns The track within the MediaStream with which this LocalStream
-   * was created.
-   */
-  private get outputTrack(): MediaStreamTrack {
-    return this.inputStream.getTracks()[0];
-  }
-
-  /**
    * @inheritdoc
    */
   get muted(): boolean {
@@ -78,44 +68,53 @@ abstract class _LocalStream extends Stream {
   setMuted(isMuted: boolean): void {
     if (this.inputTrack.enabled === isMuted) {
       this.inputTrack.enabled = !isMuted;
+      // setting `enabled` will not automatically emit MuteStateChange, so we emit it here
       this[StreamEventNames.MuteStateChange].emit(isMuted);
     }
   }
 
   /**
-   * Get the settings of the output track on this stream.
-   *
-   * @returns The settings of the track.
+   * @inheritdoc
    */
   getSettings(): MediaTrackSettings {
-    return this.outputTrack.getSettings();
+    return this.inputTrack.getSettings();
   }
 
   /**
-   * Get the label of the output track on this stream.
+   * Get the label of the input track on this stream.
    *
    * @returns The label of the track.
    */
   get label(): string {
-    return this.outputTrack.label;
+    return this.inputTrack.label;
   }
 
   /**
-   * Replace the existing track on the output stream for a new track.
+   * Change the track of the output stream to a different track. If the new track is the input
+   * track, then set the output stream to be the input stream. If the input and output tracks are
+   * currently the same, then set the output stream to a new stream with the new track. Otherwise,
+   * remove the old track from the output stream and add the new one.
    *
-   * @param newTrack - The track to add to the stream.
+   * @param newTrack - The track to be used in the output stream.
    */
-  private replaceTrack(newTrack: MediaStreamTrack): void {
-    this.outputStream.removeTrack(this.outputTrack);
-    this.outputStream.addTrack(newTrack);
+  private changeOutputTrack(newTrack: MediaStreamTrack): void {
+    if (this.inputTrack.id === newTrack.id) {
+      this._outputStream = this.inputStream;
+    } else if (this.inputTrack.id === this.outputTrack.id) {
+      this._outputStream = new MediaStream([newTrack]);
+    } else {
+      this.outputStream.removeTrack(this.outputTrack);
+      this.outputStream.addTrack(newTrack);
+    }
     this[LocalStreamEventNames.OutputTrackChange].emit(newTrack);
   }
 
   /**
-   * Stop the output track on this stream.
+   * @inheritdoc
    */
   stop(): void {
-    this.outputTrack.stop();
+    this.inputTrack.stop();
+    // calling stop() will not automatically emit Ended, so we emit it here
     this[StreamEventNames.Ended].emit();
   }
 
@@ -139,13 +138,16 @@ abstract class _LocalStream extends Stream {
     // Use the effect
     this.loadingEffects.delete(name);
     this.effects.push({ name, effect });
-    this.replaceTrack(outputTrack);
+    this.changeOutputTrack(outputTrack);
 
     // When the effect's track is updated, update the next effect or output stream.
-    effect.on(EffectEvent.TrackUpdated, (track: MediaStreamTrack) => {
+    // TODO: using EffectEvent.TrackUpdated will cause the entire web-media-effects lib to be built
+    // and makes the size of the webrtc-core build much larger, so we use type assertion here as a
+    // temporary workaround.
+    effect.on('track-updated' as EffectEvent, (track: MediaStreamTrack) => {
       const effectIndex = this.effects.findIndex((e) => e.name === name);
       if (effectIndex === this.effects.length - 1) {
-        this.replaceTrack(track);
+        this.changeOutputTrack(track);
       } else {
         this.effects[effectIndex + 1]?.effect.replaceInputTrack(track);
       }
@@ -170,7 +172,7 @@ abstract class _LocalStream extends Stream {
 
     // Dispose of any effects currently in use
     if (this.effects.length > 0) {
-      this.replaceTrack(this.inputTrack);
+      this.changeOutputTrack(this.inputTrack);
       await Promise.all(this.effects.map((item: EffectItem) => item.effect.dispose()));
       this.effects = [];
     }
