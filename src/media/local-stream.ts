@@ -99,7 +99,9 @@ abstract class _LocalStream extends Stream {
    */
   private changeOutputTrack(newTrack: MediaStreamTrack): void {
     if (this.outputTrack.id !== newTrack.id) {
-      // input track is same as old output track, so separate the input stream into a new stream
+      // If the input track and the *old* output track are currently the same, then the streams must
+      // be the same too. We want to apply the new track to the output stream without affecting the
+      // input stream, so we separate them by setting the input stream to be its own stream.
       if (this.inputTrack.id === this.outputTrack.id) {
         this.inputStream = new MediaStream(this.inputStream);
       }
@@ -107,7 +109,8 @@ abstract class _LocalStream extends Stream {
       this.outputStream.removeTrack(this.outputTrack);
       this.outputStream.addTrack(newTrack);
 
-      // input track is same as new output track, so set the streams to be the same
+      // If the input track and the *new* output track are now the same, then we want the streams to
+      // be the same too.
       if (this.inputTrack.id === this.outputTrack.id) {
         this.inputStream = this.outputStream;
       }

@@ -7,8 +7,12 @@ import './media-stream-track-stub';
 class MediaStreamStub {
   private tracks: MediaStreamTrack[];
 
-  constructor(tracks: MediaStreamTrack[] = []) {
-    this.tracks = tracks;
+  constructor(streamOrTracks?: MediaStream | MediaStreamTrack[]) {
+    if (streamOrTracks instanceof MediaStream) {
+      this.tracks = streamOrTracks.getTracks();
+    } else {
+      this.tracks = streamOrTracks || [];
+    }
   }
 
   addTrack(track: MediaStreamTrack) {

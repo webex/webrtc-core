@@ -1,4 +1,6 @@
 import { BaseEffect } from '@webex/web-media-effects';
+import { createBrowserMock } from '../mocks/create-browser-mock';
+import MediaStreamStub from '../mocks/media-stream-stub';
 import MediaStreamTrackStub from '../mocks/media-stream-track-stub';
 import { mocked } from '../mocks/mock';
 import { createMockedStream } from '../util/test-utils';
@@ -48,67 +50,72 @@ describe('LocalStream', () => {
       expect(spy).toHaveBeenCalledWith();
     });
   });
+});
 
-  describe('addEffect', () => {
-    // eslint-disable-next-line jsdoc/require-jsdoc
-    const createMockedTrackEffect = () => {
-      const effectTrack = mocked(new MediaStreamTrackStub());
-      const effect = {
-        dispose: jest.fn().mockResolvedValue(undefined),
-        load: jest.fn().mockResolvedValue(effectTrack),
-        on: jest.fn(),
-      };
+describe('LocalTrack addEffect', () => {
+  createBrowserMock(MediaStreamStub, 'MediaStream');
 
-      return { effectTrack, effect };
+  // eslint-disable-next-line jsdoc/require-jsdoc
+  const createMockedTrackEffect = () => {
+    const effectTrack = mocked(new MediaStreamTrackStub());
+    const effect = {
+      dispose: jest.fn().mockResolvedValue(undefined),
+      load: jest.fn().mockResolvedValue(effectTrack),
+      on: jest.fn(),
     };
 
-    it('loads and uses the effect when there is no loading effect', async () => {
-      expect.hasAssertions();
+    return { effectTrack, effect };
+  };
 
-      const { effectTrack, effect } = createMockedTrackEffect();
+  // TODO: addTrack and removeTrack do not work the current implementation of createMockedStream, so
+  // we have to use the stubs here directly for now
+  const mockTrack = mocked(new MediaStreamTrackStub()) as unknown as MediaStreamTrack;
+  const mockStream = mocked(new MediaStreamStub([mockTrack])) as unknown as MediaStream;
+  let localStream: LocalStream;
+  beforeEach(() => {
+    localStream = new TestLocalStream(mockStream);
+  });
 
-      const addEffectPromise = localStream.addEffect(
-        'test-effect',
-        effect as unknown as BaseEffect
-      );
+  it('loads and uses the effect when there is no loading effect', async () => {
+    expect.hasAssertions();
 
-      await expect(addEffectPromise).resolves.toBeUndefined();
-      expect(localStream.outputStream.getTracks()[0].id).toBe(effectTrack.id);
-    });
+    const { effectTrack, effect } = createMockedTrackEffect();
 
-    it('does not use the effect when the loading effect is cleared during load', async () => {
-      expect.hasAssertions();
+    const addEffectPromise = localStream.addEffect('test-effect', effect as unknown as BaseEffect);
 
-      const { effect } = createMockedTrackEffect();
+    await expect(addEffectPromise).resolves.toBeUndefined();
+    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
+  });
 
-      // Add effect and immediately dispose all effects to clear loading effects
-      const addEffectPromise = localStream.addEffect(
-        'test-effect',
-        effect as unknown as BaseEffect
-      );
-      await localStream.disposeEffects();
+  it('does not use the effect when the loading effect is cleared during load', async () => {
+    expect.hasAssertions();
 
-      await expect(addEffectPromise).rejects.toThrow('not required after loading');
-      expect(localStream.outputStream).toBe(mockStream);
-    });
+    const { effect } = createMockedTrackEffect();
 
-    it('loads and uses the latest effect when the loading effect changes during load', async () => {
-      expect.hasAssertions();
-      const { effect: firstEffect } = createMockedTrackEffect();
-      const { effectTrack, effect: secondEffect } = createMockedTrackEffect();
+    // Add effect and immediately dispose all effects to clear loading effects
+    const addEffectPromise = localStream.addEffect('test-effect', effect as unknown as BaseEffect);
+    await localStream.disposeEffects();
 
-      const firstAddEffectPromise = localStream.addEffect(
-        'test-effect',
-        firstEffect as unknown as BaseEffect
-      );
-      const secondAddEffectPromise = localStream.addEffect(
-        'test-effect',
-        secondEffect as unknown as BaseEffect
-      );
-      await expect(firstAddEffectPromise).rejects.toThrow('not required after loading');
-      await expect(secondAddEffectPromise).resolves.toBeUndefined();
+    await expect(addEffectPromise).rejects.toThrow('not required after loading');
+    expect(localStream.outputStream).toBe(mockStream);
+  });
 
-      expect(localStream.outputStream.getTracks()[0].id).toBe(effectTrack.id);
-    });
+  it('loads and uses the latest effect when the loading effect changes during load', async () => {
+    expect.hasAssertions();
+    const { effect: firstEffect } = createMockedTrackEffect();
+    const { effectTrack, effect: secondEffect } = createMockedTrackEffect();
+
+    const firstAddEffectPromise = localStream.addEffect(
+      'test-effect',
+      firstEffect as unknown as BaseEffect
+    );
+    const secondAddEffectPromise = localStream.addEffect(
+      'test-effect',
+      secondEffect as unknown as BaseEffect
+    );
+    await expect(firstAddEffectPromise).rejects.toThrow('not required after loading');
+    await expect(secondAddEffectPromise).resolves.toBeUndefined();
+
+    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
   });
 });
