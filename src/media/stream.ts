@@ -14,7 +14,8 @@ interface StreamEvents {
  * Base stream class.
  */
 abstract class _Stream {
-  protected _outputStream: MediaStream;
+  // The output stream should never be reassigned, since it is the stream that is being given out.
+  readonly outputStream: MediaStream;
 
   // TODO: these should be protected, but we need the helper type in ts-events
   // to hide the 'emit' method from TypedEvent.
@@ -28,7 +29,7 @@ abstract class _Stream {
    * @param stream - The initial output MediaStream for this Stream.
    */
   constructor(stream: MediaStream) {
-    this._outputStream = stream;
+    this.outputStream = stream;
     this.handleTrackMuted = this.handleTrackMuted.bind(this);
     this.handleTrackUnmuted = this.handleTrackUnmuted.bind(this);
     this.handleTrackEnded = this.handleTrackEnded.bind(this);
@@ -84,15 +85,6 @@ abstract class _Stream {
    * @returns True if the stream is muted, false otherwise.
    */
   abstract get muted(): boolean;
-
-  /**
-   * Get the output stream.
-   *
-   * @returns The output stream.
-   */
-  get outputStream(): MediaStream {
-    return this._outputStream;
-  }
 
   /**
    * Get the track of the output stream.
