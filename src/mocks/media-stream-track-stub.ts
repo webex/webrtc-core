@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { randomUUID } from 'crypto';
 import { MediaStreamTrackKind } from '../peer-connection';
 
 /**
@@ -15,6 +16,8 @@ class MediaStreamTrackStub {
   constraints: MediaTrackConstraints = {};
 
   kind?: MediaStreamTrackKind;
+
+  id = randomUUID();
 
   /**
    * Callback call onmute.
