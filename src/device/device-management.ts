@@ -7,8 +7,8 @@ import { VideoContentHint } from '../media/local-video-stream';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
-  CREATE_CAMERA_TRACK_FAILED = 'CREATE_CAMERA_TRACK_FAILED',
-  CREATE_MICROPHONE_TRACK_FAILED = 'CREATE_MICROPHONE_TRACK_FAILED',
+  CREATE_CAMERA_STREAM_FAILED = 'CREATE_CAMERA_STREAM_FAILED',
+  CREATE_MICROPHONE_STREAM_FAILED = 'CREATE_MICROPHONE_STREAM_FAILED',
 }
 
 /**
@@ -51,7 +51,7 @@ export type VideoDeviceConstraints = Pick<
 /**
  * Creates a camera stream. Please note that the constraint params in second getUserMedia call would NOT take effect when:
  *
- * 1. Previous captured video track from the same device is not stopped .
+ * 1. Previous captured video stream from the same device is not stopped.
  * 2. Previous createCameraStream() call for the same device is in progress.
  *
  * @param constraints - Video device constraints.
@@ -65,8 +65,8 @@ export async function createCameraStream(
     stream = await media.getUserMedia({ video: { ...constraints } });
   } catch (error) {
     throw new WcmeError(
-      ErrorTypes.CREATE_CAMERA_TRACK_FAILED,
-      `Failed to create camera track ${error}`
+      ErrorTypes.CREATE_CAMERA_STREAM_FAILED,
+      `Failed to create camera stream ${error}`
     );
   }
   return new LocalCameraStream(stream);
@@ -76,7 +76,7 @@ export async function createCameraStream(
  * Creates a LocalMicrophoneStream with the given constraints.
  *
  * @param constraints - Audio device constraints.
- * @returns A LocalTrack object or an error.
+ * @returns A LocalMicrophoneStream object or an error.
  */
 export async function createMicrophoneStream(
   constraints?: AudioDeviceConstraints
@@ -86,8 +86,8 @@ export async function createMicrophoneStream(
     stream = await media.getUserMedia({ audio: { ...constraints } });
   } catch (error) {
     throw new WcmeError(
-      ErrorTypes.CREATE_MICROPHONE_TRACK_FAILED,
-      `Failed to create microphone track ${error}`
+      ErrorTypes.CREATE_MICROPHONE_STREAM_FAILED,
+      `Failed to create microphone stream ${error}`
     );
   }
   return new LocalMicrophoneStream(stream);
@@ -96,7 +96,7 @@ export async function createMicrophoneStream(
 /**
  * Creates a LocalDisplayStream with the given parameters.
  *
- * @param videoContentHint - An optional parameter to give a hint for the content of the track.
+ * @param videoContentHint - An optional parameter to give a hint for the content of the stream.
  * @returns A Promise that resolves to a LocalDisplayStream.
  */
 export async function createDisplayStream(
@@ -113,7 +113,7 @@ export async function createDisplayStream(
 /**
  * Creates a LocalDisplayStream and a LocalSystemAudioStream with the given parameters.
  *
- * @param videoContentHint - An optional parameter to give a hint for the content of the track.
+ * @param videoContentHint - An optional parameter to give a hint for the content of the stream.
  * @returns A Promise that resolves to a LocalDisplayStream and a LocalSystemAudioStream. If no system
  * audio is available, the LocalSystemAudioStream will be resolved as null instead.
  */
