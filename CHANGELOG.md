@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/webex/webrtc-core/compare/v1.7.1...v2.0.0) (2023-07-19)
+
+
+### Features
+
+* convert track-based classes into stream-based classes ([#60](https://github.com/webex/webrtc-core/issues/60)) ([74089af](https://github.com/webex/webrtc-core/commit/74089af9570343002611b59d40897cfa029a131a))
+
+
+### BREAKING CHANGES
+
+* convert track-based classes into stream-based classes
+
 ## [1.7.1](https://github.com/webex/webrtc-core/compare/v1.7.0...v1.7.1) (2023-06-02)
 
 
