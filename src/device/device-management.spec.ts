@@ -1,11 +1,17 @@
 import * as media from '../media';
-import { LocalCameraTrack } from '../media/local-camera-track';
-import { LocalDisplayTrack } from '../media/local-display-track';
-import { LocalMicrophoneTrack } from '../media/local-microphone-track';
+import { LocalCameraStream } from '../media/local-camera-stream';
+import { LocalDisplayStream } from '../media/local-display-stream';
+import { LocalMicrophoneStream } from '../media/local-microphone-stream';
+import { LocalSystemAudioStream } from '../media/local-system-audio-stream';
 import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
-import { mocked } from '../mocks/mock';
-import { createCameraTrack, createDisplayTrack, createMicrophoneTrack } from './device-management';
+import { createMockedStream, createMockedStreamWithAudio } from '../util/test-utils';
+import {
+  createCameraStream,
+  createDisplayStream,
+  createDisplayStreamWithAudio,
+  createMicrophoneStream,
+} from './device-management';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -13,20 +19,17 @@ describe('Device Management', () => {
   // const mockedMedia = createBrowserMock(media);
   createBrowserMock(MediaStreamStub, 'MediaStream');
 
-  const mockStream = mocked(new MediaStream());
-  const track = new MediaStreamTrack();
-  mockStream.getTracks.mockReturnValue([track]);
+  const mockStream = createMockedStream();
 
-  describe('createMicrophoneTrack', () => {
+  describe('createMicrophoneStream', () => {
     jest
       .spyOn(media, 'getUserMedia')
-      .mockImplementation()
       .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createMicrophoneTrack(LocalMicrophoneTrack, { deviceId: 'test-device-id' });
+      await createMicrophoneStream({ deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         audio: {
           deviceId: 'test-device-id',
@@ -34,26 +37,25 @@ describe('Device Management', () => {
       });
     });
 
-    it('should return a LocalMicrophoneTrack instance', async () => {
+    it('should return a LocalMicrophoneStream instance', async () => {
       expect.assertions(1);
 
-      const localMicrophoneTrack = await createMicrophoneTrack(LocalMicrophoneTrack, {
+      const localMicrophoneStream = await createMicrophoneStream({
         deviceId: 'test-device-id',
       });
-      expect(localMicrophoneTrack).toBeInstanceOf(LocalMicrophoneTrack);
+      expect(localMicrophoneStream).toBeInstanceOf(LocalMicrophoneStream);
     });
   });
 
-  describe('createCameraTrack', () => {
+  describe('createCameraStream', () => {
     jest
       .spyOn(media, 'getUserMedia')
-      .mockImplementation()
       .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createCameraTrack(LocalCameraTrack, { deviceId: 'test-device-id' });
+      await createCameraStream({ deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         video: {
           deviceId: 'test-device-id',
@@ -64,7 +66,7 @@ describe('Device Management', () => {
     it('should call getUserMedia with constraints', async () => {
       expect.assertions(1);
 
-      await createCameraTrack(LocalCameraTrack, {
+      await createCameraStream({
         deviceId: 'test-device-id',
         aspectRatio: 1.777,
         width: 1920,
@@ -84,42 +86,87 @@ describe('Device Management', () => {
       });
     });
 
-    it('should return a LocalCameraTrack instance', async () => {
+    it('should return a LocalCameraStream instance', async () => {
       expect.assertions(1);
 
-      const localCameraTrack = await createCameraTrack(LocalCameraTrack, {
+      const localCameraStream = await createCameraStream({
         deviceId: 'test-device-id',
       });
-      expect(localCameraTrack).toBeInstanceOf(LocalCameraTrack);
+      expect(localCameraStream).toBeInstanceOf(LocalCameraStream);
     });
   });
 
-  describe('createDisplayTrack', () => {
+  describe('createDisplayStream', () => {
     jest
       .spyOn(media, 'getDisplayMedia')
-      .mockImplementation()
       .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
 
     it('should call getDisplayMedia', async () => {
       expect.assertions(1);
 
-      await createDisplayTrack(LocalDisplayTrack);
+      await createDisplayStream();
       expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true });
     });
 
-    it('should return a LocalDisplayTrack instance', async () => {
+    it('should return a LocalDisplayStream instance', async () => {
       expect.assertions(2);
 
-      const localDisplayTrack = await createDisplayTrack(LocalDisplayTrack);
-      expect(localDisplayTrack).toBeInstanceOf(LocalDisplayTrack);
-      expect(localDisplayTrack.videoContentHint).toBeUndefined();
+      const localDisplayStream = await createDisplayStream();
+      expect(localDisplayStream).toBeInstanceOf(LocalDisplayStream);
+      expect(localDisplayStream.contentHint).toBeUndefined();
     });
 
     it('should preserve the content hint', async () => {
       expect.assertions(1);
 
-      const localDisplayTrack = await createDisplayTrack(LocalDisplayTrack, 'motion');
-      expect(localDisplayTrack.videoContentHint).toBe('motion');
+      const localDisplayStream = await createDisplayStream('motion');
+      expect(localDisplayStream.contentHint).toBe('motion');
+    });
+  });
+
+  describe('createDisplayStreamWithAudio', () => {
+    jest
+      .spyOn(media, 'getDisplayMedia')
+      .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
+
+    // This mock implementation is needed because createDisplayStreamWithAudio will create a new
+    // MediaStream from the video track of the mocked stream, so we need to make sure this new
+    // stream can get the mocked stream's track as well.
+    jest.spyOn(MediaStream.prototype, 'getTracks').mockImplementation(() => mockStream.getTracks());
+
+    it('should call getDisplayMedia with audio', async () => {
+      expect.assertions(1);
+
+      await createDisplayStreamWithAudio();
+      expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true, audio: true });
+    });
+
+    it('should return a LocalDisplayStream instance and null if no audio track exists', async () => {
+      expect.assertions(2);
+
+      const [localDisplayStream, localSystemAudioStream] = await createDisplayStreamWithAudio();
+      expect(localDisplayStream).toBeInstanceOf(LocalDisplayStream);
+      expect(localSystemAudioStream).toBeNull();
+    });
+
+    it('should return a LocalDisplayStream and a LocalSystemAudioStream instance if audio track exists', async () => {
+      expect.assertions(2);
+
+      const mockStreamWithAudio = createMockedStreamWithAudio();
+      jest
+        .spyOn(media, 'getDisplayMedia')
+        .mockReturnValueOnce(Promise.resolve(mockStreamWithAudio as unknown as MediaStream));
+
+      const [localDisplayStream, localSystemAudioStream] = await createDisplayStreamWithAudio();
+      expect(localDisplayStream).toBeInstanceOf(LocalDisplayStream);
+      expect(localSystemAudioStream).toBeInstanceOf(LocalSystemAudioStream);
+    });
+
+    it('should preserve the content hint', async () => {
+      expect.assertions(1);
+
+      const [localDisplayStream] = await createDisplayStreamWithAudio('motion');
+      expect(localDisplayStream.contentHint).toBe('motion');
     });
   });
 });
