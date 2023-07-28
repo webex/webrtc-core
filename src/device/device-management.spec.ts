@@ -7,6 +7,7 @@ import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
 import { createMockedStream, createMockedStreamWithAudio } from '../util/test-utils';
 import {
+  createCameraAndMicrophoneStreams,
   createCameraStream,
   createDisplayStream,
   createDisplayStreamWithAudio,
@@ -29,7 +30,7 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createMicrophoneStream({ deviceId: 'test-device-id' });
+      await createMicrophoneStream(LocalMicrophoneStream, { deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         audio: {
           deviceId: 'test-device-id',
@@ -37,10 +38,37 @@ describe('Device Management', () => {
       });
     });
 
+    it('should call getUserMedia with constraints', async () => {
+      expect.assertions(1);
+
+      await createMicrophoneStream(LocalMicrophoneStream, {
+        deviceId: 'test-device-id',
+        autoGainControl: false,
+        channelCount: 2,
+        echoCancellation: false,
+        noiseSuppression: false,
+        sampleRate: 48000,
+        sampleSize: 16,
+        suppressLocalAudioPlayback: false,
+      });
+      expect(media.getUserMedia).toHaveBeenCalledWith({
+        audio: {
+          deviceId: 'test-device-id',
+          autoGainControl: false,
+          channelCount: 2,
+          echoCancellation: false,
+          noiseSuppression: false,
+          sampleRate: 48000,
+          sampleSize: 16,
+          suppressLocalAudioPlayback: false,
+        },
+      });
+    });
+
     it('should return a LocalMicrophoneStream instance', async () => {
       expect.assertions(1);
 
-      const localMicrophoneStream = await createMicrophoneStream({
+      const localMicrophoneStream = await createMicrophoneStream(LocalMicrophoneStream, {
         deviceId: 'test-device-id',
       });
       expect(localMicrophoneStream).toBeInstanceOf(LocalMicrophoneStream);
@@ -55,7 +83,7 @@ describe('Device Management', () => {
     it('should call getUserMedia', async () => {
       expect.assertions(1);
 
-      await createCameraStream({ deviceId: 'test-device-id' });
+      await createCameraStream(LocalCameraStream, { deviceId: 'test-device-id' });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         video: {
           deviceId: 'test-device-id',
@@ -66,7 +94,7 @@ describe('Device Management', () => {
     it('should call getUserMedia with constraints', async () => {
       expect.assertions(1);
 
-      await createCameraStream({
+      await createCameraStream(LocalCameraStream, {
         deviceId: 'test-device-id',
         aspectRatio: 1.777,
         width: 1920,
@@ -89,10 +117,59 @@ describe('Device Management', () => {
     it('should return a LocalCameraStream instance', async () => {
       expect.assertions(1);
 
-      const localCameraStream = await createCameraStream({
+      const localCameraStream = await createCameraStream(LocalCameraStream, {
         deviceId: 'test-device-id',
       });
       expect(localCameraStream).toBeInstanceOf(LocalCameraStream);
+    });
+  });
+
+  describe('createCameraAndMicrophoneStreams', () => {
+    jest
+      .spyOn(media, 'getUserMedia')
+      .mockReturnValue(Promise.resolve(mockStream as unknown as MediaStream));
+
+    it('should call getUserMedia', async () => {
+      expect.assertions(1);
+
+      await createCameraAndMicrophoneStreams(LocalCameraStream, LocalMicrophoneStream, {
+        video: { deviceId: 'test-device-id' },
+        audio: { deviceId: 'test-device-id' },
+      });
+      expect(media.getUserMedia).toHaveBeenCalledWith({
+        video: {
+          deviceId: 'test-device-id',
+        },
+        audio: {
+          deviceId: 'test-device-id',
+        },
+      });
+    });
+
+    it('should return a LocalCameraStream and a LocalMicrophoneStream instance', async () => {
+      expect.assertions(2);
+
+      const [localCameraStream, localMicrophoneStream] = await createCameraAndMicrophoneStreams(
+        LocalCameraStream,
+        LocalMicrophoneStream,
+        {
+          video: { deviceId: 'test-device-id' },
+          audio: { deviceId: 'test-device-id' },
+        }
+      );
+      expect(localCameraStream).toBeInstanceOf(LocalCameraStream);
+      expect(localMicrophoneStream).toBeInstanceOf(LocalMicrophoneStream);
+    });
+
+    it('should return a LocalCameraStream and a LocalMicrophoneStream instance without constraints', async () => {
+      expect.assertions(2);
+
+      const [localCameraStream, localMicrophoneStream] = await createCameraAndMicrophoneStreams(
+        LocalCameraStream,
+        LocalMicrophoneStream
+      );
+      expect(localCameraStream).toBeInstanceOf(LocalCameraStream);
+      expect(localMicrophoneStream).toBeInstanceOf(LocalMicrophoneStream);
     });
   });
 
@@ -104,14 +181,14 @@ describe('Device Management', () => {
     it('should call getDisplayMedia', async () => {
       expect.assertions(1);
 
-      await createDisplayStream();
+      await createDisplayStream(LocalDisplayStream);
       expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true });
     });
 
     it('should return a LocalDisplayStream instance', async () => {
       expect.assertions(2);
 
-      const localDisplayStream = await createDisplayStream();
+      const localDisplayStream = await createDisplayStream(LocalDisplayStream);
       expect(localDisplayStream).toBeInstanceOf(LocalDisplayStream);
       expect(localDisplayStream.contentHint).toBeUndefined();
     });
@@ -119,7 +196,7 @@ describe('Device Management', () => {
     it('should preserve the content hint', async () => {
       expect.assertions(1);
 
-      const localDisplayStream = await createDisplayStream('motion');
+      const localDisplayStream = await createDisplayStream(LocalDisplayStream, 'motion');
       expect(localDisplayStream.contentHint).toBe('motion');
     });
   });
@@ -137,14 +214,17 @@ describe('Device Management', () => {
     it('should call getDisplayMedia with audio', async () => {
       expect.assertions(1);
 
-      await createDisplayStreamWithAudio();
+      await createDisplayStreamWithAudio(LocalDisplayStream, LocalSystemAudioStream);
       expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true, audio: true });
     });
 
     it('should return a LocalDisplayStream instance and null if no audio track exists', async () => {
       expect.assertions(2);
 
-      const [localDisplayStream, localSystemAudioStream] = await createDisplayStreamWithAudio();
+      const [localDisplayStream, localSystemAudioStream] = await createDisplayStreamWithAudio(
+        LocalDisplayStream,
+        LocalSystemAudioStream
+      );
       expect(localDisplayStream).toBeInstanceOf(LocalDisplayStream);
       expect(localSystemAudioStream).toBeNull();
     });
@@ -157,7 +237,10 @@ describe('Device Management', () => {
         .spyOn(media, 'getDisplayMedia')
         .mockReturnValueOnce(Promise.resolve(mockStreamWithAudio as unknown as MediaStream));
 
-      const [localDisplayStream, localSystemAudioStream] = await createDisplayStreamWithAudio();
+      const [localDisplayStream, localSystemAudioStream] = await createDisplayStreamWithAudio(
+        LocalDisplayStream,
+        LocalSystemAudioStream
+      );
       expect(localDisplayStream).toBeInstanceOf(LocalDisplayStream);
       expect(localSystemAudioStream).toBeInstanceOf(LocalSystemAudioStream);
     });
@@ -165,7 +248,11 @@ describe('Device Management', () => {
     it('should preserve the content hint', async () => {
       expect.assertions(1);
 
-      const [localDisplayStream] = await createDisplayStreamWithAudio('motion');
+      const [localDisplayStream] = await createDisplayStreamWithAudio(
+        LocalDisplayStream,
+        LocalSystemAudioStream,
+        'motion'
+      );
       expect(localDisplayStream.contentHint).toBe('motion');
     });
   });

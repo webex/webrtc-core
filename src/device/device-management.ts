@@ -7,9 +7,11 @@ import { VideoContentHint } from '../media/local-video-stream';
 
 export enum ErrorTypes {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
-  CREATE_CAMERA_STREAM_FAILED = 'CREATE_CAMERA_STREAM_FAILED',
-  CREATE_MICROPHONE_STREAM_FAILED = 'CREATE_MICROPHONE_STREAM_FAILED',
+  CREATE_STREAM_FAILED = 'CREATE_CAMERA_STREAM',
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Constructor<T> = new (...args: any[]) => T;
 
 /**
  * Represents a WCME error, which contains error type and error message.
@@ -54,56 +56,109 @@ export type VideoDeviceConstraints = Pick<
  * 1. Previous captured video stream from the same device is not stopped.
  * 2. Previous createCameraStream() call for the same device is in progress.
  *
+ * @param constructor - Constructor for the local camera stream.
  * @param constraints - Video device constraints.
  * @returns A LocalCameraStream object or an error.
  */
-export async function createCameraStream(
+export async function createCameraStream<T extends LocalCameraStream>(
+  constructor: Constructor<T>,
   constraints?: VideoDeviceConstraints
-): Promise<LocalCameraStream> {
+): Promise<T> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ video: { ...constraints } });
   } catch (error) {
     throw new WcmeError(
-      ErrorTypes.CREATE_CAMERA_STREAM_FAILED,
-      `Failed to create camera stream ${error}`
+      ErrorTypes.CREATE_STREAM_FAILED,
+      `Failed to create camera stream: ${error}`
     );
   }
-  return new LocalCameraStream(stream);
+  return new constructor(stream);
 }
 
 /**
  * Creates a LocalMicrophoneStream with the given constraints.
  *
+ * @param constructor - Constructor for the local microphone stream.
  * @param constraints - Audio device constraints.
  * @returns A LocalMicrophoneStream object or an error.
  */
-export async function createMicrophoneStream(
+export async function createMicrophoneStream<T extends LocalMicrophoneStream>(
+  constructor: Constructor<T>,
   constraints?: AudioDeviceConstraints
-): Promise<LocalMicrophoneStream> {
+): Promise<T> {
   let stream: MediaStream;
   try {
     stream = await media.getUserMedia({ audio: { ...constraints } });
   } catch (error) {
     throw new WcmeError(
-      ErrorTypes.CREATE_MICROPHONE_STREAM_FAILED,
-      `Failed to create microphone stream ${error}`
+      ErrorTypes.CREATE_STREAM_FAILED,
+      `Failed to create microphone stream: ${error}`
     );
   }
-  return new LocalMicrophoneStream(stream);
+  return new constructor(stream);
+}
+
+/**
+ * Creates a LocalCameraStream and a LocalMicrophoneStream with the given constraints.
+ *
+ * @param cameraStreamConstructor - Constructor for the local camera stream.
+ * @param microphoneStreamConstructor - Constructor for the local microphone stream.
+ * @param constraints - Object containing video and audio device constraints.
+ * @param constraints.video - Video device constraints.
+ * @param constraints.audio - Audio device constraints.
+ * @returns A Promise that resolves to a LocalCameraStream and a LocalMicrophoneStream or an error.
+ */
+export async function createCameraAndMicrophoneStreams<
+  T extends LocalCameraStream,
+  U extends LocalMicrophoneStream
+>(
+  cameraStreamConstructor: Constructor<T>,
+  microphoneStreamConstructor: Constructor<U>,
+  constraints?: { video?: VideoDeviceConstraints; audio?: AudioDeviceConstraints }
+): Promise<[T, U]> {
+  let stream;
+  try {
+    stream = await media.getUserMedia({
+      video: { ...constraints?.video },
+      audio: { ...constraints?.audio },
+    });
+  } catch (error) {
+    throw new WcmeError(
+      ErrorTypes.CREATE_STREAM_FAILED,
+      `Failed to create camera and microphone streams: ${error}`
+    );
+  }
+  // eslint-disable-next-line new-cap
+  const localCameraStream = new cameraStreamConstructor(new MediaStream(stream.getVideoTracks()));
+  // eslint-disable-next-line new-cap
+  const localMicrophoneStream = new microphoneStreamConstructor(
+    new MediaStream(stream.getAudioTracks())
+  );
+  return [localCameraStream, localMicrophoneStream];
 }
 
 /**
  * Creates a LocalDisplayStream with the given parameters.
  *
+ * @param constructor - Constructor for the local display stream.
  * @param videoContentHint - An optional parameter to give a hint for the content of the stream.
- * @returns A Promise that resolves to a LocalDisplayStream.
+ * @returns A Promise that resolves to a LocalDisplayStream or an error.
  */
-export async function createDisplayStream(
+export async function createDisplayStream<T extends LocalDisplayStream>(
+  constructor: Constructor<T>,
   videoContentHint?: VideoContentHint
-): Promise<LocalDisplayStream> {
-  const stream = await media.getDisplayMedia({ video: true });
-  const localDisplayStream = new LocalDisplayStream(stream);
+): Promise<T> {
+  let stream;
+  try {
+    stream = await media.getDisplayMedia({ video: true });
+  } catch (error) {
+    throw new WcmeError(
+      ErrorTypes.CREATE_STREAM_FAILED,
+      `Failed to create display stream: ${error}`
+    );
+  }
+  const localDisplayStream = new constructor(stream);
   if (videoContentHint) {
     localDisplayStream.contentHint = videoContentHint;
   }
@@ -113,21 +168,41 @@ export async function createDisplayStream(
 /**
  * Creates a LocalDisplayStream and a LocalSystemAudioStream with the given parameters.
  *
+ * @param displayStreamConstructor - Constructor for the local display stream.
+ * @param systemAudioStreamConstructor - Constructor for the local system audio stream.
  * @param videoContentHint - An optional parameter to give a hint for the content of the stream.
- * @returns A Promise that resolves to a LocalDisplayStream and a LocalSystemAudioStream. If no system
- * audio is available, the LocalSystemAudioStream will be resolved as null instead.
+ * @returns A Promise that resolves to a LocalDisplayStream and a LocalSystemAudioStream or an
+ * error. If no system audio is available, the LocalSystemAudioStream will be resolved as null
+ * instead.
  */
-export async function createDisplayStreamWithAudio(
+export async function createDisplayStreamWithAudio<
+  T extends LocalDisplayStream,
+  U extends LocalSystemAudioStream
+>(
+  displayStreamConstructor: Constructor<T>,
+  systemAudioStreamConstructor: Constructor<U>,
   videoContentHint?: VideoContentHint
-): Promise<[LocalDisplayStream, LocalSystemAudioStream | null]> {
-  const stream = await media.getDisplayMedia({ video: true, audio: true });
-  const localDisplayStream = new LocalDisplayStream(new MediaStream(stream.getVideoTracks()));
+): Promise<[T, U | null]> {
+  let stream;
+  try {
+    stream = await media.getDisplayMedia({ video: true, audio: true });
+  } catch (error) {
+    throw new WcmeError(
+      ErrorTypes.CREATE_STREAM_FAILED,
+      `Failed to create display and system audio streams: ${error}`
+    );
+  }
+  // eslint-disable-next-line new-cap
+  const localDisplayStream = new displayStreamConstructor(new MediaStream(stream.getVideoTracks()));
   if (videoContentHint) {
     localDisplayStream.contentHint = videoContentHint;
   }
   let localSystemAudioStream = null;
   if (stream.getAudioTracks().length > 0) {
-    localSystemAudioStream = new LocalSystemAudioStream(new MediaStream(stream.getAudioTracks()));
+    // eslint-disable-next-line new-cap
+    localSystemAudioStream = new systemAudioStreamConstructor(
+      new MediaStream(stream.getAudioTracks())
+    );
   }
   return [localDisplayStream, localSystemAudioStream];
 }
