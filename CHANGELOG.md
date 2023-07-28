@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/webex/webrtc-core/compare/v2.0.0...v2.1.0) (2023-07-28)
+
+
+### Features
+
+* add generics to device management ([#61](https://github.com/webex/webrtc-core/issues/61)) ([adf048e](https://github.com/webex/webrtc-core/commit/adf048e44b74303394e732ad840c38adb3d87298))
+
 # [2.0.0](https://github.com/webex/webrtc-core/compare/v1.7.1...v2.0.0) (2023-07-19)
 
 
