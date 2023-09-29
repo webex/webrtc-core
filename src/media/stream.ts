@@ -1,4 +1,5 @@
 import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
+import { v4 as uuid } from 'uuid';
 
 export enum StreamEventNames {
   MuteStateChange = 'mute-state-change',
@@ -14,6 +15,8 @@ interface StreamEvents {
  * Base stream class.
  */
 abstract class _Stream {
+  readonly id = uuid();
+
   // The output stream should never be reassigned, since it is the stream that is being given out.
   readonly outputStream: MediaStream;
 

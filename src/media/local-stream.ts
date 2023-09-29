@@ -90,6 +90,15 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
+   * Get the readyState of the input track on this stream.
+   *
+   * @returns The readyState of the track.
+   */
+  get readyState(): string {
+    return this.inputTrack.readyState;
+  }
+
+  /**
    * Change the track of the output stream to a different track.
    *
    * Note: this method assumes and enforces that if both input and output streams have the same
