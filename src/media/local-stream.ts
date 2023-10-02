@@ -90,6 +90,15 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
+   * Get the readyState of the input track on this stream.
+   *
+   * @returns The readyState of the track.
+   */
+  get readyState(): string {
+    return this.inputTrack.readyState;
+  }
+
+  /**
    * Change the track of the output stream to a different track.
    *
    * Note: this method assumes and enforces that if both input and output streams have the same
@@ -173,6 +182,15 @@ abstract class _LocalStream extends Stream {
    */
   getEffect(name: string): TrackEffect | undefined {
     return this.effects.find((e) => e.name === name)?.effect;
+  }
+
+  /**
+   * Get all the effects from the effects list.
+   *
+   * @returns A list of effect items, each containing the name and the effect itself.
+   */
+  getAllEffects(): EffectItem[] {
+    return this.effects;
   }
 
   /**

@@ -80,6 +80,15 @@ abstract class _Stream {
   }
 
   /**
+   * Get the ID of the output stream.
+   *
+   * @returns The ID of the output stream.
+   */
+  get id(): string {
+    return this.outputStream.id;
+  }
+
+  /**
    * Check whether or not this stream is muted.
    *
    * @returns True if the stream is muted, false otherwise.
