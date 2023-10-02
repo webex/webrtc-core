@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/webex/webrtc-core/compare/v2.1.0...v2.2.0) (2023-10-02)
+
+
+### Features
+
+* add id, readyState, and getAllEffects to stream classes ([#62](https://github.com/webex/webrtc-core/issues/62)) ([62deb74](https://github.com/webex/webrtc-core/commit/62deb74cea2c2ac505bced2f8694679bea570d36))
+
 # [2.1.0](https://github.com/webex/webrtc-core/compare/v2.0.0...v2.1.0) (2023-07-28)
 
 
