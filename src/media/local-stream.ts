@@ -185,6 +185,15 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
+   * Get all the effects from the effects list.
+   *
+   * @returns A list of effect items, each containing the name and the effect itself.
+   */
+  getAllEffects(): EffectItem[] {
+    return this.effects;
+  }
+
+  /**
    * Cleanup the local effects.
    */
   async disposeEffects(): Promise<void> {
