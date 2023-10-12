@@ -1,3 +1,4 @@
+import { BrowserInfo } from '@webex/web-capabilities';
 import { ConnectionState, ConnectionStateHandler } from './connection-state-handler';
 import { EventEmitter, EventMap } from './event-emitter';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
@@ -199,6 +200,21 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
   async setLocalDescription(
     description?: RTCSessionDescription | RTCSessionDescriptionInit
   ): Promise<void> {
+    // In Firefox, setLocalDescription will not throw an error if an m-line has no codecs, even
+    // though it violates https://datatracker.ietf.org/doc/html/rfc8866. See
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1857612. So, we check the media lines here to
+    // preemptively throw an error on Firefox.
+    if (BrowserInfo.isFirefox()) {
+      description?.sdp
+        ?.split(/(\r\n|\r|\n)/)
+        .filter((line) => line.startsWith('m'))
+        .forEach((mediaLine) => {
+          if (mediaLine.split(' ').length < 4) {
+            throw new Error(`Invalid media line ${mediaLine}, expected at least 4 fields`);
+          }
+        });
+    }
+
     return this.pc.setLocalDescription(description);
   }
 

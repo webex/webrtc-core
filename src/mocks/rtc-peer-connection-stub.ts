@@ -13,6 +13,9 @@ class RTCPeerConnectionStub {
   getStats(): Promise<any> {
     return new Promise(() => {});
   }
+  setLocalDescription(): Promise<any> {
+    return new Promise(() => {});
+  }
   onconnectionstatechange: () => void = () => {};
   oniceconnectionstatechange: () => void = () => {};
 }

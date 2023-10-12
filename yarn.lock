@@ -2685,6 +2685,11 @@
     events "^3.3.0"
     typed-emitter "^2.1.0"
 
+"@webex/web-capabilities@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.0.0.tgz#b69f3ba492669431a486f79053146948af582de5"
+  integrity sha512-EIejiH9kdvpp2Cm0nq6DSusZMsiqNfJCbtmS0aiLAXPcC9gTcr7zDhqamnrbIc1PPsK08cJG7f2QDkH6BfFaPg==
+
 "@webex/web-media-effects@^2.7.0":
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.7.0.tgz#f203f9512fb95d0639c74c10f39eda2e58663739"
