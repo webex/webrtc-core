@@ -1,3 +1,4 @@
+import { BrowserInfo } from '@webex/web-capabilities';
 import { ConnectionState, ConnectionStateHandler } from './connection-state-handler';
 import { mocked } from './mocks/mock';
 import { RTCPeerConnectionStub } from './mocks/rtc-peer-connection-stub';
@@ -243,6 +244,39 @@ describe('PeerConnection', () => {
       // trigger the fake event from ConnectionStateHandler
       const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[0][1];
       connectionStateHandlerListener(ConnectionState.Connecting);
+    });
+  });
+
+  describe('setLocalDescription', () => {
+    let mockPc: RTCPeerConnectionStub;
+    let setLocalDescriptionSpy: jest.SpyInstance;
+    let pc: PeerConnection;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockPc = mocked(new RTCPeerConnectionStub(), true);
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      setLocalDescriptionSpy = jest.spyOn(mockPc, 'setLocalDescription');
+      pc = new PeerConnection();
+    });
+
+    it('sets the local description with an SDP offer', async () => {
+      expect.hasAssertions();
+      const description = { type: 'offer', sdp: 'fake sdp' } as RTCSessionDescriptionInit;
+      pc.setLocalDescription(description);
+      expect(setLocalDescriptionSpy).toHaveBeenCalledWith(description);
+    });
+    it('sets the local description with no SDP offer', async () => {
+      expect.hasAssertions();
+      pc.setLocalDescription();
+      expect(setLocalDescriptionSpy).toHaveBeenCalledWith(undefined);
+    });
+    it('throws an error when the SDP has an invalid media line on Firefox', async () => {
+      expect.hasAssertions();
+      jest.spyOn(BrowserInfo, 'isFirefox').mockReturnValue(true);
+      await expect(
+        pc.setLocalDescription({ type: 'offer', sdp: 'm=video 9 UDP/TLS/RTP' })
+      ).rejects.toThrow(Error);
     });
   });
 });

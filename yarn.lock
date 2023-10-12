@@ -2685,6 +2685,13 @@
     events "^3.3.0"
     typed-emitter "^2.1.0"
 
+"@webex/web-capabilities@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.1.0.tgz#7e0e7c8b67ee9cb6b795fecf099ff748ef7d13c6"
+  integrity sha512-Sh++KBHhy8VmEQZtSFuKrvq82SgEILNkAfWvoJGWpCpV9+VirEpUdCYxwBv03V+DF2EcxmOcRt/n8bzjIG1b/A==
+  dependencies:
+    bowser "^2.11.0"
+
 "@webex/web-media-effects@^2.7.0":
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.7.0.tgz#f203f9512fb95d0639c74c10f39eda2e58663739"
@@ -3275,6 +3282,11 @@ bottleneck@^2.18.1:
   version "2.19.5"
   resolved "https://registry.yarnpkg.com/bottleneck/-/bottleneck-2.19.5.tgz#5df0b90f59fd47656ebe63c78a98419205cadd91"
   integrity sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==
+
+bowser@^2.11.0:
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.11.0.tgz#5ca3c35757a7aa5771500c70a73a9f91ef420a8f"
+  integrity sha512-AlcaJBi/pqqJBIQ8U9Mcpc9i8Aqxn88Skv5d+xBX006BY5u8N3mGLHa5Lgppa7L/HfwgwLgZ6NYs+Ag6uUmJRA==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
