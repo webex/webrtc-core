@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/webex/webrtc-core/compare/v2.2.0...v2.2.1) (2023-10-12)
+
+
+### Bug Fixes
+
+* throw error in setLocalDescription if media line is missing codecs ([#63](https://github.com/webex/webrtc-core/issues/63)) ([ec5f257](https://github.com/webex/webrtc-core/commit/ec5f257a25f21f3275bc84de0650981af49f551c))
+
 # [2.2.0](https://github.com/webex/webrtc-core/compare/v2.1.0...v2.2.0) (2023-10-02)
 
 
