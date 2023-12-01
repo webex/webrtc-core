@@ -8,8 +8,10 @@ export enum LocalStreamEventNames {
 }
 
 interface LocalStreamEvents {
-  [LocalStreamEventNames.ConstraintsChange]: TypedEvent<() => void>;
-  [LocalStreamEventNames.OutputTrackChange]: TypedEvent<(track: MediaStreamTrack) => void>;
+  [LocalStreamEventNames.ConstraintsChange]: TypedEvent<() => void | Promise<void>>;
+  [LocalStreamEventNames.OutputTrackChange]: TypedEvent<
+    (track: MediaStreamTrack) => void | Promise<void>
+  >;
 }
 
 export type TrackEffect = BaseEffect;
@@ -20,9 +22,11 @@ type EffectItem = { name: string; effect: TrackEffect };
  * A stream which originates on the local device.
  */
 abstract class _LocalStream extends Stream {
-  [LocalStreamEventNames.ConstraintsChange] = new TypedEvent<() => void>();
+  [LocalStreamEventNames.ConstraintsChange] = new TypedEvent<() => void | Promise<void>>();
 
-  [LocalStreamEventNames.OutputTrackChange] = new TypedEvent<(track: MediaStreamTrack) => void>();
+  [LocalStreamEventNames.OutputTrackChange] = new TypedEvent<
+    (track: MediaStreamTrack) => void | Promise<void>
+  >();
 
   private effects: EffectItem[] = [];
 

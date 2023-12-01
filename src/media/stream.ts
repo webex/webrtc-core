@@ -6,8 +6,8 @@ export enum StreamEventNames {
 }
 
 interface StreamEvents {
-  [StreamEventNames.MuteStateChange]: TypedEvent<(muted: boolean) => void>;
-  [StreamEventNames.Ended]: TypedEvent<() => void>;
+  [StreamEventNames.MuteStateChange]: TypedEvent<(muted: boolean) => void | Promise<void>>;
+  [StreamEventNames.Ended]: TypedEvent<() => void | Promise<void>>;
 }
 
 /**
@@ -19,9 +19,9 @@ abstract class _Stream {
 
   // TODO: these should be protected, but we need the helper type in ts-events
   // to hide the 'emit' method from TypedEvent.
-  [StreamEventNames.MuteStateChange] = new TypedEvent<(muted: boolean) => void>();
+  [StreamEventNames.MuteStateChange] = new TypedEvent<(muted: boolean) => void | Promise<void>>();
 
-  [StreamEventNames.Ended] = new TypedEvent<() => void>();
+  [StreamEventNames.Ended] = new TypedEvent<() => void | Promise<void>>();
 
   /**
    * Create a Stream from the given values.
