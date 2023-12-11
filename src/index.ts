@@ -3,6 +3,7 @@
 import * as media from './media';
 
 export * from './device/device-management';
+export * from './errors';
 export * from './media/local-audio-stream';
 export * from './media/local-camera-stream';
 export * from './media/local-display-stream';
