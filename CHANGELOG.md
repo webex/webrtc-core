@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/webex/webrtc-core/compare/v2.2.1...v2.2.2) (2023-12-11)
+
+
+### Bug Fixes
+
+* rename WcmeError to WebrtcCoreError ([#65](https://github.com/webex/webrtc-core/issues/65)) ([6a4078b](https://github.com/webex/webrtc-core/commit/6a4078bc276a8826c83caba0683f8f85be0c05b6))
+
 ## [2.2.1](https://github.com/webex/webrtc-core/compare/v2.2.0...v2.2.1) (2023-10-12)
 
 
