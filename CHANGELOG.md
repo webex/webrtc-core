@@ -1,3 +1,11 @@
+## [2.2.3](https://github.com/webex/webrtc-core/compare/v2.2.2...v2.2.3) (2023-12-12)
+
+
+### Bug Fixes
+
+* handle invalid m-line with trailing whitespace ([#67](https://github.com/webex/webrtc-core/issues/67)) ([6f4fbdb](https://github.com/webex/webrtc-core/commit/6f4fbdba50e551c026927ae8f1584556c3c7767c))
+* rename error type enum ([#66](https://github.com/webex/webrtc-core/issues/66)) ([cc3473b](https://github.com/webex/webrtc-core/commit/cc3473b3f49a5b3a745d0391efefcfe15b56aed8))
+
 ## [2.2.2](https://github.com/webex/webrtc-core/compare/v2.2.1...v2.2.2) (2023-12-11)
 
 
