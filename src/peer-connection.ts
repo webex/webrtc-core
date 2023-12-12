@@ -209,7 +209,7 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
         ?.split(/(\r\n|\r|\n)/)
         .filter((line) => line.startsWith('m'))
         .forEach((mediaLine) => {
-          if (mediaLine.split(' ').length < 4) {
+          if (mediaLine.trim().split(' ').length < 4) {
             throw new Error(`Invalid media line ${mediaLine}, expected at least 4 fields`);
           }
         });
