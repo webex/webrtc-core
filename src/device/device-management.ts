@@ -1,4 +1,4 @@
-import { WebrtcCoreError, WebrtcCoreErrorTypes } from '../errors';
+import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import * as media from '../media';
 import { LocalCameraStream } from '../media/local-camera-stream';
 import { LocalDisplayStream } from '../media/local-display-stream';
@@ -45,7 +45,7 @@ export async function createCameraStream<T extends LocalCameraStream>(
     stream = await media.getUserMedia({ video: { ...constraints } });
   } catch (error) {
     throw new WebrtcCoreError(
-      WebrtcCoreErrorTypes.CREATE_STREAM_FAILED,
+      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
       `Failed to create camera stream: ${error}`
     );
   }
@@ -68,7 +68,7 @@ export async function createMicrophoneStream<T extends LocalMicrophoneStream>(
     stream = await media.getUserMedia({ audio: { ...constraints } });
   } catch (error) {
     throw new WebrtcCoreError(
-      WebrtcCoreErrorTypes.CREATE_STREAM_FAILED,
+      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
       `Failed to create microphone stream: ${error}`
     );
   }
@@ -101,7 +101,7 @@ export async function createCameraAndMicrophoneStreams<
     });
   } catch (error) {
     throw new WebrtcCoreError(
-      WebrtcCoreErrorTypes.CREATE_STREAM_FAILED,
+      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
       `Failed to create camera and microphone streams: ${error}`
     );
   }
@@ -130,7 +130,7 @@ export async function createDisplayStream<T extends LocalDisplayStream>(
     stream = await media.getDisplayMedia({ video: true });
   } catch (error) {
     throw new WebrtcCoreError(
-      WebrtcCoreErrorTypes.CREATE_STREAM_FAILED,
+      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
       `Failed to create display stream: ${error}`
     );
   }
@@ -164,7 +164,7 @@ export async function createDisplayStreamWithAudio<
     stream = await media.getDisplayMedia({ video: true, audio: true });
   } catch (error) {
     throw new WebrtcCoreError(
-      WebrtcCoreErrorTypes.CREATE_STREAM_FAILED,
+      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
       `Failed to create display and system audio streams: ${error}`
     );
   }
@@ -198,7 +198,7 @@ export async function getDevices(deviceKind?: media.DeviceKind): Promise<MediaDe
     );
   } catch (error) {
     throw new WebrtcCoreError(
-      WebrtcCoreErrorTypes.DEVICE_PERMISSION_DENIED,
+      WebrtcCoreErrorType.DEVICE_PERMISSION_DENIED,
       'Failed to ensure device permissions'
     );
   }

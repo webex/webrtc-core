@@ -1,4 +1,4 @@
-export enum WebrtcCoreErrorTypes {
+export enum WebrtcCoreErrorType {
   DEVICE_PERMISSION_DENIED = 'DEVICE_PERMISSION_DENIED',
   CREATE_STREAM_FAILED = 'CREATE_STREAM_FAILED',
 }
@@ -17,7 +17,7 @@ export class WebrtcCoreError {
    * @param type - Error type.
    * @param message - Error message.
    */
-  constructor(type: WebrtcCoreErrorTypes, message = '') {
+  constructor(type: WebrtcCoreErrorType, message = '') {
     this.type = type;
     this.message = message;
   }
