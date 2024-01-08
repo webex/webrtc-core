@@ -1,10 +1,6 @@
-import { BaseEffect } from '@webex/web-media-effects';
-import { createBrowserMock } from '../mocks/create-browser-mock';
-import MediaStreamStub from '../mocks/media-stream-stub';
-import MediaStreamTrackStub from '../mocks/media-stream-track-stub';
-import { mocked } from '../mocks/mock';
+import { WebrtcCoreError } from '../errors';
 import { createMockedStream } from '../util/test-utils';
-import { LocalStream } from './local-stream';
+import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
 
 /**
  * A dummy LocalStream implementation so we can instantiate it for testing.
@@ -50,72 +46,86 @@ describe('LocalStream', () => {
       expect(spy).toHaveBeenCalledWith();
     });
   });
-});
 
-describe('LocalTrack addEffect', () => {
-  createBrowserMock(MediaStreamStub, 'MediaStream');
+  describe('addEffect', () => {
+    let effect: TrackEffect;
+    let loadSpy: jest.SpyInstance;
+    let emitSpy: jest.SpyInstance;
 
-  // eslint-disable-next-line jsdoc/require-jsdoc
-  const createMockedTrackEffect = () => {
-    const effectTrack = mocked(new MediaStreamTrackStub());
-    const effect = {
-      dispose: jest.fn().mockResolvedValue(undefined),
-      load: jest.fn().mockResolvedValue(effectTrack),
-      on: jest.fn(),
-    };
+    beforeEach(() => {
+      effect = {
+        id: 'test-id',
+        kind: 'test-kind',
+        dispose: jest.fn().mockResolvedValue(undefined),
+        load: jest.fn().mockResolvedValue(undefined),
+        on: jest.fn(),
+      } as unknown as TrackEffect;
 
-    return { effectTrack, effect };
-  };
+      loadSpy = jest.spyOn(effect, 'load');
+      emitSpy = jest.spyOn(localStream[LocalStreamEventNames.EffectAdded], 'emit');
+    });
 
-  // TODO: addTrack and removeTrack do not work the current implementation of createMockedStream, so
-  // we have to use the stubs here directly for now
-  const mockTrack = mocked(new MediaStreamTrackStub()) as unknown as MediaStreamTrack;
-  const mockStream = mocked(new MediaStreamStub([mockTrack])) as unknown as MediaStream;
-  let localStream: LocalStream;
-  beforeEach(() => {
-    localStream = new TestLocalStream(mockStream);
-  });
+    it('should load and add an effect', async () => {
+      expect.hasAssertions();
 
-  it('loads and uses the effect when there is no loading effect', async () => {
-    expect.hasAssertions();
+      const addEffectPromise = localStream.addEffect(effect);
 
-    const { effectTrack, effect } = createMockedTrackEffect();
+      await expect(addEffectPromise).resolves.toBeUndefined();
+      expect(loadSpy).toHaveBeenCalledWith(mockStream.getTracks()[0]);
+      expect(localStream.getEffects()).toStrictEqual([effect]);
+      expect(emitSpy).toHaveBeenCalledWith(effect);
+    });
 
-    const addEffectPromise = localStream.addEffect('test-effect', effect as unknown as BaseEffect);
+    it('should load and add multiple effects', async () => {
+      expect.hasAssertions();
 
-    await expect(addEffectPromise).resolves.toBeUndefined();
-    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
-  });
+      const firstEffect = effect;
+      const secondEffect = { ...effect, kind: 'another-kind' } as unknown as TrackEffect;
+      await localStream.addEffect(firstEffect);
+      await localStream.addEffect(secondEffect);
 
-  it('does not use the effect when the loading effect is cleared during load', async () => {
-    expect.hasAssertions();
+      expect(loadSpy).toHaveBeenCalledTimes(2);
+      expect(localStream.getEffects()).toStrictEqual([firstEffect, secondEffect]);
+      expect(emitSpy).toHaveBeenCalledTimes(2);
+    });
 
-    const { effect } = createMockedTrackEffect();
+    it('should throw an error if the effect is already added', async () => {
+      expect.hasAssertions();
 
-    // Add effect and immediately dispose all effects to clear loading effects
-    const addEffectPromise = localStream.addEffect('test-effect', effect as unknown as BaseEffect);
-    await localStream.disposeEffects();
+      await localStream.addEffect(effect);
+      const secondAddEffectPromise = localStream.addEffect(effect);
 
-    await expect(addEffectPromise).rejects.toThrow('not required after loading');
-    expect(localStream.outputStream).toBe(mockStream);
-  });
+      await expect(secondAddEffectPromise).rejects.toBeInstanceOf(WebrtcCoreError);
+      expect(loadSpy).toHaveBeenCalledTimes(1);
+      expect(localStream.getEffects()).toStrictEqual([effect]);
+      expect(emitSpy).toHaveBeenCalledTimes(1);
+    });
 
-  it('loads and uses the latest effect when the loading effect changes during load', async () => {
-    expect.hasAssertions();
-    const { effect: firstEffect } = createMockedTrackEffect();
-    const { effectTrack, effect: secondEffect } = createMockedTrackEffect();
+    it('should throw an error if an effect of the same kind is added while loading', async () => {
+      expect.hasAssertions();
 
-    const firstAddEffectPromise = localStream.addEffect(
-      'test-effect',
-      firstEffect as unknown as BaseEffect
-    );
-    const secondAddEffectPromise = localStream.addEffect(
-      'test-effect',
-      secondEffect as unknown as BaseEffect
-    );
-    await expect(firstAddEffectPromise).rejects.toThrow('not required after loading');
-    await expect(secondAddEffectPromise).resolves.toBeUndefined();
+      const firstEffect = effect;
+      const secondEffect = { ...effect, id: 'another-id' } as unknown as TrackEffect; // same kind
+      const firstAddEffectPromise = localStream.addEffect(firstEffect);
+      const secondAddEffectPromise = localStream.addEffect(secondEffect);
 
-    expect(localStream.outputStream.getTracks()[0]).toBe(effectTrack);
+      await expect(firstAddEffectPromise).rejects.toBeInstanceOf(WebrtcCoreError);
+      await expect(secondAddEffectPromise).resolves.toBeUndefined();
+      expect(loadSpy).toHaveBeenCalledTimes(2);
+      expect(localStream.getEffects()).toStrictEqual([secondEffect]);
+      expect(emitSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw an error if effects are cleared while loading', async () => {
+      expect.hasAssertions();
+
+      const addEffectPromise = localStream.addEffect(effect);
+      await localStream.disposeEffects();
+
+      await expect(addEffectPromise).rejects.toBeInstanceOf(WebrtcCoreError);
+      expect(loadSpy).toHaveBeenCalledTimes(1);
+      expect(localStream.getEffects()).toStrictEqual([]);
+      expect(emitSpy).toHaveBeenCalledTimes(0);
+    });
   });
 });

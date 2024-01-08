@@ -1,20 +1,21 @@
 import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
 import { BaseEffect, EffectEvent } from '@webex/web-media-effects';
+import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import { Stream, StreamEventNames } from './stream';
+
+export type TrackEffect = BaseEffect;
 
 export enum LocalStreamEventNames {
   ConstraintsChange = 'constraints-change',
   OutputTrackChange = 'output-track-change',
+  EffectAdded = 'effect-added',
 }
 
 interface LocalStreamEvents {
   [LocalStreamEventNames.ConstraintsChange]: TypedEvent<() => void>;
   [LocalStreamEventNames.OutputTrackChange]: TypedEvent<(track: MediaStreamTrack) => void>;
+  [LocalStreamEventNames.EffectAdded]: TypedEvent<(effect: TrackEffect) => void>;
 }
-
-export type TrackEffect = BaseEffect;
-
-type EffectItem = { name: string; effect: TrackEffect };
 
 /**
  * A stream which originates on the local device.
@@ -24,7 +25,9 @@ abstract class _LocalStream extends Stream {
 
   [LocalStreamEventNames.OutputTrackChange] = new TypedEvent<(track: MediaStreamTrack) => void>();
 
-  private effects: EffectItem[] = [];
+  [LocalStreamEventNames.EffectAdded] = new TypedEvent<(effect: TrackEffect) => void>();
+
+  private effects: TrackEffect[] = [];
 
   private loadingEffects: Map<string, TrackEffect> = new Map();
 
@@ -141,55 +144,80 @@ abstract class _LocalStream extends Stream {
   /**
    * Adds an effect to a local stream.
    *
-   * @param name - The name of the effect.
    * @param effect - The effect to add.
    */
-  async addEffect(name: string, effect: TrackEffect): Promise<void> {
-    // Load the effect
-    this.loadingEffects.set(name, effect);
-    const outputTrack = await effect.load(this.outputTrack);
-
-    // Check that the loaded effect is the latest one and dispose if not
-    if (effect !== this.loadingEffects.get(name)) {
-      await effect.dispose();
-      throw new Error(`Effect "${name}" not required after loading`);
+  async addEffect(effect: TrackEffect): Promise<void> {
+    // Check if the effect has already been added.
+    if (this.effects.includes(effect)) {
+      throw new WebrtcCoreError(
+        WebrtcCoreErrorType.ADD_EFFECT_FAILED,
+        `Effect ${effect.id} has already been added to this stream.`
+      );
     }
 
-    // Use the effect
-    this.loadingEffects.delete(name);
-    this.effects.push({ name, effect });
-    this.changeOutputTrack(outputTrack);
+    // Load the effect. Because loading is asynchronous, keep track of the loading effects.
+    this.loadingEffects.set(effect.kind, effect);
+    await effect.load(this.outputTrack);
+
+    // After loading, check whether or not we still want to use this effect. If another effect of
+    // the same kind was added while this effect was loading, we only want to use the latest effect,
+    // so dispose this one. If the effects list was cleared while this effect was loading, also
+    // dispose it.
+    if (effect !== this.loadingEffects.get(effect.kind)) {
+      await effect.dispose();
+      throw new WebrtcCoreError(
+        WebrtcCoreErrorType.ADD_EFFECT_FAILED,
+        `Another effect with kind ${effect.kind} was added while effect ${effect.id} was loading, or the effects list was cleared.`
+      );
+    }
+    this.loadingEffects.delete(effect.kind);
+
+    // Add the effect to the effects list.
+    this.effects.push(effect);
 
     // When the effect's track is updated, update the next effect or output stream.
     // TODO: using EffectEvent.TrackUpdated will cause the entire web-media-effects lib to be built
     // and makes the size of the webrtc-core build much larger, so we use type assertion here as a
     // temporary workaround.
     effect.on('track-updated' as EffectEvent, (track: MediaStreamTrack) => {
-      const effectIndex = this.effects.findIndex((e) => e.name === name);
+      const effectIndex = this.effects.indexOf(effect);
       if (effectIndex === this.effects.length - 1) {
         this.changeOutputTrack(track);
       } else {
-        this.effects[effectIndex + 1]?.effect.replaceInputTrack(track);
+        this.effects[effectIndex + 1]?.replaceInputTrack(track);
       }
     });
+
+    // Emit an event with the effect so others can listen to the effect events.
+    this[LocalStreamEventNames.EffectAdded].emit(effect);
   }
 
   /**
-   * Get an effect from the effects list.
+   * Get an effect from the effects list by ID.
    *
-   * @param name - The name of the effect you want to get.
+   * @param id - The id of the effect you want to get.
    * @returns The effect or undefined.
    */
-  getEffect(name: string): TrackEffect | undefined {
-    return this.effects.find((e) => e.name === name)?.effect;
+  getEffectById(id: string): TrackEffect | undefined {
+    return this.effects.find((effect) => effect.id === id);
+  }
+
+  /**
+   * Get all the effects from the effects list with the given kind.
+   *
+   * @param kind - The kind of the effects you want to get.
+   * @returns A list of effects.
+   */
+  getEffectsByKind(kind: string): TrackEffect[] {
+    return this.effects.filter((effect) => effect.kind === kind);
   }
 
   /**
    * Get all the effects from the effects list.
    *
-   * @returns A list of effect items, each containing the name and the effect itself.
+   * @returns A list of effects.
    */
-  getAllEffects(): EffectItem[] {
+  getEffects(): TrackEffect[] {
     return this.effects;
   }
 
@@ -202,7 +230,7 @@ abstract class _LocalStream extends Stream {
     // Dispose of any effects currently in use
     if (this.effects.length > 0) {
       this.changeOutputTrack(this.inputTrack);
-      await Promise.all(this.effects.map((item: EffectItem) => item.effect.dispose()));
+      await Promise.all(this.effects.map((effect) => effect.dispose()));
       this.effects = [];
     }
   }
