@@ -56,6 +56,7 @@ describe('LocalStream', () => {
       effect = {
         id: 'test-id',
         kind: 'test-kind',
+        isEnabled: false,
         dispose: jest.fn().mockResolvedValue(undefined),
         load: jest.fn().mockResolvedValue(undefined),
         on: jest.fn(),
@@ -76,11 +77,15 @@ describe('LocalStream', () => {
       expect(emitSpy).toHaveBeenCalledWith(effect);
     });
 
-    it('should load and add multiple effects', async () => {
+    it('should load and add multiple effects with different IDs and kinds', async () => {
       expect.hasAssertions();
 
       const firstEffect = effect;
-      const secondEffect = { ...effect, kind: 'another-kind' } as unknown as TrackEffect;
+      const secondEffect = {
+        ...effect,
+        id: 'another-id',
+        kind: 'another-kind',
+      } as unknown as TrackEffect;
       await localStream.addEffect(firstEffect);
       await localStream.addEffect(secondEffect);
 
@@ -89,13 +94,13 @@ describe('LocalStream', () => {
       expect(emitSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('should throw an error if the effect is already added', async () => {
+    it('should not load an effect with the same ID twice', async () => {
       expect.hasAssertions();
 
       await localStream.addEffect(effect);
       const secondAddEffectPromise = localStream.addEffect(effect);
 
-      await expect(secondAddEffectPromise).rejects.toBeInstanceOf(WebrtcCoreError);
+      await expect(secondAddEffectPromise).resolves.toBeUndefined(); // no-op
       expect(loadSpy).toHaveBeenCalledTimes(1);
       expect(localStream.getEffects()).toStrictEqual([effect]);
       expect(emitSpy).toHaveBeenCalledTimes(1);
@@ -114,6 +119,20 @@ describe('LocalStream', () => {
       expect(loadSpy).toHaveBeenCalledTimes(2);
       expect(localStream.getEffects()).toStrictEqual([secondEffect]);
       expect(emitSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should replace the effect if an effect of the same kind is added after loading', async () => {
+      expect.hasAssertions();
+
+      const firstEffect = effect;
+      const secondEffect = { ...effect, id: 'another-id' } as unknown as TrackEffect; // same kind
+      await localStream.addEffect(firstEffect);
+      const secondAddEffectPromise = localStream.addEffect(secondEffect);
+
+      await expect(secondAddEffectPromise).resolves.toBeUndefined();
+      expect(loadSpy).toHaveBeenCalledTimes(2);
+      expect(localStream.getEffects()).toStrictEqual([secondEffect]);
+      expect(emitSpy).toHaveBeenCalledTimes(2);
     });
 
     it('should throw an error if effects are cleared while loading', async () => {

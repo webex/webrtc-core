@@ -1,6 +1,7 @@
 import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
 import { BaseEffect, EffectEvent } from '@webex/web-media-effects';
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
+import { logger } from '../util/logger';
 import { Stream, StreamEventNames } from './stream';
 
 export type TrackEffect = BaseEffect;
@@ -148,11 +149,8 @@ abstract class _LocalStream extends Stream {
    */
   async addEffect(effect: TrackEffect): Promise<void> {
     // Check if the effect has already been added.
-    if (this.effects.includes(effect)) {
-      throw new WebrtcCoreError(
-        WebrtcCoreErrorType.ADD_EFFECT_FAILED,
-        `Effect ${effect.id} has already been added to this stream.`
-      );
+    if (this.effects.some((e) => e.id === effect.id)) {
+      return;
     }
 
     // Load the effect. Because loading is asynchronous, keep track of the loading effects.
@@ -172,21 +170,62 @@ abstract class _LocalStream extends Stream {
     }
     this.loadingEffects.delete(effect.kind);
 
-    // Add the effect to the effects list.
-    this.effects.push(effect);
-
-    // When the effect's track is updated, update the next effect or output stream.
-    // TODO: using EffectEvent.TrackUpdated will cause the entire web-media-effects lib to be built
-    // and makes the size of the webrtc-core build much larger, so we use type assertion here as a
-    // temporary workaround.
-    effect.on('track-updated' as EffectEvent, (track: MediaStreamTrack) => {
-      const effectIndex = this.effects.indexOf(effect);
+    /**
+     * Handle when the effect's output track has been changed. This will update the input of the
+     * next effect in the effects list of the output of the stream.
+     *
+     * @param track - The new output track of the effect.
+     */
+    const handleEffectTrackUpdated = (track: MediaStreamTrack) => {
+      const effectIndex = this.effects.findIndex((e) => e.id === effect.id);
       if (effectIndex === this.effects.length - 1) {
         this.changeOutputTrack(track);
-      } else {
+      } else if (effectIndex >= 0) {
         this.effects[effectIndex + 1]?.replaceInputTrack(track);
+      } else {
+        logger.error(`Effect with ID ${effect.id} not found in effects list.`);
       }
-    });
+    };
+
+    /**
+     * Handle when the effect has been disposed. This will remove all event listeners from the
+     * effect.
+     */
+    const handleEffectDisposed = () => {
+      effect.off('track-updated' as EffectEvent, handleEffectTrackUpdated);
+      effect.off('disposed' as EffectEvent, handleEffectDisposed);
+    };
+
+    // TODO: using EffectEvent.TrackUpdated or EffectEvent.Disposed will cause the entire
+    // web-media-effects lib to be rebuilt and inflates the size of the webrtc-core build, so
+    // we use type assertion here as a temporary workaround.
+    effect.on('track-updated' as EffectEvent, handleEffectTrackUpdated);
+    effect.on('disposed' as EffectEvent, handleEffectDisposed);
+
+    // Add the effect to the effects list. If an effect of the same kind has already been added,
+    // dispose the existing effect and replace it with the new effect. If the existing effect was
+    // enabled, also enable the new effect.
+    const existingEffectIndex = this.effects.findIndex((e) => e.kind === effect.kind);
+    if (existingEffectIndex >= 0) {
+      const [existingEffect] = this.effects.splice(existingEffectIndex, 1, effect);
+      if (existingEffect.isEnabled) {
+        // If the existing effect is not the first effect in the effects list, then the input of the
+        // new effect should be the output of the previous effect in the effects list. We know the
+        // output track of the previous effect must exist because it must have been loaded (and all
+        // loaded effects have an output track).
+        const inputTrack =
+          existingEffectIndex === 0
+            ? this.inputTrack
+            : (this.effects[existingEffectIndex - 1].getOutputTrack() as MediaStreamTrack);
+        await effect.replaceInputTrack(inputTrack);
+        // Enabling the new effect will trigger the track-updated event, which will handle the new
+        // effect's updated output track.
+        await effect.enable();
+      }
+      await existingEffect.dispose();
+    } else {
+      this.effects.push(effect);
+    }
 
     // Emit an event with the effect so others can listen to the effect events.
     this[LocalStreamEventNames.EffectAdded].emit(effect);
@@ -203,13 +242,13 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
-   * Get all the effects from the effects list with the given kind.
+   * Get an effect from the effects list by kind.
    *
-   * @param kind - The kind of the effects you want to get.
-   * @returns A list of effects.
+   * @param kind - The kind of the effect you want to get.
+   * @returns The effect or undefined.
    */
-  getEffectsByKind(kind: string): TrackEffect[] {
-    return this.effects.filter((effect) => effect.kind === kind);
+  getEffectByKind(kind: string): TrackEffect | undefined {
+    return this.effects.find((effect) => effect.kind === kind);
   }
 
   /**
