@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/webex/webrtc-core/compare/v2.2.3...v2.3.0) (2024-01-10)
+
+
+### Features
+
+* update effects APIs ([#68](https://github.com/webex/webrtc-core/issues/68)) ([64ac8b6](https://github.com/webex/webrtc-core/commit/64ac8b69af557ee3e01df28681a1fc25dc8bd364))
+
 ## [2.2.3](https://github.com/webex/webrtc-core/compare/v2.2.2...v2.2.3) (2023-12-12)
 
 
