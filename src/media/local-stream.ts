@@ -61,7 +61,10 @@ abstract class _LocalStream extends Stream {
    * @inheritdoc
    */
   get muted(): boolean {
-    return !this.inputTrack.enabled;
+    // Calls to `setMuted` will only affect the "enabled" state, but there are specific cases in
+    // which the browser may mute the track, which will affect the "muted" state but not the
+    // "enabled" state, e.g. minimizing a shared window or unplugging a shared screen.
+    return !this.inputTrack.enabled || this.inputTrack.muted;
   }
 
   /**
