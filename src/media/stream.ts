@@ -39,14 +39,14 @@ abstract class _Stream {
   /**
    * Handler which is called when a track's mute event fires.
    */
-  private handleTrackMuted() {
+  protected handleTrackMuted() {
     this[StreamEventNames.MuteStateChange].emit(true);
   }
 
   /**
    * Handler which is called when a track's unmute event fires.
    */
-  private handleTrackUnmuted() {
+  protected handleTrackUnmuted() {
     this[StreamEventNames.MuteStateChange].emit(false);
   }
 

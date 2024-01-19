@@ -60,8 +60,29 @@ abstract class _LocalStream extends Stream {
   /**
    * @inheritdoc
    */
+  protected handleTrackMuted() {
+    if (this.inputTrack.enabled) {
+      super.handleTrackMuted();
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  protected handleTrackUnmuted() {
+    if (this.inputTrack.enabled) {
+      super.handleTrackUnmuted();
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
   get muted(): boolean {
-    return !this.inputTrack.enabled;
+    // Calls to `setMuted` will only affect the "enabled" state, but there are specific cases in
+    // which the browser may mute the track, which will affect the "muted" state but not the
+    // "enabled" state, e.g. minimizing a shared window or unplugging a shared screen.
+    return !this.inputTrack.enabled || this.inputTrack.muted;
   }
 
   /**
@@ -73,7 +94,9 @@ abstract class _LocalStream extends Stream {
     if (this.inputTrack.enabled === isMuted) {
       this.inputTrack.enabled = !isMuted;
       // setting `enabled` will not automatically emit MuteStateChange, so we emit it here
-      this[StreamEventNames.MuteStateChange].emit(isMuted);
+      if (!this.inputTrack.muted) {
+        this[StreamEventNames.MuteStateChange].emit(isMuted);
+      }
     }
   }
 
