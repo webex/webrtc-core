@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/webex/webrtc-core/compare/v2.3.0...v2.3.1) (2024-01-19)
+
+
+### Bug Fixes
+
+* check muted property for mute getter ([#69](https://github.com/webex/webrtc-core/issues/69)) ([f07754c](https://github.com/webex/webrtc-core/commit/f07754c85a159c418b9189134c995859f411279f))
+
 # [2.3.0](https://github.com/webex/webrtc-core/compare/v2.2.3...v2.3.0) (2024-01-10)
 
 
