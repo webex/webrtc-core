@@ -1,6 +1,7 @@
 import { WebrtcCoreError } from '../errors';
 import { createMockedStream } from '../util/test-utils';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
+import { StreamEventNames } from './stream';
 
 /**
  * A dummy LocalStream implementation so we can instantiate it for testing.
@@ -10,20 +11,58 @@ class TestLocalStream extends LocalStream {}
 describe('LocalStream', () => {
   const mockStream = createMockedStream();
   let localStream: LocalStream;
+
   beforeEach(() => {
     localStream = new TestLocalStream(mockStream);
   });
 
   describe('setMuted', () => {
-    it('should change the input track state based on being muted & unmuted', () => {
-      expect.assertions(2);
+    let emitSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      localStream = new TestLocalStream(mockStream);
+      emitSpy = jest.spyOn(localStream[StreamEventNames.MuteStateChange], 'emit');
+    });
+
+    it('should change the input track enabled state and fire an event', () => {
+      expect.assertions(6);
+
       // Simulate the default state of the track's enabled state.
       mockStream.getTracks()[0].enabled = true;
 
       localStream.setMuted(true);
       expect(mockStream.getTracks()[0].enabled).toBe(false);
+      expect(emitSpy).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenLastCalledWith(true);
+
       localStream.setMuted(false);
       expect(mockStream.getTracks()[0].enabled).toBe(true);
+      expect(emitSpy).toHaveBeenCalledTimes(2);
+      expect(emitSpy).toHaveBeenLastCalledWith(false);
+    });
+
+    it('should not fire an event if the same mute state is set twice', () => {
+      expect.assertions(1);
+
+      // Simulate the default state of the track's enabled state.
+      mockStream.getTracks()[0].enabled = true;
+
+      localStream.setMuted(false);
+      expect(emitSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not fire an event if the track has been muted by the browser', () => {
+      expect.assertions(2);
+
+      // Simulate the default state of the track's enabled state.
+      mockStream.getTracks()[0].enabled = true;
+
+      // Simulate the track being muted by the browser.
+      Object.defineProperty(mockStream.getTracks()[0], 'muted', { value: true });
+
+      localStream.setMuted(true);
+      expect(mockStream.getTracks()[0].enabled).toBe(false);
+      expect(emitSpy).toHaveBeenCalledTimes(0);
     });
   });
 
