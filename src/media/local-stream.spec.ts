@@ -4,7 +4,7 @@ import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream'
 import { StreamEventNames } from './stream';
 
 /**
- * A dummy LocalStream implementation so we can instantiate it for testing.
+ * A dummy LocalStream implementation, so we can instantiate it for testing.
  */
 class TestLocalStream extends LocalStream {}
 
@@ -184,6 +184,37 @@ describe('LocalStream', () => {
       expect(loadSpy).toHaveBeenCalledTimes(1);
       expect(localStream.getEffects()).toStrictEqual([]);
       expect(emitSpy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe('toJSON', () => {
+    it('should be called when JSON.stringify is used', () => {
+      expect.assertions(1);
+
+      const spyToJSON = jest.spyOn(localStream, 'toJSON');
+
+      JSON.stringify(localStream);
+
+      expect(spyToJSON).toHaveBeenCalledTimes(1);
+
+      spyToJSON.mockRestore();
+    });
+
+    it('should return an object with inputStream, outputStream and effects properties', () => {
+      expect.assertions(8);
+
+      const json = localStream.toJSON();
+
+      expect(json).toHaveProperty('inputStream');
+      expect(json.inputStream).toHaveProperty('active');
+      expect(json.inputStream).toHaveProperty('id');
+
+      expect(json).toHaveProperty('outputStream');
+      expect(json.outputStream).toHaveProperty('active');
+      expect(json.outputStream).toHaveProperty('id');
+
+      expect(json).toHaveProperty('effects');
+      expect(Array.isArray(json.effects)).toBe(true);
     });
   });
 });
