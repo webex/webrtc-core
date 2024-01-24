@@ -285,9 +285,9 @@ abstract class _LocalStream extends Stream {
 
   /**
    * Method to serialize data about input, output streams
-   * and also effects from _LocalStream.
+   * and also effects from LocalStream.
    *
-   * @returns - A JSON-compatible object representation with data from _LocalStream.
+   * @returns - A JSON-compatible object representation with data from LocalStream.
    */
   toJSON() {
     return {

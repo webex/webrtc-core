@@ -196,8 +196,6 @@ describe('LocalStream', () => {
       JSON.stringify(localStream);
 
       expect(spyToJSON).toHaveBeenCalledTimes(1);
-
-      spyToJSON.mockRestore();
     });
 
     it('should return an object with inputStream, outputStream and effects properties', () => {
