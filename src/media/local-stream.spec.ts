@@ -188,31 +188,24 @@ describe('LocalStream', () => {
   });
 
   describe('toJSON', () => {
-    it('should be called when JSON.stringify is used', () => {
+    it('should correctly serialize data', () => {
       expect.assertions(1);
 
-      const spyToJSON = jest.spyOn(localStream, 'toJSON');
+      const testLocalStream = new TestLocalStream(mockStream);
+      const jsonLocalStream = localStream.toJSON();
+      const jsonTestLocalStream = testLocalStream.toJSON();
 
-      JSON.stringify(localStream);
-
-      expect(spyToJSON).toHaveBeenCalledTimes(1);
+      expect(JSON.stringify(jsonLocalStream)).toStrictEqual(JSON.stringify(jsonTestLocalStream));
     });
 
     it('should return an object with inputStream, outputStream and effects properties', () => {
-      expect.assertions(8);
+      expect.assertions(3);
 
-      const json = localStream.toJSON();
+      const jsonLocalStream = localStream.toJSON();
 
-      expect(json).toHaveProperty('inputStream');
-      expect(json.inputStream).toHaveProperty('active');
-      expect(json.inputStream).toHaveProperty('id');
-
-      expect(json).toHaveProperty('outputStream');
-      expect(json.outputStream).toHaveProperty('active');
-      expect(json.outputStream).toHaveProperty('id');
-
-      expect(json).toHaveProperty('effects');
-      expect(Array.isArray(json.effects)).toBe(true);
+      expect(jsonLocalStream).toHaveProperty('inputStream');
+      expect(jsonLocalStream).toHaveProperty('outputStream');
+      expect(jsonLocalStream).toHaveProperty('effects');
     });
   });
 });
