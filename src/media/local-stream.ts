@@ -291,13 +291,13 @@ abstract class _LocalStream extends Stream {
    */
   toJSON() {
     return {
+      muted: this.muted,
+      enabled: this.inputTrack.enabled,
+      label: this.label,
+      readyState: this.readyState,
       inputStream: {
         active: this.inputStream.active,
         id: this.inputStream.id,
-        muted: this.muted,
-        label: this.label,
-        enabled: this.inputTrack.enabled,
-        readyState: this.readyState,
       },
       outputStream: {
         active: this.outputStream.active,
