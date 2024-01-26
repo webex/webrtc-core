@@ -199,12 +199,11 @@ describe('LocalStream', () => {
     });
 
     it('should return an object with inputStream, outputStream and effects properties', () => {
-      expect.assertions(7);
+      expect.assertions(6);
 
       const jsonLocalStream = localStream.toJSON();
 
       expect(jsonLocalStream).toHaveProperty('muted');
-      expect(jsonLocalStream).toHaveProperty('enabled');
       expect(jsonLocalStream).toHaveProperty('label');
       expect(jsonLocalStream).toHaveProperty('readyState');
       expect(jsonLocalStream).toHaveProperty('inputStream');
