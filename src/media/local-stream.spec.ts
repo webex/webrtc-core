@@ -4,7 +4,7 @@ import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream'
 import { StreamEventNames } from './stream';
 
 /**
- * A dummy LocalStream implementation so we can instantiate it for testing.
+ * A dummy LocalStream implementation, so we can instantiate it for testing.
  */
 class TestLocalStream extends LocalStream {}
 
@@ -184,6 +184,31 @@ describe('LocalStream', () => {
       expect(loadSpy).toHaveBeenCalledTimes(1);
       expect(localStream.getEffects()).toStrictEqual([]);
       expect(emitSpy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe('toJSON', () => {
+    it('should correctly serialize data', () => {
+      expect.assertions(1);
+
+      const testLocalStream = new TestLocalStream(mockStream);
+      const jsonLocalStream = localStream.toJSON();
+      const jsonTestLocalStream = testLocalStream.toJSON();
+
+      expect(JSON.stringify(jsonLocalStream)).toStrictEqual(JSON.stringify(jsonTestLocalStream));
+    });
+
+    it('should return an object with inputStream, outputStream and effects properties', () => {
+      expect.assertions(6);
+
+      const jsonLocalStream = localStream.toJSON();
+
+      expect(jsonLocalStream).toHaveProperty('muted');
+      expect(jsonLocalStream).toHaveProperty('label');
+      expect(jsonLocalStream).toHaveProperty('readyState');
+      expect(jsonLocalStream).toHaveProperty('inputStream');
+      expect(jsonLocalStream).toHaveProperty('outputStream');
+      expect(jsonLocalStream).toHaveProperty('effects');
     });
   });
 });

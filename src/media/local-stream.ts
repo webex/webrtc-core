@@ -284,6 +284,37 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
+   * Method to serialize data about input, output streams
+   * and also effects from LocalStream.
+   *
+   * @returns - A JSON-compatible object representation with data from LocalStream.
+   */
+  toJSON() {
+    return {
+      muted: this.muted,
+      label: this.label,
+      readyState: this.readyState,
+      inputStream: {
+        active: this.inputStream.active,
+        id: this.inputStream.id,
+        enabled: this.inputTrack.enabled,
+        muted: this.inputTrack.muted,
+      },
+      outputStream: {
+        active: this.outputStream.active,
+        id: this.outputStream.id,
+      },
+      effects: this.effects.map((effect) => {
+        return {
+          id: effect.id,
+          kind: effect.kind,
+          isEnabled: effect.isEnabled,
+        };
+      }),
+    };
+  }
+
+  /**
    * Cleanup the local effects.
    */
   async disposeEffects(): Promise<void> {
