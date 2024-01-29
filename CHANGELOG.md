@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/webex/webrtc-core/compare/v2.3.1...v2.4.0) (2024-01-29)
+
+
+### Features
+
+* add custom method toJSON for _LocalStream ([#70](https://github.com/webex/webrtc-core/issues/70)) ([6ac5ba1](https://github.com/webex/webrtc-core/commit/6ac5ba1a4e156075717c6b31addaa4080e4d1999))
+
 ## [2.3.1](https://github.com/webex/webrtc-core/compare/v2.3.0...v2.3.1) (2024-01-19)
 
 
