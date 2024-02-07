@@ -36,7 +36,8 @@
     "Wcme",
     "WCME",
     "webex",
-    "webrtc"
+    "webrtc",
+    "sdpchange"
   ],
   "flagWords": [],
   "ignorePaths": [
