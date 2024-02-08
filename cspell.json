@@ -37,7 +37,9 @@
     "WCME",
     "webex",
     "webrtc",
-    "sdpchange"
+    "createoffer",
+    "setlocaldescription",
+    "setremotedescription"
   ],
   "flagWords": [],
   "ignorePaths": [

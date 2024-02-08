@@ -3,6 +3,7 @@ import { ConnectionState, ConnectionStateHandler } from './connection-state-hand
 import { EventEmitter, EventMap } from './event-emitter';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 import { logger } from './util/logger';
+
 /**
  * A type-safe form of the DOMString used in the MediaStreamTrack.kind field.
  */
@@ -24,22 +25,24 @@ type IceGatheringStateChangeEvent = {
   target: EventTarget | null;
 };
 
-type SdpChangeEvent = {
-  type: 'offer' | 'answer';
-  munged: boolean;
-  sdp?: string;
-};
-
 enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
   ConnectionStateChange = 'connectionstatechange',
-  SdpChange = 'sdpchange',
+  CreateOffer = 'createoffer',
+  SetLocalDescription = 'setlocaldescription',
+  SetRemoteDescription = 'setremotedescription',
 }
 
 interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
-  [PeerConnectionEvents.SdpChange]: (ev: SdpChangeEvent) => void;
+  [PeerConnectionEvents.CreateOffer]: (offer: RTCSessionDescriptionInit) => void;
+  [PeerConnectionEvents.SetLocalDescription]: (
+    description: RTCSessionDescription | RTCSessionDescriptionInit
+  ) => void;
+  [PeerConnectionEvents.SetRemoteDescription]: (
+    description: RTCSessionDescription | RTCSessionDescriptionInit
+  ) => void;
 }
 
 type ConnectionType = 'UDP' | 'TCP' | 'TURN-TLS' | 'TURN-TCP' | 'TURN-UDP' | 'unknown';
@@ -194,13 +197,10 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    *    That received offer should be delivered through the signaling server to a remote peer.
    */
   async createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> {
-    const offer = await this.pc.createOffer(options);
-    this.emit(PeerConnection.Events.SdpChange, {
-      type: 'offer',
-      munged: false,
-      sdp: offer.sdp,
+    return this.pc.createOffer(options).then((offer) => {
+      this.emit(PeerConnection.Events.CreateOffer, offer);
+      return offer;
     });
-    return offer;
   }
 
   /**
@@ -229,13 +229,11 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
         });
     }
 
-    this.emit(PeerConnection.Events.SdpChange, {
-      type: 'offer',
-      munged: true,
-      sdp: description?.sdp,
+    return this.pc.setLocalDescription(description).then(() => {
+      if (description) {
+        this.emit(PeerConnection.Events.SetLocalDescription, description);
+      }
     });
-
-    return this.pc.setLocalDescription(description);
   }
 
   /**
@@ -250,13 +248,9 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
   async setRemoteDescription(
     description: RTCSessionDescription | RTCSessionDescriptionInit
   ): Promise<void> {
-    this.emit(PeerConnection.Events.SdpChange, {
-      type: 'answer',
-      munged: true,
-      sdp: description.sdp,
+    return this.pc.setRemoteDescription(description).then(() => {
+      this.emit(PeerConnection.Events.SetRemoteDescription, description);
     });
-
-    return this.pc.setRemoteDescription(description);
   }
 
   /**
@@ -370,4 +364,4 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
 }
 
 export { ConnectionState } from './connection-state-handler';
-export { MediaStreamTrackKind, RTCDataChannelOptions, PeerConnection, SdpChangeEvent };
+export { MediaStreamTrackKind, RTCDataChannelOptions, PeerConnection };
