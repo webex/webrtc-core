@@ -250,7 +250,6 @@ describe('PeerConnection', () => {
 
   describe('createOffer', () => {
     let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
-    let shouldCreateOfferThrow = false;
     let createOfferSpy: jest.SpyInstance;
     const callback = jest.fn();
     let pc: PeerConnection;
@@ -263,13 +262,7 @@ describe('PeerConnection', () => {
       jest.clearAllMocks();
       mockPc = mocked(new RTCPeerConnectionStub(), true);
       mockPc.createOffer.mockImplementation(() => {
-        return new Promise((resolve, reject) => {
-          if (shouldCreateOfferThrow) {
-            reject(new Error());
-          } else {
-            resolve(mockedReturnedOffer);
-          }
-        });
+        return Promise.resolve(mockedReturnedOffer);
       });
       mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
       pc = new PeerConnection();
@@ -279,7 +272,6 @@ describe('PeerConnection', () => {
 
     it('should emit event when createOffer called', async () => {
       expect.hasAssertions();
-      shouldCreateOfferThrow = false;
       const options: RTCOfferOptions = {
         iceRestart: true,
       };
@@ -291,7 +283,9 @@ describe('PeerConnection', () => {
 
     it('should not emit event when createOffer failed', async () => {
       expect.hasAssertions();
-      shouldCreateOfferThrow = true;
+      mockPc.createOffer.mockImplementation(() => {
+        return Promise.reject(new Error());
+      });
       const offerPromise = pc.createOffer(null as unknown as RTCOfferOptions);
       await expect(offerPromise).rejects.toThrow(Error);
       expect(createOfferSpy).toHaveBeenCalledWith(null);
@@ -301,7 +295,6 @@ describe('PeerConnection', () => {
 
   describe('setLocalDescription', () => {
     let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
-    let shouldSetLocalDescriptionThrow = false;
     let setLocalDescriptionSpy: jest.SpyInstance;
     const callback = jest.fn();
     let pc: PeerConnection;
@@ -311,13 +304,7 @@ describe('PeerConnection', () => {
       mockPc = mocked(new RTCPeerConnectionStub(), true);
       mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
       mockPc.setLocalDescription.mockImplementation(() => {
-        return new Promise((resolve, reject) => {
-          if (shouldSetLocalDescriptionThrow) {
-            reject(new Error());
-          } else {
-            resolve();
-          }
-        });
+        return Promise.resolve();
       });
       setLocalDescriptionSpy = jest.spyOn(mockPc, 'setLocalDescription');
       pc = new PeerConnection();
@@ -326,20 +313,17 @@ describe('PeerConnection', () => {
 
     it('sets the local description with an SDP offer', async () => {
       expect.hasAssertions();
-      shouldSetLocalDescriptionThrow = false;
       const description = { type: 'offer', sdp: 'fake sdp' } as RTCSessionDescriptionInit;
       pc.setLocalDescription(description);
       expect(setLocalDescriptionSpy).toHaveBeenCalledWith(description);
     });
     it('sets the local description with no SDP offer', async () => {
       expect.hasAssertions();
-      shouldSetLocalDescriptionThrow = false;
       pc.setLocalDescription();
       expect(setLocalDescriptionSpy).toHaveBeenCalledWith(undefined);
     });
     it('throws an error when the SDP has an invalid media line on Firefox', async () => {
       expect.hasAssertions();
-      shouldSetLocalDescriptionThrow = false;
       jest.spyOn(BrowserInfo, 'isFirefox').mockReturnValue(true);
       await expect(
         pc.setLocalDescription({ type: 'offer', sdp: 'm=video 9 UDP/TLS/RTP' })
@@ -348,7 +332,6 @@ describe('PeerConnection', () => {
 
     it('should emit event when setLocalDescription called', async () => {
       expect.hasAssertions();
-      shouldSetLocalDescriptionThrow = false;
       const options = {
         sdp: 'blah',
       };
@@ -359,7 +342,9 @@ describe('PeerConnection', () => {
 
     it('should not emit event when setLocalDescription failed', async () => {
       expect.hasAssertions();
-      shouldSetLocalDescriptionThrow = true;
+      mockPc.setLocalDescription.mockImplementation(() => {
+        return Promise.reject(new Error());
+      });
       const options = {
         sdp: 'reject',
       };
@@ -372,7 +357,6 @@ describe('PeerConnection', () => {
 
   describe('setRemoteDescription', () => {
     let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
-    let shouldSetRemoteDescriptionThrow = false;
     let setRemoteDescriptionSpy: jest.SpyInstance;
     const callback = jest.fn();
     let pc: PeerConnection;
@@ -381,13 +365,7 @@ describe('PeerConnection', () => {
       jest.clearAllMocks();
       mockPc = mocked(new RTCPeerConnectionStub(), true);
       mockPc.setRemoteDescription.mockImplementation(() => {
-        return new Promise((resolve, reject) => {
-          if (shouldSetRemoteDescriptionThrow) {
-            reject(new Error());
-          } else {
-            resolve();
-          }
-        });
+        return Promise.resolve();
       });
       mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
       pc = new PeerConnection();
@@ -397,7 +375,6 @@ describe('PeerConnection', () => {
 
     it('should emit event when setRemoteDescription called', async () => {
       expect.hasAssertions();
-      shouldSetRemoteDescriptionThrow = false;
       const options = {
         sdp: 'blah',
       };
@@ -408,7 +385,9 @@ describe('PeerConnection', () => {
 
     it('should not emit event when setRemoteDescription failed', async () => {
       expect.hasAssertions();
-      shouldSetRemoteDescriptionThrow = true;
+      mockPc.setRemoteDescription.mockImplementation(() => {
+        return Promise.reject(new Error());
+      });
       const options = {
         sdp: 'reject',
       };
