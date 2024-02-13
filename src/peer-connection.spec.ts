@@ -273,7 +273,7 @@ describe('PeerConnection', () => {
       mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
       pc = new PeerConnection();
       createOfferSpy = jest.spyOn(pc, 'createOffer');
-      pc.on(PeerConnection.Events.CreateOffer, callback);
+      pc.on(PeerConnection.Events.CreateOfferOnSuccess, callback);
     });
 
     it('should emit event when createOffer called', async () => {
@@ -317,7 +317,7 @@ describe('PeerConnection', () => {
       });
       setLocalDescriptionSpy = jest.spyOn(mockPc, 'setLocalDescription');
       pc = new PeerConnection();
-      pc.on(PeerConnection.Events.SetLocalDescription, callback);
+      pc.on(PeerConnection.Events.SetLocalDescriptionOnSuccess, callback);
     });
 
     it('sets the local description with an SDP offer', async () => {
@@ -382,7 +382,7 @@ describe('PeerConnection', () => {
       mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
       pc = new PeerConnection();
       setRemoteDescriptionSpy = jest.spyOn(pc, 'setRemoteDescription');
-      pc.on(PeerConnection.Events.SetRemoteDescription, callback);
+      pc.on(PeerConnection.Events.SetRemoteDescriptionOnSuccess, callback);
     });
 
     it('should emit event when setRemoteDescription called', async () => {

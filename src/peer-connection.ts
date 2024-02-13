@@ -28,19 +28,19 @@ type IceGatheringStateChangeEvent = {
 enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
   ConnectionStateChange = 'connectionstatechange',
-  CreateOffer = 'createoffer',
-  SetLocalDescription = 'setlocaldescription',
-  SetRemoteDescription = 'setremotedescription',
+  CreateOfferOnSuccess = 'createofferonsuccess',
+  SetLocalDescriptionOnSuccess = 'setlocaldescriptiononsuccess',
+  SetRemoteDescriptionOnSuccess = 'setremotedescriptiononsuccess',
 }
 
 interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
-  [PeerConnectionEvents.CreateOffer]: (offer: RTCSessionDescriptionInit) => void;
-  [PeerConnectionEvents.SetLocalDescription]: (
+  [PeerConnectionEvents.CreateOfferOnSuccess]: (offer: RTCSessionDescriptionInit) => void;
+  [PeerConnectionEvents.SetLocalDescriptionOnSuccess]: (
     description: RTCSessionDescription | RTCSessionDescriptionInit
   ) => void;
-  [PeerConnectionEvents.SetRemoteDescription]: (
+  [PeerConnectionEvents.SetRemoteDescriptionOnSuccess]: (
     description: RTCSessionDescription | RTCSessionDescriptionInit
   ) => void;
 }
@@ -198,7 +198,7 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    */
   async createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> {
     return this.pc.createOffer(options).then((offer) => {
-      this.emit(PeerConnection.Events.CreateOffer, offer);
+      this.emit(PeerConnection.Events.CreateOfferOnSuccess, offer);
       return offer;
     });
   }
@@ -231,7 +231,7 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
 
     return this.pc.setLocalDescription(description).then(() => {
       if (description) {
-        this.emit(PeerConnection.Events.SetLocalDescription, description);
+        this.emit(PeerConnection.Events.SetLocalDescriptionOnSuccess, description);
       }
     });
   }
@@ -249,7 +249,7 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
     description: RTCSessionDescription | RTCSessionDescriptionInit
   ): Promise<void> {
     return this.pc.setRemoteDescription(description).then(() => {
-      this.emit(PeerConnection.Events.SetRemoteDescription, description);
+      this.emit(PeerConnection.Events.SetRemoteDescriptionOnSuccess, description);
     });
   }
 

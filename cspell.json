@@ -37,9 +37,9 @@
     "WCME",
     "webex",
     "webrtc",
-    "createoffer",
-    "setlocaldescription",
-    "setremotedescription"
+    "createofferonsuccess",
+    "setlocaldescriptiononsuccess",
+    "setremotedescriptiononsuccess"
   ],
   "flagWords": [],
   "ignorePaths": [
