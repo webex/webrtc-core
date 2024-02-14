@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/webex/webrtc-core/compare/v2.4.0...v2.5.0) (2024-02-14)
+
+
+### Features
+
+* set/create events ([#71](https://github.com/webex/webrtc-core/issues/71)) ([92e01d9](https://github.com/webex/webrtc-core/commit/92e01d90cd70a8b6e1010a006a6f9ce7a44fbbd3))
+
 # [2.4.0](https://github.com/webex/webrtc-core/compare/v2.3.1...v2.4.0) (2024-01-29)
 
 
