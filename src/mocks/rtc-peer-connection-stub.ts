@@ -7,13 +7,24 @@
  * This stub exists to act as a scaffold for creating a mock.
  */
 class RTCPeerConnectionStub {
+  createAnswer(options?: RTCAnswerOptions): Promise<RTCSessionDescriptionInit> {
+    return new Promise(() => {});
+  }
   createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> {
     return new Promise(() => {});
   }
   getStats(): Promise<any> {
     return new Promise(() => {});
   }
-  setLocalDescription(): Promise<any> {
+  setLocalDescription(
+    description?: RTCSessionDescription | RTCSessionDescriptionInit
+  ): Promise<void> {
+    return new Promise(() => {});
+  }
+
+  setRemoteDescription(
+    description?: RTCSessionDescription | RTCSessionDescriptionInit
+  ): Promise<void> {
     return new Promise(() => {});
   }
   onconnectionstatechange: () => void = () => {};

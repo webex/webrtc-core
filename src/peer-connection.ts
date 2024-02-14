@@ -3,6 +3,7 @@ import { ConnectionState, ConnectionStateHandler } from './connection-state-hand
 import { EventEmitter, EventMap } from './event-emitter';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 import { logger } from './util/logger';
+
 /**
  * A type-safe form of the DOMString used in the MediaStreamTrack.kind field.
  */
@@ -27,11 +28,23 @@ type IceGatheringStateChangeEvent = {
 enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
   ConnectionStateChange = 'connectionstatechange',
+  CreateOfferOnSuccess = 'createofferonsuccess',
+  CreateAnswerOnSuccess = 'createansweronsuccess',
+  SetLocalDescriptionOnSuccess = 'setlocaldescriptiononsuccess',
+  SetRemoteDescriptionOnSuccess = 'setremotedescriptiononsuccess',
 }
 
 interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
+  [PeerConnectionEvents.CreateOfferOnSuccess]: (offer: RTCSessionDescriptionInit) => void;
+  [PeerConnectionEvents.CreateAnswerOnSuccess]: (answer: RTCSessionDescriptionInit) => void;
+  [PeerConnectionEvents.SetLocalDescriptionOnSuccess]: (
+    description: RTCSessionDescription | RTCSessionDescriptionInit
+  ) => void;
+  [PeerConnectionEvents.SetRemoteDescriptionOnSuccess]: (
+    description: RTCSessionDescription | RTCSessionDescriptionInit
+  ) => void;
 }
 
 type ConnectionType = 'UDP' | 'TCP' | 'TURN-TLS' | 'TURN-TCP' | 'TURN-UDP' | 'unknown';
@@ -172,7 +185,10 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    *     other peer.
    */
   async createAnswer(options?: RTCAnswerOptions): Promise<RTCSessionDescriptionInit> {
-    return this.pc.createAnswer(options);
+    return this.pc.createAnswer(options).then((answer) => {
+      this.emit(PeerConnection.Events.CreateAnswerOnSuccess, answer);
+      return answer;
+    });
   }
 
   /**
@@ -186,7 +202,10 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    *    That received offer should be delivered through the signaling server to a remote peer.
    */
   async createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> {
-    return this.pc.createOffer(options);
+    return this.pc.createOffer(options).then((offer) => {
+      this.emit(PeerConnection.Events.CreateOfferOnSuccess, offer);
+      return offer;
+    });
   }
 
   /**
@@ -215,7 +234,11 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
         });
     }
 
-    return this.pc.setLocalDescription(description);
+    return this.pc.setLocalDescription(description).then(() => {
+      if (description) {
+        this.emit(PeerConnection.Events.SetLocalDescriptionOnSuccess, description);
+      }
+    });
   }
 
   /**
@@ -230,7 +253,9 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
   async setRemoteDescription(
     description: RTCSessionDescription | RTCSessionDescriptionInit
   ): Promise<void> {
-    return this.pc.setRemoteDescription(description);
+    return this.pc.setRemoteDescription(description).then(() => {
+      this.emit(PeerConnection.Events.SetRemoteDescriptionOnSuccess, description);
+    });
   }
 
   /**
