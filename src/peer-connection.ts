@@ -29,6 +29,7 @@ enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
   ConnectionStateChange = 'connectionstatechange',
   CreateOfferOnSuccess = 'createofferonsuccess',
+  CreateAnswerOnSuccess = 'createansweronsuccess',
   SetLocalDescriptionOnSuccess = 'setlocaldescriptiononsuccess',
   SetRemoteDescriptionOnSuccess = 'setremotedescriptiononsuccess',
 }
@@ -37,6 +38,7 @@ interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
   [PeerConnectionEvents.CreateOfferOnSuccess]: (offer: RTCSessionDescriptionInit) => void;
+  [PeerConnectionEvents.CreateAnswerOnSuccess]: (answer: RTCSessionDescriptionInit) => void;
   [PeerConnectionEvents.SetLocalDescriptionOnSuccess]: (
     description: RTCSessionDescription | RTCSessionDescriptionInit
   ) => void;
@@ -183,7 +185,10 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    *     other peer.
    */
   async createAnswer(options?: RTCAnswerOptions): Promise<RTCSessionDescriptionInit> {
-    return this.pc.createAnswer(options);
+    return this.pc.createAnswer(options).then((answer) => {
+      this.emit(PeerConnection.Events.CreateAnswerOnSuccess, answer);
+      return answer;
+    });
   }
 
   /**

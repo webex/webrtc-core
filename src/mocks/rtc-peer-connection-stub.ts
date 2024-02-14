@@ -7,6 +7,9 @@
  * This stub exists to act as a scaffold for creating a mock.
  */
 class RTCPeerConnectionStub {
+  createAnswer(options?: RTCAnswerOptions): Promise<RTCSessionDescriptionInit> {
+    return new Promise(() => {});
+  }
   createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> {
     return new Promise(() => {});
   }

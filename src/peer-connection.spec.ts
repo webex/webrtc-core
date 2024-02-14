@@ -247,6 +247,50 @@ describe('PeerConnection', () => {
       connectionStateHandlerListener(ConnectionState.Connecting);
     });
   });
+  describe('createAnswer', () => {
+    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let createAnswerSpy: jest.SpyInstance;
+    const callback = jest.fn();
+    let pc: PeerConnection;
+    const mockedReturnedAnswer: RTCSessionDescriptionInit = {
+      sdp: 'blah',
+      type: 'offer',
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockPc = mocked(new RTCPeerConnectionStub(), true);
+      mockPc.createAnswer.mockImplementation(() => {
+        return Promise.resolve(mockedReturnedAnswer);
+      });
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      pc = new PeerConnection();
+      createAnswerSpy = jest.spyOn(pc, 'createAnswer');
+      pc.on(PeerConnection.Events.CreateAnswerOnSuccess, callback);
+    });
+
+    it('should emit event when createAnswer called', async () => {
+      expect.hasAssertions();
+      const options: RTCAnswerOptions = {
+        iceRestart: true,
+      };
+      const answer = await pc.createAnswer(options);
+      expect(answer).toStrictEqual(mockedReturnedAnswer);
+      expect(createAnswerSpy).toHaveBeenCalledWith(options);
+      expect(callback).toHaveBeenCalledWith(mockedReturnedAnswer);
+    });
+
+    it('should not emit event when createAnswer failed', async () => {
+      expect.hasAssertions();
+      mockPc.createAnswer.mockImplementation(() => {
+        return Promise.reject(new Error());
+      });
+      const answerPromise = pc.createAnswer(null as unknown as RTCOfferOptions);
+      await expect(answerPromise).rejects.toThrow(Error);
+      expect(createAnswerSpy).toHaveBeenCalledWith(null);
+      expect(callback).toHaveBeenCalledTimes(0);
+    });
+  });
 
   describe('createOffer', () => {
     let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;

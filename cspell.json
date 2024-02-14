@@ -38,6 +38,7 @@
     "webex",
     "webrtc",
     "createofferonsuccess",
+    "createansweronsuccess",
     "setlocaldescriptiononsuccess",
     "setremotedescriptiononsuccess"
   ],
