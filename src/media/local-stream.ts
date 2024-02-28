@@ -2,7 +2,7 @@ import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
 import { BaseEffect, EffectEvent } from '@webex/web-media-effects';
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import { logger } from '../util/logger';
-import { Stream, StreamEventNames } from './stream';
+import { MuteStateChangeReason, Stream, StreamEventNames } from './stream';
 
 export type TrackEffect = BaseEffect;
 
@@ -88,6 +88,9 @@ abstract class _LocalStream extends Stream {
   /**
    * Set the mute state of this stream.
    *
+   * Note: This sets the user-toggled mute state, equivalent to changing the "enabled" state of the
+   * track. It is separate from the browser-toggled mute state.
+   *
    * @param isMuted - True to mute, false to unmute.
    */
   setMuted(isMuted: boolean): void {
@@ -95,7 +98,7 @@ abstract class _LocalStream extends Stream {
       this.inputTrack.enabled = !isMuted;
       // setting `enabled` will not automatically emit MuteStateChange, so we emit it here
       if (!this.inputTrack.muted) {
-        this[StreamEventNames.MuteStateChange].emit(isMuted);
+        this[StreamEventNames.MuteStateChange].emit(isMuted, MuteStateChangeReason.ByUser);
       }
     }
   }

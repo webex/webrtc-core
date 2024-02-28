@@ -5,8 +5,15 @@ export enum StreamEventNames {
   Ended = 'stream-ended',
 }
 
+export enum MuteStateChangeReason {
+  ByUser = 'by-user',
+  ByBrowser = 'by-browser',
+}
+
 interface StreamEvents {
-  [StreamEventNames.MuteStateChange]: TypedEvent<(muted: boolean) => void>;
+  [StreamEventNames.MuteStateChange]: TypedEvent<
+    (muted: boolean, reason: MuteStateChangeReason) => void
+  >;
   [StreamEventNames.Ended]: TypedEvent<() => void>;
 }
 
@@ -19,7 +26,9 @@ abstract class _Stream {
 
   // TODO: these should be protected, but we need the helper type in ts-events
   // to hide the 'emit' method from TypedEvent.
-  [StreamEventNames.MuteStateChange] = new TypedEvent<(muted: boolean) => void>();
+  [StreamEventNames.MuteStateChange] = new TypedEvent<
+    (muted: boolean, reason: MuteStateChangeReason) => void
+  >();
 
   [StreamEventNames.Ended] = new TypedEvent<() => void>();
 
@@ -40,14 +49,14 @@ abstract class _Stream {
    * Handler which is called when a track's mute event fires.
    */
   protected handleTrackMuted() {
-    this[StreamEventNames.MuteStateChange].emit(true);
+    this[StreamEventNames.MuteStateChange].emit(true, MuteStateChangeReason.ByBrowser);
   }
 
   /**
    * Handler which is called when a track's unmute event fires.
    */
   protected handleTrackUnmuted() {
-    this[StreamEventNames.MuteStateChange].emit(false);
+    this[StreamEventNames.MuteStateChange].emit(false, MuteStateChangeReason.ByBrowser);
   }
 
   /**

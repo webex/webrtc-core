@@ -1,7 +1,7 @@
 import { WebrtcCoreError } from '../errors';
 import { createMockedStream } from '../util/test-utils';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
-import { StreamEventNames } from './stream';
+import { MuteStateChangeReason, StreamEventNames } from './stream';
 
 /**
  * A dummy LocalStream implementation, so we can instantiate it for testing.
@@ -33,12 +33,12 @@ describe('LocalStream', () => {
       localStream.setMuted(true);
       expect(mockStream.getTracks()[0].enabled).toBe(false);
       expect(emitSpy).toHaveBeenCalledTimes(1);
-      expect(emitSpy).toHaveBeenLastCalledWith(true);
+      expect(emitSpy).toHaveBeenLastCalledWith(true, MuteStateChangeReason.ByUser);
 
       localStream.setMuted(false);
       expect(mockStream.getTracks()[0].enabled).toBe(true);
       expect(emitSpy).toHaveBeenCalledTimes(2);
-      expect(emitSpy).toHaveBeenLastCalledWith(false);
+      expect(emitSpy).toHaveBeenLastCalledWith(false, MuteStateChangeReason.ByUser);
     });
 
     it('should not fire an event if the same mute state is set twice', () => {
