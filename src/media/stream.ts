@@ -27,7 +27,7 @@ abstract class _Stream {
   // TODO: these should be protected, but we need the helper type in ts-events
   // to hide the 'emit' method from TypedEvent.
   [StreamEventNames.MuteStateChange] = new TypedEvent<
-    (muted: boolean, reason: MuteStateChangeReason) => void
+    (muted: { userMuted: boolean; systemMuted: boolean }) => void
   >();
 
   [StreamEventNames.Ended] = new TypedEvent<() => void>();
@@ -39,8 +39,8 @@ abstract class _Stream {
    */
   constructor(stream: MediaStream) {
     this.outputStream = stream;
-    this.handleTrackMuted = this.handleTrackMuted.bind(this);
-    this.handleTrackUnmuted = this.handleTrackUnmuted.bind(this);
+    this.handleTrackMutedBySystem = this.handleTrackMutedBySystem.bind(this);
+    this.handleTrackUnmutedBySystem = this.handleTrackUnmutedBySystem.bind(this);
     this.handleTrackEnded = this.handleTrackEnded.bind(this);
     this.addTrackHandlers(this.outputTrack);
   }
@@ -48,15 +48,15 @@ abstract class _Stream {
   /**
    * Handler which is called when a track's mute event fires.
    */
-  protected handleTrackMuted() {
-    this[StreamEventNames.MuteStateChange].emit(true, MuteStateChangeReason.ByBrowser);
+  protected handleTrackMutedBySystem() {
+    this[StreamEventNames.MuteStateChange].emit({ userMuted: this.userMuted, systemMuted: true });
   }
 
   /**
    * Handler which is called when a track's unmute event fires.
    */
-  protected handleTrackUnmuted() {
-    this[StreamEventNames.MuteStateChange].emit(false, MuteStateChangeReason.ByBrowser);
+  protected handleTrackUnmutedBySystem() {
+    this[StreamEventNames.MuteStateChange].emit({ userMuted: this.userMuted, systemMuted: false });
   }
 
   /**
@@ -72,8 +72,8 @@ abstract class _Stream {
    * @param track - The MediaStreamTrack.
    */
   protected addTrackHandlers(track: MediaStreamTrack) {
-    track.addEventListener('mute', this.handleTrackMuted);
-    track.addEventListener('unmute', this.handleTrackUnmuted);
+    track.addEventListener('mute', this.handleTrackMutedBySystem);
+    track.addEventListener('unmute', this.handleTrackUnmutedBySystem);
     track.addEventListener('ended', this.handleTrackEnded);
   }
 
@@ -83,8 +83,8 @@ abstract class _Stream {
    * @param track - The MediaStreamTrack.
    */
   protected removeTrackHandlers(track: MediaStreamTrack) {
-    track.removeEventListener('mute', this.handleTrackMuted);
-    track.removeEventListener('unmute', this.handleTrackUnmuted);
+    track.removeEventListener('mute', this.handleTrackMutedBySystem);
+    track.removeEventListener('unmute', this.handleTrackUnmutedBySystem);
     track.removeEventListener('ended', this.handleTrackEnded);
   }
 

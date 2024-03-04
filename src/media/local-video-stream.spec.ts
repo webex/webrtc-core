@@ -30,7 +30,7 @@ describe('localVideoStream', () => {
       console.log('stream constraints changed');
     });
 
-    videoStream.setMuted(true);
+    videoStream.setUserMuted(true);
     videoStream.applyConstraints({
       height: 720,
       width: 1280,

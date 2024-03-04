@@ -2,7 +2,7 @@ import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
 import { BaseEffect, EffectEvent } from '@webex/web-media-effects';
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import { logger } from '../util/logger';
-import { MuteStateChangeReason, Stream, StreamEventNames } from './stream';
+import { Stream, StreamEventNames } from './stream';
 
 export type TrackEffect = BaseEffect;
 
@@ -62,7 +62,7 @@ abstract class _LocalStream extends Stream {
    */
   protected handleTrackMuted() {
     if (this.inputTrack.enabled) {
-      super.handleTrackMuted();
+      super.handleTrackMutedBySystem();
     }
   }
 
@@ -71,12 +71,16 @@ abstract class _LocalStream extends Stream {
    */
   protected handleTrackUnmuted() {
     if (this.inputTrack.enabled) {
-      super.handleTrackUnmuted();
+      super.handleTrackUnmutedBySystem();
     }
   }
 
   /**
-   * @inheritdoc
+   * Check whether or not this stream is muted. For LocalStream, this considers both whether the
+   * stream has been muted by the user (see {@link userMuted}) and whether the stream has been muted
+   * by the system (see {@link systemMuted}).
+   *
+   * @returns True if the stream is muted, false otherwise.
    */
   get muted(): boolean {
     // Calls to `setMuted` will only affect the "enabled" state, but there are specific cases in
@@ -86,19 +90,42 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
-   * Set the mute state of this stream.
+   * Check whether or not this stream has been muted by the user. This is equivalent to getting the
+   * "enabled" state of the MediaStreamTrack.
+   *
+   * @returns True if the stream has been muted by the user, false otherwise.
+   */
+  get userMuted(): boolean {
+    return !this.inputTrack.enabled;
+  }
+
+  /**
+   * Check whether or not this stream has been muted by the system. This is equivalent to getting the
+   * "muted" state of the MediaStreamTrack.
+   *
+   * @returns True if the stream has been muted by the system, false otherwise.
+   */
+  get systemMuted(): boolean {
+    return this.inputTrack.muted;
+  }
+
+  /**
+   * Set the user mute state of this stream.
    *
    * Note: This sets the user-toggled mute state, equivalent to changing the "enabled" state of the
-   * track. It is separate from the browser-toggled mute state.
+   * track. It is separate from the system-toggled mute state.
    *
    * @param isMuted - True to mute, false to unmute.
    */
-  setMuted(isMuted: boolean): void {
+  setUserMuted(isMuted: boolean): void {
     if (this.inputTrack.enabled === isMuted) {
       this.inputTrack.enabled = !isMuted;
       // setting `enabled` will not automatically emit MuteStateChange, so we emit it here
       if (!this.inputTrack.muted) {
-        this[StreamEventNames.MuteStateChange].emit(isMuted, MuteStateChangeReason.ByUser);
+        this[StreamEventNames.MuteStateChange].emit({
+          userMuted: isMuted,
+          systemMuted: this.systemMuted,
+        });
       }
     }
   }

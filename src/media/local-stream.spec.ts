@@ -30,12 +30,12 @@ describe('LocalStream', () => {
       // Simulate the default state of the track's enabled state.
       mockStream.getTracks()[0].enabled = true;
 
-      localStream.setMuted(true);
+      localStream.setUserMuted(true);
       expect(mockStream.getTracks()[0].enabled).toBe(false);
       expect(emitSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy).toHaveBeenLastCalledWith(true, MuteStateChangeReason.ByUser);
 
-      localStream.setMuted(false);
+      localStream.setUserMuted(false);
       expect(mockStream.getTracks()[0].enabled).toBe(true);
       expect(emitSpy).toHaveBeenCalledTimes(2);
       expect(emitSpy).toHaveBeenLastCalledWith(false, MuteStateChangeReason.ByUser);
@@ -47,7 +47,7 @@ describe('LocalStream', () => {
       // Simulate the default state of the track's enabled state.
       mockStream.getTracks()[0].enabled = true;
 
-      localStream.setMuted(false);
+      localStream.setUserMuted(false);
       expect(emitSpy).toHaveBeenCalledTimes(0);
     });
 
@@ -60,7 +60,7 @@ describe('LocalStream', () => {
       // Simulate the track being muted by the browser.
       Object.defineProperty(mockStream.getTracks()[0], 'muted', { value: true });
 
-      localStream.setMuted(true);
+      localStream.setUserMuted(true);
       expect(mockStream.getTracks()[0].enabled).toBe(false);
       expect(emitSpy).toHaveBeenCalledTimes(0);
     });
