@@ -1,7 +1,11 @@
+import { BrowserInfo } from '@webex/web-capabilities';
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import * as media from '../media';
 import { LocalCameraStream } from '../media/local-camera-stream';
-import { LocalDisplayStream } from '../media/local-display-stream';
+import {
+  defaultLocalDisplayStreamFrameRateConstraint,
+  LocalDisplayStream,
+} from '../media/local-display-stream';
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
 import { LocalSystemAudioStream } from '../media/local-system-audio-stream';
 import { VideoContentHint } from '../media/local-video-stream';
@@ -127,7 +131,12 @@ export async function createDisplayStream<T extends LocalDisplayStream>(
 ): Promise<T> {
   let stream;
   try {
-    stream = await media.getDisplayMedia({ video: true });
+    stream = await media.getDisplayMedia({
+      video:
+        BrowserInfo.isChrome() || BrowserInfo.isEdge()
+          ? { frameRate: defaultLocalDisplayStreamFrameRateConstraint }
+          : true,
+    });
   } catch (error) {
     throw new WebrtcCoreError(
       WebrtcCoreErrorType.CREATE_STREAM_FAILED,
@@ -161,7 +170,13 @@ export async function createDisplayStreamWithAudio<
 ): Promise<[T, U | null]> {
   let stream;
   try {
-    stream = await media.getDisplayMedia({ video: true, audio: true });
+    stream = await media.getDisplayMedia({
+      video:
+        BrowserInfo.isChrome() || BrowserInfo.isEdge()
+          ? { frameRate: defaultLocalDisplayStreamFrameRateConstraint }
+          : true,
+      audio: true,
+    });
   } catch (error) {
     throw new WebrtcCoreError(
       WebrtcCoreErrorType.CREATE_STREAM_FAILED,

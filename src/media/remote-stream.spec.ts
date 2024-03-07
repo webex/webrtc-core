@@ -8,6 +8,19 @@ describe('RemoteStream', () => {
     remoteStream = new RemoteStream(mockStream);
   });
 
+  describe('constructor', () => {
+    it('should add the correct event handlers on the track', () => {
+      expect.assertions(4);
+
+      const addEventListenerSpy = jest.spyOn(mockStream.getTracks()[0], 'addEventListener');
+
+      expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
+      expect(addEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
+      expect(addEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
+      expect(addEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
+    });
+  });
+
   describe('getSettings', () => {
     it('should get the settings of the output track', () => {
       expect.assertions(1);
