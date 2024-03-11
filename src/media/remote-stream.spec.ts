@@ -1,5 +1,5 @@
 import { createMockedStream } from '../util/test-utils';
-import { RemoteStream } from './remote-stream';
+import { RemoteMediaState, RemoteStream, RemoteStreamEventNames } from './remote-stream';
 
 describe('RemoteStream', () => {
   const mockStream = createMockedStream();
@@ -62,6 +62,46 @@ describe('RemoteStream', () => {
       expect(addEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
       expect(addEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
       expect(addEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
+    });
+
+    it('should emit MediaStateChange event if new track is muted but old track is not', () => {
+      expect.assertions(2);
+
+      // Set old track to be unmuted.
+      Object.defineProperty(mockStream.getTracks()[0], 'muted', {
+        value: false,
+        configurable: true,
+      });
+
+      // Set new track to be muted.
+      const newTrack = new MediaStreamTrack();
+      Object.defineProperty(newTrack, 'muted', { value: true });
+
+      const emitSpy = jest.spyOn(remoteStream[RemoteStreamEventNames.MediaStateChange], 'emit');
+      remoteStream.replaceTrack(newTrack);
+
+      expect(emitSpy).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledWith(RemoteMediaState.Stopped);
+    });
+
+    it('should emit MediaStateChange event if old track is muted but new track is not', () => {
+      expect.assertions(2);
+
+      // Set old track to be muted.
+      Object.defineProperty(mockStream.getTracks()[0], 'muted', {
+        value: true,
+        configurable: true,
+      });
+
+      // Set new track to be unmuted.
+      const newTrack = new MediaStreamTrack();
+      Object.defineProperty(newTrack, 'muted', { value: false });
+
+      const emitSpy = jest.spyOn(remoteStream[RemoteStreamEventNames.MediaStateChange], 'emit');
+      remoteStream.replaceTrack(newTrack);
+
+      expect(emitSpy).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledWith(RemoteMediaState.Started);
     });
   });
 

@@ -104,6 +104,14 @@ class _RemoteStream extends Stream {
     this.outputStream.addTrack(newTrack);
     this.addTrackHandlers(newTrack);
 
+    if (oldTrack.muted !== newTrack.muted) {
+      if (newTrack.muted) {
+        this.handleMediaStopped();
+      } else {
+        this.handleMediaStarted();
+      }
+    }
+
     // TODO: Chrome/React may not automatically refresh the media element with the new track when
     // the output track has changed, so we may need to emit an event here if this is the case.
     // this[StreamEventNames.OutputTrackChange].emit(newTrack);
