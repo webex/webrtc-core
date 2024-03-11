@@ -8,6 +8,19 @@ describe('RemoteStream', () => {
     remoteStream = new RemoteStream(mockStream);
   });
 
+  describe('constructor', () => {
+    it('should add the correct event handlers on the track', () => {
+      expect.assertions(4);
+
+      const addEventListenerSpy = jest.spyOn(mockStream.getTracks()[0], 'addEventListener');
+
+      expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
+      expect(addEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
+      expect(addEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
+      expect(addEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
+    });
+  });
+
   describe('getSettings', () => {
     it('should get the settings of the output track', () => {
       expect.assertions(1);
@@ -29,6 +42,26 @@ describe('RemoteStream', () => {
 
       expect(removeTrackSpy).toHaveBeenCalledWith(mockStream.getTracks()[0]);
       expect(addTrackSpy).toHaveBeenCalledWith(newTrack);
+    });
+
+    it('should replace the event handlers on the output track', () => {
+      expect.assertions(8);
+
+      const removeEventListenerSpy = jest.spyOn(mockStream.getTracks()[0], 'removeEventListener');
+      const newTrack = new MediaStreamTrack();
+      const addEventListenerSpy = jest.spyOn(newTrack, 'addEventListener');
+
+      remoteStream.replaceTrack(newTrack);
+
+      expect(removeEventListenerSpy).toHaveBeenCalledTimes(3);
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
+
+      expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
+      expect(addEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
+      expect(addEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
+      expect(addEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
     });
   });
 
