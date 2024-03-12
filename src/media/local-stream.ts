@@ -7,12 +7,16 @@ import { Stream, StreamEventNames } from './stream';
 export type TrackEffect = BaseEffect;
 
 export enum LocalStreamEventNames {
+  UserMuteStateChange = 'user-mute-state-change',
+  SystemMuteStateChange = 'system-mute-state-change',
   ConstraintsChange = 'constraints-change',
   OutputTrackChange = 'output-track-change',
   EffectAdded = 'effect-added',
 }
 
 interface LocalStreamEvents {
+  [LocalStreamEventNames.UserMuteStateChange]: TypedEvent<(muted: boolean) => void>;
+  [LocalStreamEventNames.SystemMuteStateChange]: TypedEvent<(muted: boolean) => void>;
   [LocalStreamEventNames.ConstraintsChange]: TypedEvent<() => void>;
   [LocalStreamEventNames.OutputTrackChange]: TypedEvent<(track: MediaStreamTrack) => void>;
   [LocalStreamEventNames.EffectAdded]: TypedEvent<(effect: TrackEffect) => void>;
@@ -22,6 +26,10 @@ interface LocalStreamEvents {
  * A stream which originates on the local device.
  */
 abstract class _LocalStream extends Stream {
+  [LocalStreamEventNames.UserMuteStateChange] = new TypedEvent<(muted: boolean) => void>();
+
+  [LocalStreamEventNames.SystemMuteStateChange] = new TypedEvent<(muted: boolean) => void>();
+
   [LocalStreamEventNames.ConstraintsChange] = new TypedEvent<() => void>();
 
   [LocalStreamEventNames.OutputTrackChange] = new TypedEvent<(track: MediaStreamTrack) => void>();
@@ -45,6 +53,51 @@ abstract class _LocalStream extends Stream {
   constructor(stream: MediaStream) {
     super(stream);
     this.inputStream = stream;
+    this.handleTrackMutedBySystem = this.handleTrackMutedBySystem.bind(this);
+    this.handleTrackUnmutedBySystem = this.handleTrackUnmutedBySystem.bind(this);
+    this.addTrackHandlersForLocalStreamEvents(this.inputTrack);
+  }
+
+  /**
+   * Handler which is called when a track's mute event fires.
+   */
+  private handleTrackMutedBySystem(): void {
+    this[LocalStreamEventNames.SystemMuteStateChange].emit(true);
+  }
+
+  /**
+   * Handler which is called when a track's unmute event fires.
+   */
+  private handleTrackUnmutedBySystem(): void {
+    this[LocalStreamEventNames.SystemMuteStateChange].emit(false);
+  }
+
+  /**
+   * Helper function to add event handlers to a MediaStreamTrack. See
+   * {@link Stream.addTrackHandlersForStreamEvents} for why this is useful.
+   *
+   * @param track - The MediaStreamTrack.
+   */
+  private addTrackHandlersForLocalStreamEvents(track: MediaStreamTrack): void {
+    track.addEventListener('mute', this.handleTrackMutedBySystem);
+    track.addEventListener('unmute', this.handleTrackUnmutedBySystem);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  protected addTrackHandlers(track: MediaStreamTrack): void {
+    super.addTrackHandlers(track);
+    this.addTrackHandlersForLocalStreamEvents(track);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  protected removeTrackHandlers(track: MediaStreamTrack): void {
+    super.removeTrackHandlers(track);
+    track.removeEventListener('mute', this.handleTrackMutedBySystem);
+    track.removeEventListener('unmute', this.handleTrackUnmutedBySystem);
   }
 
   /**
@@ -58,45 +111,48 @@ abstract class _LocalStream extends Stream {
   }
 
   /**
-   * @inheritdoc
-   */
-  protected handleTrackMuted() {
-    if (this.inputTrack.enabled) {
-      super.handleTrackMuted();
-    }
-  }
-
-  /**
-   * @inheritdoc
-   */
-  protected handleTrackUnmuted() {
-    if (this.inputTrack.enabled) {
-      super.handleTrackUnmuted();
-    }
-  }
-
-  /**
-   * @inheritdoc
+   * Check whether or not this stream is muted. This considers both whether the stream has been
+   * muted by the user (see {@link userMuted}) and whether the stream has been muted by the system
+   * (see {@link systemMuted}).
+   *
+   * @returns True if the stream is muted, false otherwise.
    */
   get muted(): boolean {
-    // Calls to `setMuted` will only affect the "enabled" state, but there are specific cases in
-    // which the browser may mute the track, which will affect the "muted" state but not the
-    // "enabled" state, e.g. minimizing a shared window or unplugging a shared screen.
-    return !this.inputTrack.enabled || this.inputTrack.muted;
+    return this.userMuted || this.systemMuted;
   }
 
   /**
-   * Set the mute state of this stream.
+   * Check whether or not this stream has been muted by the user. This is equivalent to checking the
+   * MediaStreamTrack "enabled" state.
+   *
+   * @returns True if the stream has been muted by the user, false otherwise.
+   */
+  get userMuted(): boolean {
+    return !this.inputTrack.enabled;
+  }
+
+  /**
+   * Check whether or not this stream has been muted by the user. This is equivalent to checking the
+   * MediaStreamTrack "muted" state.
+   *
+   * @returns True if the stream has been muted by the system, false otherwise.
+   */
+  get systemMuted(): boolean {
+    return this.inputTrack.muted;
+  }
+
+  /**
+   * Set the user mute state of this stream.
+   *
+   * Note: This sets the user-toggled mute state, equivalent to changing the "enabled" state of the
+   * track. It is separate from the system-toggled mute state.
    *
    * @param isMuted - True to mute, false to unmute.
    */
-  setMuted(isMuted: boolean): void {
+  setUserMuted(isMuted: boolean): void {
     if (this.inputTrack.enabled === isMuted) {
       this.inputTrack.enabled = !isMuted;
-      // setting `enabled` will not automatically emit MuteStateChange, so we emit it here
-      if (!this.inputTrack.muted) {
-        this[StreamEventNames.MuteStateChange].emit(isMuted);
-      }
+      this[LocalStreamEventNames.UserMuteStateChange].emit(isMuted);
     }
   }
 
