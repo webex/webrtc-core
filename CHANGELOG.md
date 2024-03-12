@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/webex/webrtc-core/compare/v2.5.0...v2.6.0) (2024-03-12)
+
+
+### Features
+
+* separate API for enabled and muted states ([#72](https://github.com/webex/webrtc-core/issues/72)) ([f4ce41d](https://github.com/webex/webrtc-core/commit/f4ce41d600db48014cd634a1ad0bfa84e99603e7))
+
 # [2.5.0](https://github.com/webex/webrtc-core/compare/v2.4.0...v2.5.0) (2024-02-14)
 
 
