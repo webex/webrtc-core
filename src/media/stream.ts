@@ -1,10 +1,12 @@
 import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
 
 export enum StreamEventNames {
+  MuteStateChange = 'mute-state-change',
   Ended = 'stream-ended',
 }
 
 interface StreamEvents {
+  [StreamEventNames.MuteStateChange]: TypedEvent<(muted: boolean) => void>;
   [StreamEventNames.Ended]: TypedEvent<() => void>;
 }
 
@@ -17,6 +19,8 @@ abstract class _Stream {
 
   // TODO: these should be protected, but we need the helper type in ts-events
   // to hide the 'emit' method from TypedEvent.
+  [StreamEventNames.MuteStateChange] = new TypedEvent<(muted: boolean) => void>();
+
   [StreamEventNames.Ended] = new TypedEvent<() => void>();
 
   /**
@@ -26,8 +30,24 @@ abstract class _Stream {
    */
   constructor(stream: MediaStream) {
     this.outputStream = stream;
+    this.handleTrackMuted = this.handleTrackMuted.bind(this);
+    this.handleTrackUnmuted = this.handleTrackUnmuted.bind(this);
     this.handleTrackEnded = this.handleTrackEnded.bind(this);
-    this.addTrackHandlersForStreamEvents(this.outputTrack);
+    this.addTrackHandlers(this.outputTrack);
+  }
+
+  /**
+   * Handler which is called when a track's mute event fires.
+   */
+  protected handleTrackMuted() {
+    this[StreamEventNames.MuteStateChange].emit(true);
+  }
+
+  /**
+   * Handler which is called when a track's unmute event fires.
+   */
+  protected handleTrackUnmuted() {
+    this[StreamEventNames.MuteStateChange].emit(false);
   }
 
   /**
@@ -38,25 +58,14 @@ abstract class _Stream {
   }
 
   /**
-   * Helper function to add event handlers to a MediaStreamTrack. Unlike the virtual
-   * {@link addTrackHandlers} function, which can be overridden, this function is internal to this
-   * class and will only add the event handlers relevant to this class. It prevents, for example,
-   * accidentally adding the same event handlers multiple times, which could happen if the virtual
-   * `addTrackHandlers` method was called from a subclass's constructor.
-   *
-   * @param track - The MediaStreamTrack.
-   */
-  private addTrackHandlersForStreamEvents(track: MediaStreamTrack) {
-    track.addEventListener('ended', this.handleTrackEnded);
-  }
-
-  /**
    * Add event handlers to a MediaStreamTrack.
    *
    * @param track - The MediaStreamTrack.
    */
   protected addTrackHandlers(track: MediaStreamTrack) {
-    this.addTrackHandlersForStreamEvents(track);
+    track.addEventListener('mute', this.handleTrackMuted);
+    track.addEventListener('unmute', this.handleTrackUnmuted);
+    track.addEventListener('ended', this.handleTrackEnded);
   }
 
   /**
@@ -65,6 +74,8 @@ abstract class _Stream {
    * @param track - The MediaStreamTrack.
    */
   protected removeTrackHandlers(track: MediaStreamTrack) {
+    track.removeEventListener('mute', this.handleTrackMuted);
+    track.removeEventListener('unmute', this.handleTrackUnmuted);
     track.removeEventListener('ended', this.handleTrackEnded);
   }
 
@@ -76,6 +87,13 @@ abstract class _Stream {
   get id(): string {
     return this.outputStream.id;
   }
+
+  /**
+   * Check whether or not this stream is muted.
+   *
+   * @returns True if the stream is muted, false otherwise.
+   */
+  abstract get muted(): boolean;
 
   /**
    * Get the track of the output stream.

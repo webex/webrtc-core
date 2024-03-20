@@ -1,6 +1,7 @@
 import { WebrtcCoreError } from '../errors';
 import { createMockedStream } from '../util/test-utils';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
+import { StreamEventNames } from './stream';
 
 /**
  * A dummy LocalStream implementation, so we can instantiate it for testing.
@@ -15,42 +16,27 @@ describe('LocalStream', () => {
     localStream = new TestLocalStream(mockStream);
   });
 
-  describe('constructor', () => {
-    it('should add the correct event handlers on the track', () => {
-      expect.assertions(4);
-
-      const addEventListenerSpy = jest.spyOn(mockStream.getTracks()[0], 'addEventListener');
-
-      expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
-      expect(addEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
-      expect(addEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
-      expect(addEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
-    });
-  });
-
-  describe('setUserMuted', () => {
+  describe('setMuted', () => {
     let emitSpy: jest.SpyInstance;
 
     beforeEach(() => {
       localStream = new TestLocalStream(mockStream);
-      emitSpy = jest.spyOn(localStream[LocalStreamEventNames.UserMuteStateChange], 'emit');
+      emitSpy = jest.spyOn(localStream[StreamEventNames.MuteStateChange], 'emit');
     });
 
     it('should change the input track enabled state and fire an event', () => {
-      expect.assertions(8);
+      expect.assertions(6);
 
       // Simulate the default state of the track's enabled state.
       mockStream.getTracks()[0].enabled = true;
 
-      localStream.setUserMuted(true);
+      localStream.setMuted(true);
       expect(mockStream.getTracks()[0].enabled).toBe(false);
-      expect(localStream.userMuted).toBe(true);
       expect(emitSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy).toHaveBeenLastCalledWith(true);
 
-      localStream.setUserMuted(false);
+      localStream.setMuted(false);
       expect(mockStream.getTracks()[0].enabled).toBe(true);
-      expect(localStream.userMuted).toBe(false);
       expect(emitSpy).toHaveBeenCalledTimes(2);
       expect(emitSpy).toHaveBeenLastCalledWith(false);
     });
@@ -61,7 +47,21 @@ describe('LocalStream', () => {
       // Simulate the default state of the track's enabled state.
       mockStream.getTracks()[0].enabled = true;
 
-      localStream.setUserMuted(false);
+      localStream.setMuted(false);
+      expect(emitSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not fire an event if the track has been muted by the browser', () => {
+      expect.assertions(2);
+
+      // Simulate the default state of the track's enabled state.
+      mockStream.getTracks()[0].enabled = true;
+
+      // Simulate the track being muted by the browser.
+      Object.defineProperty(mockStream.getTracks()[0], 'muted', { value: true });
+
+      localStream.setMuted(true);
+      expect(mockStream.getTracks()[0].enabled).toBe(false);
       expect(emitSpy).toHaveBeenCalledTimes(0);
     });
   });

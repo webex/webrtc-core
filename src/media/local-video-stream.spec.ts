@@ -3,6 +3,7 @@ import MediaStreamStub from '../mocks/media-stream-stub';
 import { mocked } from '../mocks/mock';
 import { LocalStreamEventNames } from './local-stream';
 import { LocalVideoStream } from './local-video-stream';
+import { StreamEventNames } from './stream';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -20,7 +21,7 @@ describe('localVideoStream', () => {
 
   it('should work', () => {
     expect.hasAssertions();
-    videoStream.on(LocalStreamEventNames.UserMuteStateChange, (muted: boolean) => {
+    videoStream.on(StreamEventNames.MuteStateChange, (muted: boolean) => {
       // eslint-disable-next-line no-console
       console.log(`stream is muted? ${muted}`);
     });
@@ -29,7 +30,7 @@ describe('localVideoStream', () => {
       console.log('stream constraints changed');
     });
 
-    videoStream.setUserMuted(true);
+    videoStream.setMuted(true);
     videoStream.applyConstraints({
       height: 720,
       width: 1280,

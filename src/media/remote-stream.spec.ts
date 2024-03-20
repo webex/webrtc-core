@@ -1,24 +1,11 @@
 import { createMockedStream } from '../util/test-utils';
-import { RemoteMediaState, RemoteStream, RemoteStreamEventNames } from './remote-stream';
+import { RemoteStream } from './remote-stream';
 
 describe('RemoteStream', () => {
   const mockStream = createMockedStream();
   let remoteStream: RemoteStream;
   beforeEach(() => {
     remoteStream = new RemoteStream(mockStream);
-  });
-
-  describe('constructor', () => {
-    it('should add the correct event handlers on the track', () => {
-      expect.assertions(4);
-
-      const addEventListenerSpy = jest.spyOn(mockStream.getTracks()[0], 'addEventListener');
-
-      expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
-      expect(addEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
-      expect(addEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
-      expect(addEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
-    });
   });
 
   describe('getSettings', () => {
@@ -42,66 +29,6 @@ describe('RemoteStream', () => {
 
       expect(removeTrackSpy).toHaveBeenCalledWith(mockStream.getTracks()[0]);
       expect(addTrackSpy).toHaveBeenCalledWith(newTrack);
-    });
-
-    it('should replace the event handlers on the output track', () => {
-      expect.assertions(8);
-
-      const removeEventListenerSpy = jest.spyOn(mockStream.getTracks()[0], 'removeEventListener');
-      const newTrack = new MediaStreamTrack();
-      const addEventListenerSpy = jest.spyOn(newTrack, 'addEventListener');
-
-      remoteStream.replaceTrack(newTrack);
-
-      expect(removeEventListenerSpy).toHaveBeenCalledTimes(3);
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
-
-      expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
-      expect(addEventListenerSpy).toHaveBeenCalledWith('ended', expect.anything());
-      expect(addEventListenerSpy).toHaveBeenCalledWith('mute', expect.anything());
-      expect(addEventListenerSpy).toHaveBeenCalledWith('unmute', expect.anything());
-    });
-
-    it('should emit MediaStateChange event if new track is muted but old track is not', () => {
-      expect.assertions(2);
-
-      // Set old track to be unmuted.
-      Object.defineProperty(mockStream.getTracks()[0], 'muted', {
-        value: false,
-        configurable: true,
-      });
-
-      // Set new track to be muted.
-      const newTrack = new MediaStreamTrack();
-      Object.defineProperty(newTrack, 'muted', { value: true });
-
-      const emitSpy = jest.spyOn(remoteStream[RemoteStreamEventNames.MediaStateChange], 'emit');
-      remoteStream.replaceTrack(newTrack);
-
-      expect(emitSpy).toHaveBeenCalledTimes(1);
-      expect(emitSpy).toHaveBeenCalledWith(RemoteMediaState.Stopped);
-    });
-
-    it('should emit MediaStateChange event if old track is muted but new track is not', () => {
-      expect.assertions(2);
-
-      // Set old track to be muted.
-      Object.defineProperty(mockStream.getTracks()[0], 'muted', {
-        value: true,
-        configurable: true,
-      });
-
-      // Set new track to be unmuted.
-      const newTrack = new MediaStreamTrack();
-      Object.defineProperty(newTrack, 'muted', { value: false });
-
-      const emitSpy = jest.spyOn(remoteStream[RemoteStreamEventNames.MediaStateChange], 'emit');
-      remoteStream.replaceTrack(newTrack);
-
-      expect(emitSpy).toHaveBeenCalledTimes(1);
-      expect(emitSpy).toHaveBeenCalledWith(RemoteMediaState.Started);
     });
   });
 
