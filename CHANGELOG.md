@@ -1,3 +1,10 @@
+## [2.6.1](https://github.com/webex/webrtc-core/compare/v2.6.0...v2.6.1) (2024-04-16)
+
+
+### Bug Fixes
+
+* dispose effects on call to LocalStream.stop ([#75](https://github.com/webex/webrtc-core/issues/75)) ([60205bc](https://github.com/webex/webrtc-core/commit/60205bca573c96fca35153bd3e1469509ca0626e))
+
 # [2.6.0](https://github.com/webex/webrtc-core/compare/v2.5.0...v2.6.0) (2024-03-12)
 
 
