@@ -217,6 +217,7 @@ abstract class _LocalStream extends Stream {
   stop(): void {
     this.inputTrack.stop();
     this.outputTrack.stop();
+    this.disposeEffects();
     // calling stop() will not automatically emit Ended, so we emit it here
     this[StreamEventNames.Ended].emit();
   }
