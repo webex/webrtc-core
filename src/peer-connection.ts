@@ -27,6 +27,7 @@ type IceGatheringStateChangeEvent = {
 
 enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
+  IceCandidate = 'icecandidate',
   ConnectionStateChange = 'connectionstatechange',
   CreateOfferOnSuccess = 'createofferonsuccess',
   CreateAnswerOnSuccess = 'createansweronsuccess',
@@ -36,6 +37,7 @@ enum PeerConnectionEvents {
 
 interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
+  [PeerConnectionEvents.IceCandidate]: (ev: RTCPeerConnectionIceEvent) => void;
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
   [PeerConnectionEvents.CreateOfferOnSuccess]: (offer: RTCSessionDescriptionInit) => void;
   [PeerConnectionEvents.CreateAnswerOnSuccess]: (answer: RTCSessionDescriptionInit) => void;
@@ -95,6 +97,10 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
     /* eslint-disable jsdoc/require-jsdoc */
     this.pc.onicegatheringstatechange = (ev: Event) => {
       this.emit(PeerConnection.Events.IceGatheringStateChange, ev);
+    };
+
+    this.pc.onicecandidate = (ev: RTCPeerConnectionIceEvent) => {
+      this.emit(PeerConnection.Events.IceCandidate, ev);
     };
   }
 
@@ -369,4 +375,4 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
 }
 
 export { ConnectionState } from './connection-state-handler';
-export { MediaStreamTrackKind, RTCDataChannelOptions, PeerConnection };
+export { MediaStreamTrackKind, PeerConnection, RTCDataChannelOptions };
