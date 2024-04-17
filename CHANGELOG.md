@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/webex/webrtc-core/compare/v2.6.1...v2.7.0) (2024-04-17)
+
+
+### Features
+
+* expose on ice candidate event callback ([#74](https://github.com/webex/webrtc-core/issues/74)) ([c246686](https://github.com/webex/webrtc-core/commit/c246686c4c3c3294db45ee5ac0887677b72defc6))
+
 ## [2.6.1](https://github.com/webex/webrtc-core/compare/v2.6.0...v2.6.1) (2024-04-16)
 
 
