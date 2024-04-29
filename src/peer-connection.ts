@@ -102,6 +102,16 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
     this.pc.onicecandidate = (ev: RTCPeerConnectionIceEvent) => {
       this.emit(PeerConnection.Events.IceCandidate, ev);
     };
+
+    this.pc.onicecandidateerror = (ev: Event) => {
+      try {
+        const { url, errorCode, errorText } = ev as RTCPeerConnectionIceErrorEvent;
+
+        logger.warn(`ICE Candidate(${url}) error: ${errorCode}, with message: ${errorText}`);
+      } catch (error) {
+        logger.error(`Failed to log ICE Candidate error: ${error}`);
+      }
+    };
   }
 
   /**
