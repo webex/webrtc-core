@@ -29,13 +29,13 @@ describe('ConnectionStateHandler', () => {
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
     connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
-      expect(state).toStrictEqual(ConnectionState.Connecting);
+      expect(state).toStrictEqual(ConnectionState.ConnectingIce);
     });
 
     fakeIceState = 'checking';
     connStateHandler.onIceConnectionStateChange();
 
-    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.Connecting);
+    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.ConnectingIce);
   });
 
   it("updates connection state on RTCPeerConnection's connection state change", () => {
@@ -43,13 +43,13 @@ describe('ConnectionStateHandler', () => {
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
     connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
-      expect(state).toStrictEqual(ConnectionState.Connecting);
+      expect(state).toStrictEqual(ConnectionState.ConnectingIce);
     });
 
     fakeConnectionState = 'connecting';
     connStateHandler.onConnectionStateChange();
 
-    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.Connecting);
+    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.ConnectingIce);
   });
 
   // test matrix for all possible combinations of iceConnectionState and connectionState
@@ -61,28 +61,28 @@ describe('ConnectionStateHandler', () => {
     expected: ConnectionState;
   }> = [
     { iceState: 'new', connState: 'new', expected: ConnectionState.New },
-    { iceState: 'new', connState: 'connecting', expected: ConnectionState.Connecting },
-    { iceState: 'new', connState: 'connected', expected: ConnectionState.Connecting },
+    { iceState: 'new', connState: 'connecting', expected: ConnectionState.ConnectingIce },
+    { iceState: 'new', connState: 'connected', expected: ConnectionState.ConnectingIce },
     { iceState: 'new', connState: 'disconnected', expected: ConnectionState.Disconnected },
     { iceState: 'new', connState: 'failed', expected: ConnectionState.Failed },
     { iceState: 'new', connState: 'closed', expected: ConnectionState.Closed },
 
-    { iceState: 'checking', connState: 'new', expected: ConnectionState.Connecting },
-    { iceState: 'checking', connState: 'connecting', expected: ConnectionState.Connecting },
-    { iceState: 'checking', connState: 'connected', expected: ConnectionState.Connecting },
+    { iceState: 'checking', connState: 'new', expected: ConnectionState.ConnectingIce },
+    { iceState: 'checking', connState: 'connecting', expected: ConnectionState.ConnectingIce },
+    { iceState: 'checking', connState: 'connected', expected: ConnectionState.ConnectingIce },
     { iceState: 'checking', connState: 'disconnected', expected: ConnectionState.Disconnected },
     { iceState: 'checking', connState: 'failed', expected: ConnectionState.Failed },
     { iceState: 'checking', connState: 'closed', expected: ConnectionState.Closed },
 
-    { iceState: 'connected', connState: 'new', expected: ConnectionState.Connecting },
-    { iceState: 'connected', connState: 'connecting', expected: ConnectionState.Connecting },
+    { iceState: 'connected', connState: 'new', expected: ConnectionState.ConnectingIce },
+    { iceState: 'connected', connState: 'connecting', expected: ConnectionState.ConnectingDtls },
     { iceState: 'connected', connState: 'connected', expected: ConnectionState.Connected },
     { iceState: 'connected', connState: 'disconnected', expected: ConnectionState.Disconnected },
     { iceState: 'connected', connState: 'failed', expected: ConnectionState.Failed },
     { iceState: 'connected', connState: 'closed', expected: ConnectionState.Closed },
 
-    { iceState: 'completed', connState: 'new', expected: ConnectionState.Connecting },
-    { iceState: 'completed', connState: 'connecting', expected: ConnectionState.Connecting },
+    { iceState: 'completed', connState: 'new', expected: ConnectionState.ConnectingIce },
+    { iceState: 'completed', connState: 'connecting', expected: ConnectionState.ConnectingDtls },
     { iceState: 'completed', connState: 'connected', expected: ConnectionState.Connected },
     { iceState: 'completed', connState: 'disconnected', expected: ConnectionState.Disconnected },
     { iceState: 'completed', connState: 'failed', expected: ConnectionState.Failed },

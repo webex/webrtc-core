@@ -6,7 +6,8 @@ export enum ConnectionState {
   New = 'New', // connection attempt has not been started
   Closed = 'Closed', // connection closed, there is no way to move out of this state
   Connected = 'Connected', // both ICE and DTLS connections are established, media is flowing
-  Connecting = 'Connecting', // initial connection attempt in progress
+  ConnectingIce = 'ConnectingIce', // initial connection attempt in progress
+  ConnectingDtls = 'ConnectingDtls', // initial connection attempt in progress
   Disconnected = 'Disconnected', // connection lost temporarily, the browser is trying to re-establish it automatically
   Failed = 'Failed', // connection failed, an ICE restart is required
 }
@@ -96,8 +97,13 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
       mediaConnectionState = ConnectionState.Disconnected;
     } else if (connectionStates.every((value) => value === 'connected' || value === 'completed')) {
       mediaConnectionState = ConnectionState.Connected;
+    } else if (
+      (iceState === 'connected' || iceState === 'completed') &&
+      connectionState === 'connecting'
+    ) {
+      mediaConnectionState = ConnectionState.ConnectingDtls;
     } else {
-      mediaConnectionState = ConnectionState.Connecting;
+      mediaConnectionState = ConnectionState.ConnectingIce;
     }
 
     logger.log(

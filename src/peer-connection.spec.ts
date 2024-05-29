@@ -234,7 +234,7 @@ describe('PeerConnection', () => {
       const connectionStateHandler = getInstantiatedConnectionStateHandler();
 
       pc.on(PeerConnection.Events.ConnectionStateChange, (state) => {
-        expect(state).toStrictEqual(ConnectionState.Connecting);
+        expect(state).toStrictEqual(ConnectionState.ConnectingIce);
       });
 
       // verify that PeerConnection listens for the right event
@@ -244,7 +244,7 @@ describe('PeerConnection', () => {
 
       // trigger the fake event from ConnectionStateHandler
       const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[0][1];
-      connectionStateHandlerListener(ConnectionState.Connecting);
+      connectionStateHandlerListener(ConnectionState.ConnectingIce);
     });
   });
   describe('createAnswer', () => {
