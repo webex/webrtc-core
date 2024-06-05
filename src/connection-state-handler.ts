@@ -11,12 +11,24 @@ export enum ConnectionState {
   Failed = 'Failed', // connection failed, an ICE restart is required
 }
 
+export enum IceConnectionState {
+  New = 'New',
+  Checking = 'Checking',
+  Connected = 'Connected',
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Disconnected = 'Disconnected',
+  Closed = 'Closed',
+}
+
 enum ConnectionStateEvents {
   ConnectionStateChanged = 'ConnectionStateChanged',
+  IceConnectionStateChanged = 'IceConnectionStateChanged',
 }
 
 interface ConnectionStateEventHandlers extends EventMap {
   [ConnectionStateEvents.ConnectionStateChanged]: (state: ConnectionState) => void;
+  [ConnectionStateEvents.IceConnectionStateChanged]: (state: IceConnectionState) => void;
 }
 
 type GetCurrentStatesCallback = () => {
@@ -58,6 +70,7 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    * Handler for ice connection state change.
    */
   public onIceConnectionStateChange(): void {
+    this.handleIceConnectionStateChange();
     this.handleAnyConnectionStateChange();
   }
 
@@ -114,5 +127,42 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    */
   public getConnectionState(): ConnectionState {
     return this.mediaConnectionState;
+  }
+
+  /**
+   * Method to be called whenever ice connection state is changed.
+   */
+  private handleIceConnectionStateChange() {
+    const { iceState } = this.getCurrentStatesCallback();
+
+    let iceConnectionState: IceConnectionState;
+
+    switch (iceState) {
+      case 'new':
+        iceConnectionState = IceConnectionState.New;
+        break;
+      case 'checking':
+        iceConnectionState = IceConnectionState.Checking;
+        break;
+      case 'connected':
+        iceConnectionState = IceConnectionState.Connected;
+        break;
+      case 'completed':
+        iceConnectionState = IceConnectionState.Completed;
+        break;
+      case 'failed':
+        iceConnectionState = IceConnectionState.Failed;
+        break;
+      case 'disconnected':
+        iceConnectionState = IceConnectionState.Disconnected;
+        break;
+      case 'closed':
+        iceConnectionState = IceConnectionState.Closed;
+        break;
+      default:
+        iceConnectionState = IceConnectionState.New;
+    }
+
+    this.emit(ConnectionStateEvents.IceConnectionStateChanged, iceConnectionState);
   }
 }

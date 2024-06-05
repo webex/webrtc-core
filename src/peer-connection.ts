@@ -1,5 +1,9 @@
 import { BrowserInfo } from '@webex/web-capabilities';
-import { ConnectionState, ConnectionStateHandler } from './connection-state-handler';
+import {
+  ConnectionState,
+  ConnectionStateHandler,
+  IceConnectionState,
+} from './connection-state-handler';
 import { EventEmitter, EventMap } from './event-emitter';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
 import { logger } from './util/logger';
@@ -29,6 +33,7 @@ enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
   IceCandidate = 'icecandidate',
   ConnectionStateChange = 'connectionstatechange',
+  IceConnectionStateChange = 'iceconnectionstatechange',
   CreateOfferOnSuccess = 'createofferonsuccess',
   CreateAnswerOnSuccess = 'createansweronsuccess',
   SetLocalDescriptionOnSuccess = 'setlocaldescriptiononsuccess',
@@ -39,6 +44,7 @@ interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
   [PeerConnectionEvents.IceCandidate]: (ev: RTCPeerConnectionIceEvent) => void;
   [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
+  [PeerConnectionEvents.IceConnectionStateChange]: (state: IceConnectionState) => void;
   [PeerConnectionEvents.CreateOfferOnSuccess]: (offer: RTCSessionDescriptionInit) => void;
   [PeerConnectionEvents.CreateAnswerOnSuccess]: (answer: RTCSessionDescriptionInit) => void;
   [PeerConnectionEvents.SetLocalDescriptionOnSuccess]: (
