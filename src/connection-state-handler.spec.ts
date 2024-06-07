@@ -1,4 +1,8 @@
-import { ConnectionState, ConnectionStateHandler } from './connection-state-handler';
+import {
+  ConnectionState,
+  ConnectionStateHandler,
+  IceConnectionState,
+} from './connection-state-handler';
 
 describe('ConnectionStateHandler', () => {
   let fakeIceState: RTCIceConnectionState;
@@ -24,18 +28,25 @@ describe('ConnectionStateHandler', () => {
     expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.New);
   });
 
-  it('updates connection state on ice connection state change and emits the event', () => {
+  it('reads initial ice connection state', () => {
+    expect.assertions(1);
+    const connStateHandler = new ConnectionStateHandler(fakeCallback);
+
+    expect(connStateHandler.getIceConnectionState()).toStrictEqual(IceConnectionState.New);
+  });
+
+  it('updates ice connection state on ice connection state change and emits the event', () => {
     expect.assertions(2);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
-      expect(state).toStrictEqual(ConnectionState.Connecting);
+    connStateHandler.on(ConnectionStateHandler.Events.IceConnectionStateChanged, (state) => {
+      expect(state).toStrictEqual(IceConnectionState.Checking);
     });
 
     fakeIceState = 'checking';
     connStateHandler.onIceConnectionStateChange();
 
-    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.Connecting);
+    expect(connStateHandler.getIceConnectionState()).toStrictEqual(IceConnectionState.Checking);
   });
 
   it("updates connection state on RTCPeerConnection's connection state change", () => {
@@ -118,10 +129,7 @@ describe('ConnectionStateHandler', () => {
       fakeConnectionState = connState;
       fakeIceState = iceState;
 
-      // it's sufficient to trigger just one of the callbacks
-      connStateHandler.onConnectionStateChange();
-
-      expect(connStateHandler.getConnectionState()).toStrictEqual(expected);
+      expect(connStateHandler.getOverallConnectionState()).toStrictEqual(expected);
     })
   );
 });

@@ -1,6 +1,10 @@
 import { BrowserInfo } from '@webex/web-capabilities';
 import { MockedObjectDeep } from 'ts-jest';
-import { ConnectionState, ConnectionStateHandler } from './connection-state-handler';
+import {
+  ConnectionState,
+  ConnectionStateHandler,
+  IceConnectionState,
+} from './connection-state-handler';
 import { mocked } from './mocks/mock';
 import { RTCPeerConnectionStub } from './mocks/rtc-peer-connection-stub';
 import { PeerConnection } from './peer-connection';
@@ -245,6 +249,23 @@ describe('PeerConnection', () => {
       // trigger the fake event from ConnectionStateHandler
       const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[0][1];
       connectionStateHandlerListener(ConnectionState.Connecting);
+    });
+    it("listens on ConnectionStateHandler's IceConnectionStateChange event and emits it", () => {
+      expect.assertions(2);
+      const connectionStateHandler = getInstantiatedConnectionStateHandler();
+
+      pc.on(PeerConnection.Events.IceConnectionStateChange, (state) => {
+        expect(state).toStrictEqual(IceConnectionState.Checking);
+      });
+
+      // verify that PeerConnection listens for the right event
+      expect(connectionStateHandler.on.mock.calls[0][0]).toStrictEqual(
+        ConnectionStateHandler.Events.IceConnectionStateChanged
+      );
+
+      // trigger the fake event from ConnectionStateHandler
+      const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[0][1];
+      connectionStateHandlerListener(IceConnectionState.Checking);
     });
   });
   describe('createAnswer', () => {

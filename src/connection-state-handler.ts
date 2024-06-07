@@ -1,7 +1,15 @@
 import { EventEmitter, EventMap } from './event-emitter';
 import { logger } from './util/logger';
 
-// Overall connection state (based on the ICE and DTLS connection states)
+export enum OverallConnectionState {
+  New = 'New',
+  Connecting = 'Connecting',
+  Connected = 'Connected',
+  Disconnected = 'Disconnected',
+  Failed = 'Failed',
+  Closed = 'Closed',
+}
+
 export enum ConnectionState {
   New = 'New', // connection attempt has not been started
   Closed = 'Closed', // connection closed, there is no way to move out of this state
@@ -11,12 +19,24 @@ export enum ConnectionState {
   Failed = 'Failed', // connection failed, an ICE restart is required
 }
 
+export enum IceConnectionState {
+  New = 'New',
+  Checking = 'Checking',
+  Connected = 'Connected',
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Disconnected = 'Disconnected',
+  Closed = 'Closed',
+}
+
 enum ConnectionStateEvents {
   ConnectionStateChanged = 'ConnectionStateChanged',
+  IceConnectionStateChanged = 'IceConnectionStateChanged',
 }
 
 interface ConnectionStateEventHandlers extends EventMap {
   [ConnectionStateEvents.ConnectionStateChanged]: (state: ConnectionState) => void;
+  [ConnectionStateEvents.IceConnectionStateChanged]: (state: IceConnectionState) => void;
 }
 
 type GetCurrentStatesCallback = () => {
@@ -31,8 +51,6 @@ type GetCurrentStatesCallback = () => {
 export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHandlers> {
   static Events = ConnectionStateEvents;
 
-  private mediaConnectionState: ConnectionState;
-
   private getCurrentStatesCallback: GetCurrentStatesCallback;
 
   /**
@@ -44,33 +62,26 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
   constructor(getCurrentStatesCallback: GetCurrentStatesCallback) {
     super();
     this.getCurrentStatesCallback = getCurrentStatesCallback;
-    this.mediaConnectionState = this.evaluateMediaConnectionState();
   }
 
   /**
    * Handler for connection state change.
    */
   public onConnectionStateChange(): void {
-    this.handleAnyConnectionStateChange();
+    const state = this.getConnectionState();
+
+    this.emit(ConnectionStateEvents.ConnectionStateChanged, state as ConnectionState);
   }
 
   /**
    * Handler for ice connection state change.
    */
   public onIceConnectionStateChange(): void {
-    this.handleAnyConnectionStateChange();
-  }
+    const { iceState } = this.getCurrentStatesCallback();
 
-  /**
-   * Method to be called whenever ice connection or dtls connection state is changed.
-   */
-  private handleAnyConnectionStateChange() {
-    const newConnectionState = this.evaluateMediaConnectionState();
+    const state = iceState[0].toUpperCase() + iceState.slice(1);
 
-    if (newConnectionState !== this.mediaConnectionState) {
-      this.mediaConnectionState = newConnectionState;
-      this.emit(ConnectionStateEvents.ConnectionStateChanged, this.mediaConnectionState);
-    }
+    this.emit(ConnectionStateEvents.IceConnectionStateChanged, state as IceConnectionState);
   }
 
   /**
@@ -79,25 +90,25 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *
    * @returns Current overall connection state.
    */
-  private evaluateMediaConnectionState() {
+  private evaluateMediaConnectionState(): OverallConnectionState {
     const { connectionState, iceState } = this.getCurrentStatesCallback();
 
     const connectionStates = [connectionState, iceState];
 
-    let mediaConnectionState;
+    let mediaConnectionState: OverallConnectionState;
 
     if (connectionStates.every((value) => value === 'new')) {
-      mediaConnectionState = ConnectionState.New;
+      mediaConnectionState = OverallConnectionState.New;
     } else if (connectionStates.some((value) => value === 'closed')) {
-      mediaConnectionState = ConnectionState.Closed;
+      mediaConnectionState = OverallConnectionState.Closed;
     } else if (connectionStates.some((value) => value === 'failed')) {
-      mediaConnectionState = ConnectionState.Failed;
+      mediaConnectionState = OverallConnectionState.Failed;
     } else if (connectionStates.some((value) => value === 'disconnected')) {
-      mediaConnectionState = ConnectionState.Disconnected;
+      mediaConnectionState = OverallConnectionState.Disconnected;
     } else if (connectionStates.every((value) => value === 'connected' || value === 'completed')) {
-      mediaConnectionState = ConnectionState.Connected;
+      mediaConnectionState = OverallConnectionState.Connected;
     } else {
-      mediaConnectionState = ConnectionState.Connecting;
+      mediaConnectionState = OverallConnectionState.Connecting;
     }
 
     logger.log(
@@ -113,6 +124,32 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    * @returns Current connection state.
    */
   public getConnectionState(): ConnectionState {
-    return this.mediaConnectionState;
+    const { connectionState } = this.getCurrentStatesCallback();
+
+    const state = connectionState[0].toUpperCase() + connectionState.slice(1);
+
+    return state as ConnectionState;
+  }
+
+  /**
+   * Gets current ice connection state.
+   *
+   * @returns Current ice connection state.
+   */
+  public getIceConnectionState(): IceConnectionState {
+    const { iceState } = this.getCurrentStatesCallback();
+
+    const state = iceState[0].toUpperCase() + iceState.slice(1);
+
+    return state as IceConnectionState;
+  }
+
+  /**
+   * Gets current overall connection state.
+   *
+   * @returns Current overall connection state.
+   */
+  public getOverallConnectionState(): OverallConnectionState {
+    return this.evaluateMediaConnectionState();
   }
 }
