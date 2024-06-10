@@ -1,10 +1,6 @@
 import { BrowserInfo } from '@webex/web-capabilities';
 import { MockedObjectDeep } from 'ts-jest';
-import {
-  ConnectionState,
-  ConnectionStateHandler,
-  IceConnectionState,
-} from './connection-state-handler';
+import { ConnectionStateHandler } from './connection-state-handler';
 import { mocked } from './mocks/mock';
 import { RTCPeerConnectionStub } from './mocks/rtc-peer-connection-stub';
 import { PeerConnection } from './peer-connection';
@@ -223,39 +219,39 @@ describe('PeerConnection', () => {
 
       mockPc.onconnectionstatechange();
 
-      expect(connectionStateHandler.onConnectionStateChange).toHaveBeenCalledTimes(1);
+      expect(connectionStateHandler.onPeerConnectionStateChange).toHaveBeenCalledTimes(1);
     });
     it('returns connection state from connection state handler when geConnectionState() is called', () => {
       expect.assertions(2);
       const connectionStateHandler = getInstantiatedConnectionStateHandler();
-      connectionStateHandler.getConnectionState.mockReturnValueOnce(ConnectionState.Connected);
+      connectionStateHandler.getConnectionState.mockReturnValueOnce('connected');
 
-      expect(pc.getConnectionState()).toStrictEqual(ConnectionState.Connected);
+      expect(pc.getConnectionState()).toBe('connected');
       expect(connectionStateHandler.getConnectionState).toHaveBeenCalledTimes(1);
     });
-    it("listens on ConnectionStateHandler's ConnectionStateChange event and emits it", () => {
+    it("listens on ConnectionStateHandler's PeerConnectionStateChange event and emits it", () => {
       expect.assertions(2);
       const connectionStateHandler = getInstantiatedConnectionStateHandler();
 
-      pc.on(PeerConnection.Events.ConnectionStateChange, (state) => {
-        expect(state).toStrictEqual(ConnectionState.Connecting);
+      pc.on(PeerConnection.Events.PeerConnectionStateChange, (state) => {
+        expect(state).toBe('connecting');
       });
 
       // verify that PeerConnection listens for the right event
       expect(connectionStateHandler.on.mock.calls[0][0]).toStrictEqual(
-        ConnectionStateHandler.Events.ConnectionStateChanged
+        ConnectionStateHandler.Events.PeerConnectionStateChanged
       );
 
       // trigger the fake event from ConnectionStateHandler
       const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[0][1];
-      connectionStateHandlerListener(ConnectionState.Connecting);
+      connectionStateHandlerListener('connecting');
     });
     it("listens on ConnectionStateHandler's IceConnectionStateChange event and emits it", () => {
       expect.assertions(2);
       const connectionStateHandler = getInstantiatedConnectionStateHandler();
 
       pc.on(PeerConnection.Events.IceConnectionStateChange, (state) => {
-        expect(state).toStrictEqual(IceConnectionState.Checking);
+        expect(state).toBe('checking');
       });
 
       // verify that PeerConnection listens for the right event
@@ -265,7 +261,7 @@ describe('PeerConnection', () => {
 
       // trigger the fake event from ConnectionStateHandler
       const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[1][1];
-      connectionStateHandlerListener(IceConnectionState.Checking);
+      connectionStateHandlerListener('checking');
     });
   });
   describe('createAnswer', () => {

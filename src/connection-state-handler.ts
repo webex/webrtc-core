@@ -1,15 +1,7 @@
 import { EventEmitter, EventMap } from './event-emitter';
 import { logger } from './util/logger';
 
-export enum OverallConnectionState {
-  New = 'New',
-  Connecting = 'Connecting',
-  Connected = 'Connected',
-  Disconnected = 'Disconnected',
-  Failed = 'Failed',
-  Closed = 'Closed',
-}
-
+// Overall connection state (based on the ICE and DTLS connection states)
 export enum ConnectionState {
   New = 'New', // connection attempt has not been started
   Closed = 'Closed', // connection closed, there is no way to move out of this state
@@ -19,24 +11,14 @@ export enum ConnectionState {
   Failed = 'Failed', // connection failed, an ICE restart is required
 }
 
-export enum IceConnectionState {
-  New = 'New',
-  Checking = 'Checking',
-  Connected = 'Connected',
-  Completed = 'Completed',
-  Failed = 'Failed',
-  Disconnected = 'Disconnected',
-  Closed = 'Closed',
-}
-
 enum ConnectionStateEvents {
-  ConnectionStateChanged = 'ConnectionStateChanged',
+  PeerConnectionStateChanged = 'PeerConnectionStateChanged',
   IceConnectionStateChanged = 'IceConnectionStateChanged',
 }
 
 interface ConnectionStateEventHandlers extends EventMap {
-  [ConnectionStateEvents.ConnectionStateChanged]: (state: ConnectionState) => void;
-  [ConnectionStateEvents.IceConnectionStateChanged]: (state: IceConnectionState) => void;
+  [ConnectionStateEvents.PeerConnectionStateChanged]: (state: RTCPeerConnectionState) => void;
+  [ConnectionStateEvents.IceConnectionStateChanged]: (state: RTCIceConnectionState) => void;
 }
 
 type GetCurrentStatesCallback = () => {
@@ -67,10 +49,10 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
   /**
    * Handler for connection state change.
    */
-  public onConnectionStateChange(): void {
-    const state = this.getConnectionState();
+  public onPeerConnectionStateChange(): void {
+    const state = this.getPeerConnectionState();
 
-    this.emit(ConnectionStateEvents.ConnectionStateChanged, state);
+    this.emit(ConnectionStateEvents.PeerConnectionStateChanged, state);
   }
 
   /**
@@ -88,25 +70,25 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *
    * @returns Current overall connection state.
    */
-  private evaluateMediaConnectionState(): OverallConnectionState {
+  private evaluateMediaConnectionState(): ConnectionState {
     const { connectionState, iceState } = this.getCurrentStatesCallback();
 
     const connectionStates = [connectionState, iceState];
 
-    let mediaConnectionState: OverallConnectionState;
+    let mediaConnectionState: ConnectionState;
 
     if (connectionStates.every((value) => value === 'new')) {
-      mediaConnectionState = OverallConnectionState.New;
+      mediaConnectionState = ConnectionState.New;
     } else if (connectionStates.some((value) => value === 'closed')) {
-      mediaConnectionState = OverallConnectionState.Closed;
+      mediaConnectionState = ConnectionState.Closed;
     } else if (connectionStates.some((value) => value === 'failed')) {
-      mediaConnectionState = OverallConnectionState.Failed;
+      mediaConnectionState = ConnectionState.Failed;
     } else if (connectionStates.some((value) => value === 'disconnected')) {
-      mediaConnectionState = OverallConnectionState.Disconnected;
+      mediaConnectionState = ConnectionState.Disconnected;
     } else if (connectionStates.every((value) => value === 'connected' || value === 'completed')) {
-      mediaConnectionState = OverallConnectionState.Connected;
+      mediaConnectionState = ConnectionState.Connected;
     } else {
-      mediaConnectionState = OverallConnectionState.Connecting;
+      mediaConnectionState = ConnectionState.Connecting;
     }
 
     logger.log(
@@ -121,12 +103,10 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *
    * @returns Current connection state.
    */
-  public getConnectionState(): ConnectionState {
+  public getPeerConnectionState(): RTCPeerConnectionState {
     const { connectionState } = this.getCurrentStatesCallback();
 
-    const state = connectionState[0].toUpperCase() + connectionState.slice(1);
-
-    return state as ConnectionState;
+    return connectionState;
   }
 
   /**
@@ -134,12 +114,10 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *
    * @returns Current ice connection state.
    */
-  public getIceConnectionState(): IceConnectionState {
+  public getIceConnectionState(): RTCIceConnectionState {
     const { iceState } = this.getCurrentStatesCallback();
 
-    const state = iceState[0].toUpperCase() + iceState.slice(1);
-
-    return state as IceConnectionState;
+    return iceState;
   }
 
   /**
@@ -147,7 +125,7 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *
    * @returns Current overall connection state.
    */
-  public getOverallConnectionState(): OverallConnectionState {
+  public getConnectionState(): ConnectionState {
     return this.evaluateMediaConnectionState();
   }
 }

@@ -1,8 +1,4 @@
-import {
-  ConnectionState,
-  ConnectionStateHandler,
-  IceConnectionState,
-} from './connection-state-handler';
+import { ConnectionState, ConnectionStateHandler } from './connection-state-handler';
 
 describe('ConnectionStateHandler', () => {
   let fakeIceState: RTCIceConnectionState;
@@ -21,18 +17,25 @@ describe('ConnectionStateHandler', () => {
     fakeConnectionState = 'new';
   });
 
-  it('reads initial connection state', () => {
+  it('reads initial peer connection state', () => {
     expect.assertions(1);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.New);
+    expect(connStateHandler.getPeerConnectionState()).toBe('new');
   });
 
   it('reads initial ice connection state', () => {
     expect.assertions(1);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    expect(connStateHandler.getIceConnectionState()).toStrictEqual(IceConnectionState.New);
+    expect(connStateHandler.getIceConnectionState()).toBe('new');
+  });
+
+  it('reads initial connection state', () => {
+    expect.assertions(1);
+    const connStateHandler = new ConnectionStateHandler(fakeCallback);
+
+    expect(connStateHandler.getConnectionState()).toBe('New');
   });
 
   it('updates ice connection state on ice connection state change and emits the event', () => {
@@ -40,63 +43,27 @@ describe('ConnectionStateHandler', () => {
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
     connStateHandler.on(ConnectionStateHandler.Events.IceConnectionStateChanged, (state) => {
-      expect(state).toStrictEqual(IceConnectionState.Checking);
+      expect(state).toBe('checking');
     });
 
     fakeIceState = 'checking';
     connStateHandler.onIceConnectionStateChange();
 
-    expect(connStateHandler.getIceConnectionState()).toStrictEqual(IceConnectionState.Checking);
+    expect(connStateHandler.getIceConnectionState()).toBe('checking');
   });
 
   it("updates connection state on RTCPeerConnection's connection state change", () => {
     expect.assertions(2);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
-      expect(state).toStrictEqual(ConnectionState.Connecting);
+    connStateHandler.on(ConnectionStateHandler.Events.PeerConnectionStateChanged, (state) => {
+      expect(state).toBe('connecting');
     });
 
     fakeConnectionState = 'connecting';
-    connStateHandler.onConnectionStateChange();
+    connStateHandler.onPeerConnectionStateChange();
 
-    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.Connecting);
-  });
-
-  [
-    { iceState: 'new', expected: IceConnectionState.New },
-    { iceState: 'checking', expected: IceConnectionState.Checking },
-    { iceState: 'connected', expected: IceConnectionState.Connected },
-    { iceState: 'completed', expected: IceConnectionState.Completed },
-    { iceState: 'failed', expected: IceConnectionState.Failed },
-    { iceState: 'disconnected', expected: IceConnectionState.Disconnected },
-  ].forEach(({ iceState, expected }) => {
-    it(`evaluates iceConnectionState to ${expected} when ice state = ${iceState}`, () => {
-      expect.assertions(1);
-      const connStateHandler = new ConnectionStateHandler(fakeCallback);
-
-      fakeIceState = iceState as RTCIceConnectionState;
-
-      expect(connStateHandler.getIceConnectionState()).toStrictEqual(expected);
-    });
-  });
-
-  [
-    { connState: 'new', expected: ConnectionState.New },
-    { connState: 'connecting', expected: ConnectionState.Connecting },
-    { connState: 'connected', expected: ConnectionState.Connected },
-    { connState: 'disconnected', expected: ConnectionState.Disconnected },
-    { connState: 'failed', expected: ConnectionState.Failed },
-    { connState: 'closed', expected: ConnectionState.Closed },
-  ].forEach(({ connState, expected }) => {
-    it(`evaluates ConnectionState to ${expected} when connection state = ${connState}`, () => {
-      expect.assertions(1);
-      const connStateHandler = new ConnectionStateHandler(fakeCallback);
-
-      fakeConnectionState = connState as RTCPeerConnectionState;
-
-      expect(connStateHandler.getConnectionState()).toStrictEqual(expected);
-    });
+    expect(connStateHandler.getPeerConnectionState()).toBe('connecting');
   });
 
   // test matrix for all possible combinations of iceConnectionState and connectionState
@@ -165,7 +132,7 @@ describe('ConnectionStateHandler', () => {
       fakeConnectionState = connState;
       fakeIceState = iceState;
 
-      expect(connStateHandler.getOverallConnectionState()).toStrictEqual(expected);
+      expect(connStateHandler.getConnectionState()).toStrictEqual(expected);
     })
   );
 });
