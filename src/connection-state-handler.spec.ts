@@ -63,6 +63,42 @@ describe('ConnectionStateHandler', () => {
     expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.Connecting);
   });
 
+  [
+    { iceState: 'new', expected: IceConnectionState.New },
+    { iceState: 'checking', expected: IceConnectionState.Checking },
+    { iceState: 'connected', expected: IceConnectionState.Connected },
+    { iceState: 'completed', expected: IceConnectionState.Completed },
+    { iceState: 'failed', expected: IceConnectionState.Failed },
+    { iceState: 'disconnected', expected: IceConnectionState.Disconnected },
+  ].forEach(({ iceState, expected }) => {
+    it(`evaluates iceConnectionState to ${expected} when ice state = ${iceState}`, () => {
+      expect.assertions(1);
+      const connStateHandler = new ConnectionStateHandler(fakeCallback);
+
+      fakeIceState = iceState as RTCIceConnectionState;
+
+      expect(connStateHandler.getIceConnectionState()).toStrictEqual(expected);
+    });
+  });
+
+  [
+    { connState: 'new', expected: ConnectionState.New },
+    { connState: 'connecting', expected: ConnectionState.Connecting },
+    { connState: 'connected', expected: ConnectionState.Connected },
+    { connState: 'disconnected', expected: ConnectionState.Disconnected },
+    { connState: 'failed', expected: ConnectionState.Failed },
+    { connState: 'closed', expected: ConnectionState.Closed },
+  ].forEach(({ connState, expected }) => {
+    it(`evaluates ConnectionState to ${expected} when connection state = ${connState}`, () => {
+      expect.assertions(1);
+      const connStateHandler = new ConnectionStateHandler(fakeCallback);
+
+      fakeConnectionState = connState as RTCPeerConnectionState;
+
+      expect(connStateHandler.getConnectionState()).toStrictEqual(expected);
+    });
+  });
+
   // test matrix for all possible combinations of iceConnectionState and connectionState
   // some of these cases theoretically should never happen (like iceState: 'closed', connState: 'connected' )
   // but we test them anyway for completeness

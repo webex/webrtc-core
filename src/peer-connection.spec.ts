@@ -259,12 +259,12 @@ describe('PeerConnection', () => {
       });
 
       // verify that PeerConnection listens for the right event
-      expect(connectionStateHandler.on.mock.calls[0][0]).toStrictEqual(
+      expect(connectionStateHandler.on.mock.calls[1][0]).toStrictEqual(
         ConnectionStateHandler.Events.IceConnectionStateChanged
       );
 
       // trigger the fake event from ConnectionStateHandler
-      const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[0][1];
+      const connectionStateHandlerListener = connectionStateHandler.on.mock.calls[1][1];
       connectionStateHandlerListener(IceConnectionState.Checking);
     });
   });

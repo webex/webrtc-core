@@ -70,18 +70,16 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
   public onConnectionStateChange(): void {
     const state = this.getConnectionState();
 
-    this.emit(ConnectionStateEvents.ConnectionStateChanged, state as ConnectionState);
+    this.emit(ConnectionStateEvents.ConnectionStateChanged, state);
   }
 
   /**
    * Handler for ice connection state change.
    */
   public onIceConnectionStateChange(): void {
-    const { iceState } = this.getCurrentStatesCallback();
+    const state = this.getIceConnectionState();
 
-    const state = iceState[0].toUpperCase() + iceState.slice(1);
-
-    this.emit(ConnectionStateEvents.IceConnectionStateChanged, state as IceConnectionState);
+    this.emit(ConnectionStateEvents.IceConnectionStateChanged, state);
   }
 
   /**
