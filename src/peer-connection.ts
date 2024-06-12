@@ -109,6 +109,7 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
       this.emit(PeerConnection.Events.IceGatheringStateChange, ev);
     };
 
+    /* eslint-disable jsdoc/require-jsdoc */
     this.pc.onicecandidate = (ev: RTCPeerConnectionIceEvent) => {
       this.emit(PeerConnection.Events.IceCandidate, ev);
     };
