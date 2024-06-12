@@ -35,7 +35,7 @@ describe('ConnectionStateHandler', () => {
     expect.assertions(1);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    expect(connStateHandler.getConnectionState()).toBe('New');
+    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.New);
   });
 
   it('updates ice connection state on ice connection state change and emits the event', () => {
