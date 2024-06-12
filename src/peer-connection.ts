@@ -28,7 +28,8 @@ type IceGatheringStateChangeEvent = {
 enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
   IceCandidate = 'icecandidate',
-  ConnectionStateChange = 'connectionstatechange',
+  PeerConnectionStateChange = 'peerconnectionstatechange',
+  IceConnectionStateChange = 'iceconnectionstatechange',
   CreateOfferOnSuccess = 'createofferonsuccess',
   CreateAnswerOnSuccess = 'createansweronsuccess',
   SetLocalDescriptionOnSuccess = 'setlocaldescriptiononsuccess',
@@ -38,7 +39,8 @@ enum PeerConnectionEvents {
 interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
   [PeerConnectionEvents.IceCandidate]: (ev: RTCPeerConnectionIceEvent) => void;
-  [PeerConnectionEvents.ConnectionStateChange]: (state: ConnectionState) => void;
+  [PeerConnectionEvents.PeerConnectionStateChange]: (state: RTCPeerConnectionState) => void;
+  [PeerConnectionEvents.IceConnectionStateChange]: (state: RTCIceConnectionState) => void;
   [PeerConnectionEvents.CreateOfferOnSuccess]: (offer: RTCSessionDescriptionInit) => void;
   [PeerConnectionEvents.CreateAnswerOnSuccess]: (answer: RTCSessionDescriptionInit) => void;
   [PeerConnectionEvents.SetLocalDescriptionOnSuccess]: (
@@ -79,9 +81,16 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
     });
 
     this.connectionStateHandler.on(
-      ConnectionStateHandler.Events.ConnectionStateChanged,
-      (state: ConnectionState) => {
-        this.emit(PeerConnection.Events.ConnectionStateChange, state);
+      ConnectionStateHandler.Events.PeerConnectionStateChanged,
+      (state: RTCPeerConnectionState) => {
+        this.emit(PeerConnection.Events.PeerConnectionStateChange, state);
+      }
+    );
+
+    this.connectionStateHandler.on(
+      ConnectionStateHandler.Events.IceConnectionStateChanged,
+      (state: RTCIceConnectionState) => {
+        this.emit(PeerConnection.Events.IceConnectionStateChange, state);
       }
     );
 
@@ -91,7 +100,8 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
       this.connectionStateHandler.onIceConnectionStateChange();
 
     // eslint-disable-next-line jsdoc/require-jsdoc
-    this.pc.onconnectionstatechange = () => this.connectionStateHandler.onConnectionStateChange();
+    this.pc.onconnectionstatechange = () =>
+      this.connectionStateHandler.onPeerConnectionStateChange();
 
     // Subscribe to underlying PeerConnection events and emit them via the EventEmitter
     /* eslint-disable jsdoc/require-jsdoc */
@@ -120,6 +130,24 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    */
   getConnectionState(): ConnectionState {
     return this.connectionStateHandler.getConnectionState();
+  }
+
+  /**
+   * Gets the connection state of the underlying RTCPeerConnection.
+   *
+   * @returns The underlying RTCPeerConnection connection state.
+   */
+  getPeerConnectionState(): RTCPeerConnectionState {
+    return this.connectionStateHandler.getPeerConnectionState();
+  }
+
+  /**
+   * Gets the ICE connection state of the underlying RTCPeerConnection.
+   *
+   * @returns The underlying RTCPeerConnection ICE connection state.
+   */
+  getIceConnectionState(): RTCIceConnectionState {
+    return this.connectionStateHandler.getIceConnectionState();
   }
 
   /**

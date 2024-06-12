@@ -12,11 +12,13 @@ export enum ConnectionState {
 }
 
 enum ConnectionStateEvents {
-  ConnectionStateChanged = 'ConnectionStateChanged',
+  PeerConnectionStateChanged = 'PeerConnectionStateChanged',
+  IceConnectionStateChanged = 'IceConnectionStateChanged',
 }
 
 interface ConnectionStateEventHandlers extends EventMap {
-  [ConnectionStateEvents.ConnectionStateChanged]: (state: ConnectionState) => void;
+  [ConnectionStateEvents.PeerConnectionStateChanged]: (state: RTCPeerConnectionState) => void;
+  [ConnectionStateEvents.IceConnectionStateChanged]: (state: RTCIceConnectionState) => void;
 }
 
 type GetCurrentStatesCallback = () => {
@@ -31,8 +33,6 @@ type GetCurrentStatesCallback = () => {
 export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHandlers> {
   static Events = ConnectionStateEvents;
 
-  private mediaConnectionState: ConnectionState;
-
   private getCurrentStatesCallback: GetCurrentStatesCallback;
 
   /**
@@ -44,33 +44,24 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
   constructor(getCurrentStatesCallback: GetCurrentStatesCallback) {
     super();
     this.getCurrentStatesCallback = getCurrentStatesCallback;
-    this.mediaConnectionState = this.evaluateMediaConnectionState();
   }
 
   /**
    * Handler for connection state change.
    */
-  public onConnectionStateChange(): void {
-    this.handleAnyConnectionStateChange();
+  public onPeerConnectionStateChange(): void {
+    const state = this.getPeerConnectionState();
+
+    this.emit(ConnectionStateEvents.PeerConnectionStateChanged, state);
   }
 
   /**
    * Handler for ice connection state change.
    */
   public onIceConnectionStateChange(): void {
-    this.handleAnyConnectionStateChange();
-  }
+    const state = this.getIceConnectionState();
 
-  /**
-   * Method to be called whenever ice connection or dtls connection state is changed.
-   */
-  private handleAnyConnectionStateChange() {
-    const newConnectionState = this.evaluateMediaConnectionState();
-
-    if (newConnectionState !== this.mediaConnectionState) {
-      this.mediaConnectionState = newConnectionState;
-      this.emit(ConnectionStateEvents.ConnectionStateChanged, this.mediaConnectionState);
-    }
+    this.emit(ConnectionStateEvents.IceConnectionStateChanged, state);
   }
 
   /**
@@ -79,12 +70,12 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *
    * @returns Current overall connection state.
    */
-  private evaluateMediaConnectionState() {
+  private evaluateMediaConnectionState(): ConnectionState {
     const { connectionState, iceState } = this.getCurrentStatesCallback();
 
     const connectionStates = [connectionState, iceState];
 
-    let mediaConnectionState;
+    let mediaConnectionState: ConnectionState;
 
     if (connectionStates.every((value) => value === 'new')) {
       mediaConnectionState = ConnectionState.New;
@@ -112,7 +103,29 @@ export class ConnectionStateHandler extends EventEmitter<ConnectionStateEventHan
    *
    * @returns Current connection state.
    */
+  public getPeerConnectionState(): RTCPeerConnectionState {
+    const { connectionState } = this.getCurrentStatesCallback();
+
+    return connectionState;
+  }
+
+  /**
+   * Gets current ice connection state.
+   *
+   * @returns Current ice connection state.
+   */
+  public getIceConnectionState(): RTCIceConnectionState {
+    const { iceState } = this.getCurrentStatesCallback();
+
+    return iceState;
+  }
+
+  /**
+   * Gets current overall connection state.
+   *
+   * @returns Current overall connection state.
+   */
   public getConnectionState(): ConnectionState {
-    return this.mediaConnectionState;
+    return this.evaluateMediaConnectionState();
   }
 }

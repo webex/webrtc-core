@@ -17,6 +17,20 @@ describe('ConnectionStateHandler', () => {
     fakeConnectionState = 'new';
   });
 
+  it('reads initial peer connection state', () => {
+    expect.assertions(1);
+    const connStateHandler = new ConnectionStateHandler(fakeCallback);
+
+    expect(connStateHandler.getPeerConnectionState()).toBe('new');
+  });
+
+  it('reads initial ice connection state', () => {
+    expect.assertions(1);
+    const connStateHandler = new ConnectionStateHandler(fakeCallback);
+
+    expect(connStateHandler.getIceConnectionState()).toBe('new');
+  });
+
   it('reads initial connection state', () => {
     expect.assertions(1);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
@@ -24,32 +38,32 @@ describe('ConnectionStateHandler', () => {
     expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.New);
   });
 
-  it('updates connection state on ice connection state change and emits the event', () => {
+  it('updates ice connection state on ice connection state change and emits the event', () => {
     expect.assertions(2);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
-      expect(state).toStrictEqual(ConnectionState.Connecting);
+    connStateHandler.on(ConnectionStateHandler.Events.IceConnectionStateChanged, (state) => {
+      expect(state).toBe('checking');
     });
 
     fakeIceState = 'checking';
     connStateHandler.onIceConnectionStateChange();
 
-    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.Connecting);
+    expect(connStateHandler.getIceConnectionState()).toBe('checking');
   });
 
   it("updates connection state on RTCPeerConnection's connection state change", () => {
     expect.assertions(2);
     const connStateHandler = new ConnectionStateHandler(fakeCallback);
 
-    connStateHandler.on(ConnectionStateHandler.Events.ConnectionStateChanged, (state) => {
-      expect(state).toStrictEqual(ConnectionState.Connecting);
+    connStateHandler.on(ConnectionStateHandler.Events.PeerConnectionStateChanged, (state) => {
+      expect(state).toBe('connecting');
     });
 
     fakeConnectionState = 'connecting';
-    connStateHandler.onConnectionStateChange();
+    connStateHandler.onPeerConnectionStateChange();
 
-    expect(connStateHandler.getConnectionState()).toStrictEqual(ConnectionState.Connecting);
+    expect(connStateHandler.getPeerConnectionState()).toBe('connecting');
   });
 
   // test matrix for all possible combinations of iceConnectionState and connectionState
@@ -117,9 +131,6 @@ describe('ConnectionStateHandler', () => {
 
       fakeConnectionState = connState;
       fakeIceState = iceState;
-
-      // it's sufficient to trigger just one of the callbacks
-      connStateHandler.onConnectionStateChange();
 
       expect(connStateHandler.getConnectionState()).toStrictEqual(expected);
     })
