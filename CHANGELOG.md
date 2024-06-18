@@ -1,3 +1,11 @@
+# [2.8.0](https://github.com/webex/webrtc-core/compare/v2.7.0...v2.8.0) (2024-06-18)
+
+
+### Features
+
+* expose getCurrentConnectionType with ConnectionType type ([#80](https://github.com/webex/webrtc-core/issues/80)) ([c9f8ad9](https://github.com/webex/webrtc-core/commit/c9f8ad929b2cc7f5612af8067fe1f20ff9a5dcb0))
+* pr to update release version ([#79](https://github.com/webex/webrtc-core/issues/79)) ([816c685](https://github.com/webex/webrtc-core/commit/816c685c334ce579e9cbce465bbfc19564cd7a4d))
+
 # [2.7.0](https://github.com/webex/webrtc-core/compare/v2.6.1...v2.7.0) (2024-04-17)
 
 
