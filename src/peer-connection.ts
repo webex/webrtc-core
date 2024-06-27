@@ -28,6 +28,7 @@ type IceGatheringStateChangeEvent = {
 enum PeerConnectionEvents {
   IceGatheringStateChange = 'icegatheringstatechange',
   IceCandidate = 'icecandidate',
+  IceCandidateError = 'icecandidateerror',
   PeerConnectionStateChange = 'peerconnectionstatechange',
   IceConnectionStateChange = 'iceconnectionstatechange',
   CreateOfferOnSuccess = 'createofferonsuccess',
@@ -39,6 +40,7 @@ enum PeerConnectionEvents {
 interface PeerConnectionEventHandlers extends EventMap {
   [PeerConnectionEvents.IceGatheringStateChange]: (ev: IceGatheringStateChangeEvent) => void;
   [PeerConnectionEvents.IceCandidate]: (ev: RTCPeerConnectionIceEvent) => void;
+  [PeerConnectionEvents.IceCandidateError]: (ev: RTCPeerConnectionIceErrorEvent) => void;
   [PeerConnectionEvents.PeerConnectionStateChange]: (state: RTCPeerConnectionState) => void;
   [PeerConnectionEvents.IceConnectionStateChange]: (state: RTCIceConnectionState) => void;
   [PeerConnectionEvents.CreateOfferOnSuccess]: (offer: RTCSessionDescriptionInit) => void;
@@ -112,6 +114,12 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
     /* eslint-disable jsdoc/require-jsdoc */
     this.pc.onicecandidate = (ev: RTCPeerConnectionIceEvent) => {
       this.emit(PeerConnection.Events.IceCandidate, ev);
+    };
+
+    this.pc.onicecandidateerror = (ev: Event) => {
+      const event = ev as RTCPeerConnectionIceErrorEvent;
+
+      this.emit(PeerConnection.Events.IceCandidateError, event);
     };
   }
 
