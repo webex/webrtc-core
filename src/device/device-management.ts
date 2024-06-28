@@ -18,7 +18,6 @@ export type AudioDeviceConstraints = Pick<
   | 'noiseSuppression'
   | 'sampleRate'
   | 'sampleSize'
-  | 'suppressLocalAudioPlayback'
 >;
 
 export type VideoDeviceConstraints = Pick<

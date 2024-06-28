@@ -49,7 +49,6 @@ describe('Device Management', () => {
         noiseSuppression: false,
         sampleRate: 48000,
         sampleSize: 16,
-        suppressLocalAudioPlayback: false,
       });
       expect(media.getUserMedia).toHaveBeenCalledWith({
         audio: {
@@ -60,7 +59,6 @@ describe('Device Management', () => {
           noiseSuppression: false,
           sampleRate: 48000,
           sampleSize: 16,
-          suppressLocalAudioPlayback: false,
         },
       });
     });

@@ -4,7 +4,7 @@ import { LocalStream, LocalStreamEventNames } from './local-stream';
 // These are the audio constraints that can be applied via applyConstraints.
 export type AppliableAudioConstraints = Pick<
   MediaTrackConstraints,
-  'autoGainControl' | 'echoCancellation' | 'noiseSuppression' | 'suppressLocalAudioPlayback'
+  'autoGainControl' | 'echoCancellation' | 'noiseSuppression'
 >;
 
 /**
