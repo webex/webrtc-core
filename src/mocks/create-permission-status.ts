@@ -16,4 +16,5 @@ export const createPermissionStatus = (state: PermissionState): PermissionStatus
   addEventListener: () => {},
   removeEventListener: () => {},
   dispatchEvent: (event: Event): boolean => true,
+  name: '',
 });
