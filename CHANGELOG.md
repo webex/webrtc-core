@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/webex/webrtc-core/compare/v2.8.0...v2.9.0) (2024-07-10)
+
+
+### Features
+
+* update typescript version ([#81](https://github.com/webex/webrtc-core/issues/81)) ([afa2589](https://github.com/webex/webrtc-core/commit/afa2589c5b8a542b40e0111fadee42fe7a1659ab))
+
 # [2.8.0](https://github.com/webex/webrtc-core/compare/v2.7.0...v2.8.0) (2024-06-18)
 
 
