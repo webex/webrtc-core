@@ -116,10 +116,8 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
       this.emit(PeerConnection.Events.IceCandidate, ev);
     };
 
-    this.pc.onicecandidateerror = (ev: Event) => {
-      const event = ev as RTCPeerConnectionIceErrorEvent;
-
-      this.emit(PeerConnection.Events.IceCandidateError, event);
+    this.pc.onicecandidateerror = (ev: RTCPeerConnectionIceErrorEvent) => {
+      this.emit(PeerConnection.Events.IceCandidateError, ev);
     };
   }
 
