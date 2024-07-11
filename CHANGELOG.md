@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/webex/webrtc-core/compare/v2.9.0...v2.10.0) (2024-07-11)
+
+
+### Features
+
+* expose icecandidateerror event ([#82](https://github.com/webex/webrtc-core/issues/82)) ([29669bd](https://github.com/webex/webrtc-core/commit/29669bd6e504324dbb71841fd4ca6007a2a5b5ac))
+
 # [2.9.0](https://github.com/webex/webrtc-core/compare/v2.8.0...v2.9.0) (2024-07-10)
 
 
