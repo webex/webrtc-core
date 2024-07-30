@@ -8,9 +8,6 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-
 jobs:
   semantic-release:
     name: semantic-latest
@@ -23,7 +20,6 @@ jobs:
         with:
           node-version: 16
       - run: yarn install
-
       - run: yarn build
       - run: npx semantic-release
         env:
