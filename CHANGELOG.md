@@ -1,3 +1,10 @@
+## [2.10.1](https://github.com/webex/webrtc-core/compare/v2.10.0...v2.10.1) (2024-07-30)
+
+
+### Bug Fixes
+
+* update npm-publish.yml ([#83](https://github.com/webex/webrtc-core/issues/83)) ([e45f11e](https://github.com/webex/webrtc-core/commit/e45f11e8f6e2961566c2f689680d4257d3c9e3bd))
+
 # [2.10.0](https://github.com/webex/webrtc-core/compare/v2.9.0...v2.10.0) (2024-07-11)
 
 
