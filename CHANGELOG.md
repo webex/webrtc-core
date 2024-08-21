@@ -1,3 +1,10 @@
+## [2.10.2](https://github.com/webex/webrtc-core/compare/v2.10.1...v2.10.2) (2024-08-21)
+
+
+### Bug Fixes
+
+* node effects lib compatible with node 16 ([#85](https://github.com/webex/webrtc-core/issues/85)) ([1186086](https://github.com/webex/webrtc-core/commit/1186086bc85c2cc6c5febbdee43799019a59245a))
+
 ## [2.10.1](https://github.com/webex/webrtc-core/compare/v2.10.0...v2.10.1) (2024-07-30)
 
 
