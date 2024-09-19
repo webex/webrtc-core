@@ -190,11 +190,17 @@ export async function createDisplayStreamWithAudio<
  */
 export async function getDevices(deviceKind?: media.DeviceKind): Promise<MediaDeviceInfo[]> {
   let devices: MediaDeviceInfo[];
+  const deviceKinds: media.DeviceKind[] = [];
+
+  // If deviceKind is provided, add it to the array. Otherwise, add both audio and video input kinds.
+  if (deviceKind !== undefined) {
+    deviceKinds.push(deviceKind);
+  } else {
+    deviceKinds.push(media.DeviceKind.AudioInput, media.DeviceKind.VideoInput);
+  }
+
   try {
-    devices = await media.ensureDevicePermissions(
-      [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
-      media.enumerateDevices
-    );
+    devices = await media.ensureDevicePermissions(deviceKinds, media.enumerateDevices);
   } catch (error) {
     throw new WebrtcCoreError(
       WebrtcCoreErrorType.DEVICE_PERMISSION_DENIED,
