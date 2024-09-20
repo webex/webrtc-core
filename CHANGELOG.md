@@ -1,3 +1,10 @@
+## [2.10.3](https://github.com/webex/webrtc-core/compare/v2.10.2...v2.10.3) (2024-09-20)
+
+
+### Bug Fixes
+
+* conditionally add device permissions ([#86](https://github.com/webex/webrtc-core/issues/86)) ([9e2d55a](https://github.com/webex/webrtc-core/commit/9e2d55a7aa2b9319aace4848f6257749a22b3535))
+
 ## [2.10.2](https://github.com/webex/webrtc-core/compare/v2.10.1...v2.10.2) (2024-08-21)
 
 
