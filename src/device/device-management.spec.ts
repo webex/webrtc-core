@@ -12,7 +12,9 @@ import {
   createDisplayStream,
   createDisplayStreamWithAudio,
   createMicrophoneStream,
+  getDevices,
 } from './device-management';
+import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -252,6 +254,69 @@ describe('Device Management', () => {
         'motion'
       );
       expect(localDisplayStream.contentHint).toBe('motion');
+    });
+  });
+
+  describe('getDevices', () => {
+    it('should call ensureDevicePermissions with both audio and video input kinds when no deviceKind is provided', async () => {
+      expect.hasAssertions();
+      const mockDevices = [
+        { kind: 'audioinput', deviceId: 'audio1' },
+        { kind: 'videoinput', deviceId: 'video1' },
+      ] as MediaDeviceInfo[];
+
+      jest.spyOn(media, 'ensureDevicePermissions').mockResolvedValue(mockDevices);
+      jest.spyOn(media, 'enumerateDevices').mockResolvedValue(mockDevices);
+
+      const devices = await getDevices();
+      expect(media.ensureDevicePermissions).toHaveBeenCalledWith(
+        [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
+        media.enumerateDevices
+      );
+      expect(devices).toStrictEqual(mockDevices);
+    });
+
+    it('should call ensureDevicePermissions with the provided deviceKind', async () => {
+      expect.hasAssertions();
+      const mockDevices = [{ kind: 'audioinput', deviceId: 'audio1' }] as MediaDeviceInfo[];
+
+      jest.spyOn(media, 'ensureDevicePermissions').mockResolvedValue(mockDevices);
+      jest.spyOn(media, 'enumerateDevices').mockResolvedValue(mockDevices);
+
+      const devices = await getDevices(media.DeviceKind.AudioInput);
+      expect(media.ensureDevicePermissions).toHaveBeenCalledWith(
+        [media.DeviceKind.AudioInput],
+        media.enumerateDevices
+      );
+      expect(devices).toStrictEqual(mockDevices);
+    });
+
+    it('should filter devices based on the provided deviceKind', async () => {
+      expect.hasAssertions();
+      const mockDevices = [
+        { kind: 'audioinput', deviceId: 'audio1' },
+        { kind: 'videoinput', deviceId: 'video1' },
+      ] as MediaDeviceInfo[];
+
+      jest.spyOn(media, 'ensureDevicePermissions').mockResolvedValue(mockDevices);
+      jest.spyOn(media, 'enumerateDevices').mockResolvedValue(mockDevices);
+
+      const devices = await getDevices(media.DeviceKind.AudioInput);
+      expect(devices).toStrictEqual([{ kind: 'audioinput', deviceId: 'audio1' }]);
+    });
+
+    it('should throw WebrtcCoreError when device permissions are denied', async () => {
+      expect.hasAssertions();
+      jest.spyOn(media, 'ensureDevicePermissions').mockImplementation(() => {
+        throw new Error();
+      });
+
+      const expectedError = new WebrtcCoreError(
+        WebrtcCoreErrorType.DEVICE_PERMISSION_DENIED,
+        'Failed to ensure device permissions'
+      );
+
+      await expect(getDevices()).rejects.toStrictEqual(expectedError);
     });
   });
 });
