@@ -14,6 +14,7 @@ import {
   createMicrophoneStream,
   getDevices,
 } from './device-management';
+import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 
 jest.mock('../mocks/media-stream-stub');
 
@@ -302,6 +303,20 @@ describe('Device Management', () => {
 
       const devices = await getDevices(media.DeviceKind.AudioInput);
       expect(devices).toStrictEqual([{ kind: 'audioinput', deviceId: 'audio1' }]);
+    });
+
+    it('should throw WebrtcCoreError when device permissions are denied', async () => {
+      expect.hasAssertions();
+      jest.spyOn(media, 'ensureDevicePermissions').mockImplementation(() => {
+        throw new Error();
+      });
+
+      const expectedError = new WebrtcCoreError(
+        WebrtcCoreErrorType.DEVICE_PERMISSION_DENIED,
+        'Failed to ensure device permissions'
+      );
+
+      await expect(getDevices()).rejects.toStrictEqual(expectedError);
     });
   });
 });
