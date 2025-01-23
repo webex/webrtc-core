@@ -33,7 +33,7 @@
     "@types/jest": "^27.0.1",
     "@types/lodash": "^4.14.171",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.0.1",
+    "@types/node": "^22.10.10",
     "@types/sdp-transform": "^2.4.5",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
@@ -73,7 +73,7 @@
     "ts-jest": "^27.0.5",
     "ts-loader": "^9.2.3",
     "typescript": "^5.5.2",
-    "yarn": "^1.22.18"
+    "yarn": "^1.22.22"
   },
   "scripts": {
     "build": "run-s clean compile",
@@ -120,5 +120,6 @@
       "eslint --max-warnings=0",
       "cspell"
     ]
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
