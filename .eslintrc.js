@@ -89,6 +89,7 @@ module.exports = {
     ],
     'jsdoc/require-param-type': 0,
     'jsdoc/require-returns-type': 0,
+    'jsdoc/tag-lines': 0,
     'jsdoc/valid-types': 1,
     'no-underscore-dangle': 0,
     'no-shadow': 0,
