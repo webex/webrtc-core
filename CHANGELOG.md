@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/webex/webrtc-core/compare/v2.10.3...v2.11.0) (2025-01-24)
+
+
+### Features
+
+* upgrade to node 22 and yarn 1.22.22 ([#87](https://github.com/webex/webrtc-core/issues/87)) ([b7ab7a3](https://github.com/webex/webrtc-core/commit/b7ab7a3eaed72a834290ab83e21208f35ff53e80))
+
 ## [2.10.3](https://github.com/webex/webrtc-core/compare/v2.10.2...v2.10.3) (2024-09-20)
 
 
