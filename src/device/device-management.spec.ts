@@ -176,7 +176,7 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream },
+        video: { displayStreamConstructor: LocalDisplayStream },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true, audio: false });
     });
@@ -185,8 +185,8 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream },
-        audio: { constructor: LocalSystemAudioStream },
+        video: { displayStreamConstructor: LocalDisplayStream },
+        audio: { systemAudioStreamConstructor: LocalSystemAudioStream },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({ video: true, audio: true });
     });
@@ -195,8 +195,11 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream, constraints: { frameRate: 5 } },
-        audio: { constructor: LocalSystemAudioStream, constraints: { autoGainControl: false } },
+        video: { displayStreamConstructor: LocalDisplayStream, constraints: { frameRate: 5 } },
+        audio: {
+          systemAudioStreamConstructor: LocalSystemAudioStream,
+          constraints: { autoGainControl: false },
+        },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({
         video: { frameRate: 5 },
@@ -208,7 +211,7 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       const [localDisplayStream] = await createDisplayMedia({
-        video: { constructor: LocalDisplayStream, videoContentHint: 'motion' },
+        video: { displayStreamConstructor: LocalDisplayStream, videoContentHint: 'motion' },
       });
       expect(localDisplayStream.contentHint).toBe('motion');
     });
@@ -217,7 +220,7 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream, preferCurrentTab: true },
+        video: { displayStreamConstructor: LocalDisplayStream, preferCurrentTab: true },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({
         video: true,
@@ -230,7 +233,7 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream, selfBrowserSurface: 'include' },
+        video: { displayStreamConstructor: LocalDisplayStream, selfBrowserSurface: 'include' },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({
         video: true,
@@ -243,7 +246,7 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream, surfaceSwitching: 'include' },
+        video: { displayStreamConstructor: LocalDisplayStream, surfaceSwitching: 'include' },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({
         video: true,
@@ -256,7 +259,7 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream, monitorTypeSurfaces: 'exclude' },
+        video: { displayStreamConstructor: LocalDisplayStream, monitorTypeSurfaces: 'exclude' },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({
         video: true,
@@ -269,8 +272,8 @@ describe('Device Management', () => {
       expect.assertions(1);
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream },
-        audio: { constructor: LocalSystemAudioStream, systemAudio: 'exclude' },
+        video: { displayStreamConstructor: LocalDisplayStream },
+        audio: { systemAudioStreamConstructor: LocalSystemAudioStream, systemAudio: 'exclude' },
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({
         video: true,
@@ -285,7 +288,7 @@ describe('Device Management', () => {
       const fakeController: CaptureController = {} as CaptureController;
 
       await createDisplayMedia({
-        video: { constructor: LocalDisplayStream },
+        video: { displayStreamConstructor: LocalDisplayStream },
         controller: fakeController,
       });
       expect(media.getDisplayMedia).toHaveBeenCalledWith({

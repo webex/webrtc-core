@@ -38,12 +38,12 @@ export interface CaptureController {
  * 1. Previous captured video stream from the same device is not stopped.
  * 2. Previous createCameraStream() call for the same device is in progress.
  *
- * @param constructor - Constructor for the local camera stream.
+ * @param cameraStreamConstructor - Constructor for the local camera stream.
  * @param constraints - Video device constraints.
  * @returns A LocalCameraStream object or an error.
  */
 export async function createCameraStream<T extends LocalCameraStream>(
-  constructor: Constructor<T>,
+  cameraStreamConstructor: Constructor<T>,
   constraints?: VideoDeviceConstraints
 ): Promise<T> {
   let stream: MediaStream;
@@ -55,18 +55,19 @@ export async function createCameraStream<T extends LocalCameraStream>(
       `Failed to create camera stream: ${error}`
     );
   }
-  return new constructor(stream);
+  // eslint-disable-next-line new-cap
+  return new cameraStreamConstructor(stream);
 }
 
 /**
  * Creates a LocalMicrophoneStream with the given constraints.
  *
- * @param constructor - Constructor for the local microphone stream.
+ * @param microphoneStreamConstructor - Constructor for the local microphone stream.
  * @param constraints - Audio device constraints.
  * @returns A LocalMicrophoneStream object or an error.
  */
 export async function createMicrophoneStream<T extends LocalMicrophoneStream>(
-  constructor: Constructor<T>,
+  microphoneStreamConstructor: Constructor<T>,
   constraints?: AudioDeviceConstraints
 ): Promise<T> {
   let stream: MediaStream;
@@ -78,7 +79,8 @@ export async function createMicrophoneStream<T extends LocalMicrophoneStream>(
       `Failed to create microphone stream: ${error}`
     );
   }
-  return new constructor(stream);
+  // eslint-disable-next-line new-cap
+  return new microphoneStreamConstructor(stream);
 }
 
 /**
@@ -130,7 +132,7 @@ export async function createCameraAndMicrophoneStreams<
  *
  * @param options - An object containing the options for creating the display and system audio streams.
  * @param options.video - An object containing the video stream options.
- * @param options.video.constructor - Constructor for the local display stream.
+ * @param options.video.displayStreamConstructor - Constructor for the local display stream.
  * @param options.video.constraints - Video device constraints.
  * @param options.video.videoContentHint - A hint for the content of the stream.
  * @param options.video.preferCurrentTab - Whether to offer the current tab as the most prominent capture source.
@@ -138,7 +140,7 @@ export async function createCameraAndMicrophoneStreams<
  * @param options.video.surfaceSwitching - Whether to allow the user to dynamically switch the shared tab during screen-sharing.
  * @param options.video.monitorTypeSurfaces - Whether to offer the user the option to choose display surfaces whose type is monitor.
  * @param options.audio - An object containing the audio stream options. If present, a system audio stream will be created.
- * @param options.audio.constructor - Constructor for the local system audio stream.
+ * @param options.audio.systemAudioStreamConstructor - Constructor for the local system audio stream.
  * @param options.audio.constraints - Audio device constraints.
  * @param options.audio.systemAudio - Whether to include the system audio among the possible audio sources offered to the user.
  * @param options.controller - CaptureController to further manipulate the capture session.
@@ -151,7 +153,7 @@ export async function createDisplayMedia<
   U extends LocalSystemAudioStream
 >(options: {
   video: {
-    constructor: Constructor<T>;
+    displayStreamConstructor: Constructor<T>;
     constraints?: VideoDeviceConstraints;
     videoContentHint?: VideoContentHint;
     preferCurrentTab?: boolean;
@@ -160,7 +162,7 @@ export async function createDisplayMedia<
     monitorTypeSurfaces?: 'include' | 'exclude';
   };
   audio?: {
-    constructor: Constructor<U>;
+    systemAudioStreamConstructor: Constructor<U>;
     constraints?: AudioDeviceConstraints;
     systemAudio?: 'include' | 'exclude';
   };
@@ -187,7 +189,7 @@ export async function createDisplayMedia<
     );
   }
   // eslint-disable-next-line new-cap
-  const localDisplayStream = new options.video.constructor(
+  const localDisplayStream = new options.video.displayStreamConstructor(
     new MediaStream(stream.getVideoTracks())
   );
   if (options.video.videoContentHint) {
@@ -196,7 +198,7 @@ export async function createDisplayMedia<
   let localSystemAudioStream = null;
   if (options.audio && stream.getAudioTracks().length > 0) {
     // eslint-disable-next-line new-cap
-    localSystemAudioStream = new options.audio.constructor(
+    localSystemAudioStream = new options.audio.systemAudioStreamConstructor(
       new MediaStream(stream.getAudioTracks())
     );
   }
@@ -206,16 +208,16 @@ export async function createDisplayMedia<
 /**
  * Creates a LocalDisplayStream with the given parameters.
  *
- * @param constructor - Constructor for the local display stream.
+ * @param displayStreamConstructor - Constructor for the local display stream.
  * @param videoContentHint - An optional parameter to give a hint for the content of the stream.
  * @returns A Promise that resolves to a LocalDisplayStream or an error.
  */
 export async function createDisplayStream<T extends LocalDisplayStream>(
-  constructor: Constructor<T>,
+  displayStreamConstructor: Constructor<T>,
   videoContentHint?: VideoContentHint
 ): Promise<T> {
   const [localDisplayStream] = await createDisplayMedia({
-    video: { constructor, videoContentHint },
+    video: { displayStreamConstructor, videoContentHint },
   });
   return localDisplayStream;
 }
@@ -239,8 +241,8 @@ export async function createDisplayStreamWithAudio<
   videoContentHint?: VideoContentHint
 ): Promise<[T, U | null]> {
   return createDisplayMedia({
-    video: { constructor: displayStreamConstructor, videoContentHint },
-    audio: { constructor: systemAudioStreamConstructor },
+    video: { displayStreamConstructor, videoContentHint },
+    audio: { systemAudioStreamConstructor },
   });
 }
 
