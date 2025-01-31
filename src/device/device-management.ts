@@ -25,6 +25,13 @@ export type VideoDeviceConstraints = Pick<
   'aspectRatio' | 'deviceId' | 'facingMode' | 'frameRate' | 'height' | 'width'
 >;
 
+// CaptureController is experimental so TypeScript doesn't have a type for it yet.
+// So we define the interface ourselves here.
+// See https://developer.mozilla.org/en-US/docs/Web/API/CaptureController.
+export interface CaptureController {
+  setFocusBehavior(behavior: 'auto' | 'always' | 'never'): Promise<void>;
+}
+
 /**
  * Creates a camera stream. Please note that the constraint params in second getUserMedia call would NOT take effect when:
  *
@@ -114,6 +121,89 @@ export async function createCameraAndMicrophoneStreams<
 }
 
 /**
+ * Creates a LocalDisplayStream and a LocalSystemAudioStream with the given parameters.
+ *
+ * This is a more advanced version of createDisplayStreamWithAudio that allows the user to specify
+ * additional display media options and constraints.
+ *
+ * See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia#options.
+ *
+ * @param options - An object containing the options for creating the display and system audio streams.
+ * @param options.video - An object containing the video stream options.
+ * @param options.video.constructor - Constructor for the local display stream.
+ * @param options.video.constraints - Video device constraints.
+ * @param options.video.videoContentHint - A hint for the content of the stream.
+ * @param options.video.preferCurrentTab - Whether to offer the current tab as the most prominent capture source.
+ * @param options.video.selfBrowserSurface - Whether to allow the user to select the current tab for capture.
+ * @param options.video.surfaceSwitching - Whether to allow the user to dynamically switch the shared tab during screen-sharing.
+ * @param options.video.monitorTypeSurfaces - Whether to offer the user the option to choose display surfaces whose type is monitor.
+ * @param options.audio - An object containing the audio stream options. If present, a system audio stream will be created.
+ * @param options.audio.constructor - Constructor for the local system audio stream.
+ * @param options.audio.constraints - Audio device constraints.
+ * @param options.audio.systemAudio - Whether to include the system audio among the possible audio sources offered to the user.
+ * @param options.controller - CaptureController to further manipulate the capture session.
+ * @returns A Promise that resolves to a LocalDisplayStream and a LocalSystemAudioStream or an
+ * error. If no system audio is available, the LocalSystemAudioStream will be resolved as null
+ * instead.
+ */
+export async function createDisplayMedia<
+  T extends LocalDisplayStream,
+  U extends LocalSystemAudioStream
+>(options: {
+  video: {
+    constructor: Constructor<T>;
+    constraints?: VideoDeviceConstraints;
+    videoContentHint?: VideoContentHint;
+    preferCurrentTab?: boolean;
+    selfBrowserSurface?: 'include' | 'exclude';
+    surfaceSwitching?: 'include' | 'exclude';
+    monitorTypeSurfaces?: 'include' | 'exclude';
+  };
+  audio?: {
+    constructor: Constructor<U>;
+    constraints?: AudioDeviceConstraints;
+    systemAudio?: 'include' | 'exclude';
+  };
+  controller?: CaptureController;
+}): Promise<[T, U | null]> {
+  let stream;
+  const videoConstraints = options.video.constraints || true;
+  const audioConstraints = options.audio?.constraints || !!options.audio;
+  try {
+    stream = await media.getDisplayMedia({
+      video: videoConstraints,
+      audio: audioConstraints,
+      controller: options.controller,
+      preferCurrentTab: options.video.preferCurrentTab,
+      selfBrowserSurface: options.video.selfBrowserSurface,
+      surfaceSwitching: options.video.surfaceSwitching,
+      systemAudio: options.audio?.systemAudio,
+      monitorTypeSurfaces: options.video.monitorTypeSurfaces,
+    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+  } catch (error) {
+    throw new WebrtcCoreError(
+      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
+      `Failed to create display and/or system audio streams: ${error}`
+    );
+  }
+  // eslint-disable-next-line new-cap
+  const localDisplayStream = new options.video.constructor(
+    new MediaStream(stream.getVideoTracks())
+  );
+  if (options.video.videoContentHint) {
+    localDisplayStream.contentHint = options.video.videoContentHint;
+  }
+  let localSystemAudioStream = null;
+  if (options.audio && stream.getAudioTracks().length > 0) {
+    // eslint-disable-next-line new-cap
+    localSystemAudioStream = new options.audio.constructor(
+      new MediaStream(stream.getAudioTracks())
+    );
+  }
+  return [localDisplayStream, localSystemAudioStream];
+}
+
+/**
  * Creates a LocalDisplayStream with the given parameters.
  *
  * @param constructor - Constructor for the local display stream.
@@ -124,19 +214,9 @@ export async function createDisplayStream<T extends LocalDisplayStream>(
   constructor: Constructor<T>,
   videoContentHint?: VideoContentHint
 ): Promise<T> {
-  let stream;
-  try {
-    stream = await media.getDisplayMedia({ video: true });
-  } catch (error) {
-    throw new WebrtcCoreError(
-      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
-      `Failed to create display stream: ${error}`
-    );
-  }
-  const localDisplayStream = new constructor(stream);
-  if (videoContentHint) {
-    localDisplayStream.contentHint = videoContentHint;
-  }
+  const [localDisplayStream] = await createDisplayMedia({
+    video: { constructor, videoContentHint },
+  });
   return localDisplayStream;
 }
 
@@ -158,28 +238,10 @@ export async function createDisplayStreamWithAudio<
   systemAudioStreamConstructor: Constructor<U>,
   videoContentHint?: VideoContentHint
 ): Promise<[T, U | null]> {
-  let stream;
-  try {
-    stream = await media.getDisplayMedia({ video: true, audio: true });
-  } catch (error) {
-    throw new WebrtcCoreError(
-      WebrtcCoreErrorType.CREATE_STREAM_FAILED,
-      `Failed to create display and system audio streams: ${error}`
-    );
-  }
-  // eslint-disable-next-line new-cap
-  const localDisplayStream = new displayStreamConstructor(new MediaStream(stream.getVideoTracks()));
-  if (videoContentHint) {
-    localDisplayStream.contentHint = videoContentHint;
-  }
-  let localSystemAudioStream = null;
-  if (stream.getAudioTracks().length > 0) {
-    // eslint-disable-next-line new-cap
-    localSystemAudioStream = new systemAudioStreamConstructor(
-      new MediaStream(stream.getAudioTracks())
-    );
-  }
-  return [localDisplayStream, localSystemAudioStream];
+  return createDisplayMedia({
+    video: { constructor: displayStreamConstructor, videoContentHint },
+    audio: { constructor: systemAudioStreamConstructor },
+  });
 }
 
 /**
