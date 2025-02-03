@@ -1,5 +1,6 @@
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import * as media from '../media';
+import { CaptureController } from '../media';
 import { LocalCameraStream } from '../media/local-camera-stream';
 import { LocalDisplayStream } from '../media/local-display-stream';
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
@@ -8,7 +9,6 @@ import { createBrowserMock } from '../mocks/create-browser-mock';
 import MediaStreamStub from '../mocks/media-stream-stub';
 import { createMockedStream, createMockedStreamWithAudio } from '../util/test-utils';
 import {
-  CaptureController,
   createCameraAndMicrophoneStreams,
   createCameraStream,
   createDisplayMedia,

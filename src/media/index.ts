@@ -6,6 +6,15 @@ export enum DeviceKind {
   VideoInput = 'videoinput',
 }
 
+// CaptureController is experimental so TypeScript doesn't have a type for it yet.
+// So we define the interface ourselves here.
+// See https://developer.mozilla.org/en-US/docs/Web/API/CaptureController.
+export interface CaptureController {
+  setFocusBehavior(
+    behavior: 'focus-capturing-application' | 'focus-captured-surface' | 'no-focus-change'
+  ): Promise<void>;
+}
+
 /**
  * Prompts the user for permission to use a media input which produces a MediaStream with tracks
  * containing the requested types of media.
@@ -21,14 +30,23 @@ export async function getUserMedia(constraints: MediaStreamConstraints): Promise
 
 /**
  * Prompts the user for permission to use a user's display media and audio. If a video track is
- * absent from the constraints argument, one will still be provided.
+ * absent from the constraints argument, one will still be provided. Includes experimental options
+ * found in https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia#options.
  *
  * @param constraints - A MediaStreamConstraints object specifying the types of media to request,
- *     along with any requirements for each type.
+ *     along with any requirements for each type, as well as experimental options.
  * @returns A Promise whose fulfillment handler receives a MediaStream object when the requested
  *     media has successfully been obtained.
  */
-export function getDisplayMedia(constraints: MediaStreamConstraints): Promise<MediaStream> {
+export function getDisplayMedia(
+  constraints: MediaStreamConstraints & {
+    controller?: CaptureController;
+    selfBrowserSurface?: 'include' | 'exclude';
+    surfaceSwitching?: 'include' | 'exclude';
+    systemAudio?: 'include' | 'exclude';
+    monitorTypeSurfaces?: 'include' | 'exclude';
+  }
+): Promise<MediaStream> {
   return navigator.mediaDevices.getDisplayMedia(constraints);
 }
 

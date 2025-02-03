@@ -1,5 +1,6 @@
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import * as media from '../media';
+import { CaptureController } from '../media';
 import { LocalCameraStream } from '../media/local-camera-stream';
 import { LocalDisplayStream } from '../media/local-display-stream';
 import { LocalMicrophoneStream } from '../media/local-microphone-stream';
@@ -24,13 +25,6 @@ export type VideoDeviceConstraints = Pick<
   MediaTrackConstraints,
   'aspectRatio' | 'deviceId' | 'facingMode' | 'frameRate' | 'height' | 'width'
 >;
-
-// CaptureController is experimental so TypeScript doesn't have a type for it yet.
-// So we define the interface ourselves here.
-// See https://developer.mozilla.org/en-US/docs/Web/API/CaptureController.
-export interface CaptureController {
-  setFocusBehavior(behavior: 'auto' | 'always' | 'never'): Promise<void>;
-}
 
 /**
  * Creates a camera stream. Please note that the constraint params in second getUserMedia call would NOT take effect when:
@@ -181,7 +175,7 @@ export async function createDisplayMedia<
       surfaceSwitching: options.video.surfaceSwitching,
       systemAudio: options.audio?.systemAudio,
       monitorTypeSurfaces: options.video.monitorTypeSurfaces,
-    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    });
   } catch (error) {
     throw new WebrtcCoreError(
       WebrtcCoreErrorType.CREATE_STREAM_FAILED,
