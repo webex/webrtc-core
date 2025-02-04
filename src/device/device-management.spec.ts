@@ -27,7 +27,7 @@ describe('Device Management', () => {
   const mockStream = createMockedStream();
 
   describe('createMicrophoneStream', () => {
-    jest.spyOn(media, 'getUserMedia').mockReturnValue(Promise.resolve(mockStream));
+    jest.spyOn(media, 'getUserMedia').mockResolvedValue(mockStream);
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
@@ -76,7 +76,7 @@ describe('Device Management', () => {
   });
 
   describe('createCameraStream', () => {
-    jest.spyOn(media, 'getUserMedia').mockReturnValue(Promise.resolve(mockStream));
+    jest.spyOn(media, 'getUserMedia').mockResolvedValue(mockStream);
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
@@ -123,7 +123,7 @@ describe('Device Management', () => {
   });
 
   describe('createCameraAndMicrophoneStreams', () => {
-    jest.spyOn(media, 'getUserMedia').mockReturnValue(Promise.resolve(mockStream));
+    jest.spyOn(media, 'getUserMedia').mockResolvedValue(mockStream);
 
     it('should call getUserMedia', async () => {
       expect.assertions(1);
@@ -170,7 +170,7 @@ describe('Device Management', () => {
   });
 
   describe('createDisplayMedia', () => {
-    jest.spyOn(media, 'getDisplayMedia').mockReturnValue(Promise.resolve(mockStream));
+    jest.spyOn(media, 'getDisplayMedia').mockResolvedValue(mockStream);
 
     it('should call getDisplayMedia with video only', async () => {
       expect.assertions(1);
@@ -300,7 +300,7 @@ describe('Device Management', () => {
   });
 
   describe('createDisplayStream', () => {
-    jest.spyOn(media, 'getDisplayMedia').mockReturnValue(Promise.resolve(mockStream));
+    jest.spyOn(media, 'getDisplayMedia').mockResolvedValue(mockStream);
 
     it('should call getDisplayMedia', async () => {
       expect.assertions(1);
@@ -325,7 +325,7 @@ describe('Device Management', () => {
   });
 
   describe('createDisplayStreamWithAudio', () => {
-    jest.spyOn(media, 'getDisplayMedia').mockReturnValue(Promise.resolve(mockStream));
+    jest.spyOn(media, 'getDisplayMedia').mockResolvedValue(mockStream);
 
     // This mock implementation is needed because createDisplayStreamWithAudio will create a new
     // MediaStream from the video track of the mocked stream, so we need to make sure this new
@@ -354,9 +354,7 @@ describe('Device Management', () => {
       expect.assertions(2);
 
       const mockStreamWithAudio = createMockedStreamWithAudio();
-      jest
-        .spyOn(media, 'getDisplayMedia')
-        .mockReturnValueOnce(Promise.resolve(mockStreamWithAudio));
+      jest.spyOn(media, 'getDisplayMedia').mockResolvedValueOnce(mockStreamWithAudio);
 
       const [localDisplayStream, localSystemAudioStream] = await createDisplayStreamWithAudio(
         LocalDisplayStream,
