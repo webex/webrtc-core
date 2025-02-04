@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/webex/webrtc-core/compare/v2.11.0...v2.12.0) (2025-02-04)
+
+
+### Features
+
+* add createDisplayMedia API ([#88](https://github.com/webex/webrtc-core/issues/88)) ([329d98d](https://github.com/webex/webrtc-core/commit/329d98d87d893c2c8b7291f920bafe6a5a0181e7))
+
 # [2.11.0](https://github.com/webex/webrtc-core/compare/v2.10.3...v2.11.0) (2025-01-24)
 
 
