@@ -64,6 +64,8 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
 
   private connectionStateHandler: ConnectionStateHandler;
 
+  private iceCandidates: RTCIceCandidate[] = [];
+
   /**
    * Creates an instance of the RTCPeerConnection.
    *
@@ -113,6 +115,10 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
 
     /* eslint-disable jsdoc/require-jsdoc */
     this.pc.onicecandidate = (ev: RTCPeerConnectionIceEvent) => {
+      if (ev.candidate) {
+        this.iceCandidates.push(ev.candidate);
+      }
+
       this.emit(PeerConnection.Events.IceCandidate, ev);
     };
 
@@ -155,6 +161,15 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
    */
   getIceConnectionState(): RTCIceConnectionState {
     return this.connectionStateHandler.getIceConnectionState();
+  }
+
+  /**
+   * Gets the list of ICE candidates that have been gathered.
+   *
+   * @returns An array of RTCIceCandidate objects representing the ICE candidates.
+   */
+  getIceCandidates(): RTCIceCandidate[] {
+    return this.iceCandidates;
   }
 
   /**

@@ -29,6 +29,7 @@ class RTCPeerConnectionStub {
   }
   onconnectionstatechange: () => void = () => {};
   oniceconnectionstatechange: () => void = () => {};
+  onicecandidate: (event: RTCPeerConnectionIceEvent) => void = () => {};
 }
 
 /**

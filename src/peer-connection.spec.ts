@@ -264,6 +264,68 @@ describe('PeerConnection', () => {
       connectionStateHandlerListener('checking');
     });
   });
+
+  describe('getIceCandidates', () => {
+    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let pc: PeerConnection;
+
+    beforeEach(() => {
+      mockPc = mocked(new RTCPeerConnectionStub(), true);
+
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+
+      pc = new PeerConnection();
+    });
+
+    // eslint-disable-next-line jsdoc/require-jsdoc
+    const emitIceCandidate = (iceCandidate: RTCIceCandidate | null) => {
+      mockPc.onicecandidate({
+        candidate: iceCandidate,
+      } as RTCPeerConnectionIceEvent);
+    };
+
+    it('should return empty array if no ice candidates were gathered', () => {
+      expect.hasAssertions();
+
+      const iceCandidates = pc.getIceCandidates();
+
+      expect(iceCandidates).toBeDefined();
+      expect(iceCandidates).toHaveLength(0);
+    });
+
+    it('should store ice candidates', () => {
+      expect.hasAssertions();
+
+      emitIceCandidate({ address: '1.2.3.4', port: 1234 } as RTCIceCandidate);
+
+      emitIceCandidate({ address: '2.3.4.5', port: 2345 } as RTCIceCandidate);
+
+      const iceCandidates = pc.getIceCandidates();
+
+      expect(iceCandidates).toBeDefined();
+      expect(iceCandidates).toHaveLength(2);
+      expect(iceCandidates[0]).toStrictEqual({
+        address: '1.2.3.4',
+        port: 1234,
+      });
+      expect(iceCandidates[1]).toStrictEqual({
+        address: '2.3.4.5',
+        port: 2345,
+      });
+    });
+
+    it('should not store null ice candidate', () => {
+      expect.hasAssertions();
+
+      emitIceCandidate(null);
+
+      const iceCandidates = pc.getIceCandidates();
+
+      expect(iceCandidates).toBeDefined();
+      expect(iceCandidates).toHaveLength(0);
+    });
+  });
+
   describe('createAnswer', () => {
     let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
     let createAnswerSpy: jest.SpyInstance;
