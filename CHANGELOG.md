@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/webex/webrtc-core/compare/v2.12.0...v2.13.0) (2025-06-02)
+
+
+### Features
+
+* getter for gathered ice candidates ([#89](https://github.com/webex/webrtc-core/issues/89)) ([cb1fa85](https://github.com/webex/webrtc-core/commit/cb1fa856b5f9831786be0557f8a9df4b30b35c95))
+
 # [2.12.0](https://github.com/webex/webrtc-core/compare/v2.11.0...v2.12.0) (2025-02-04)
 
 
