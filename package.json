@@ -113,7 +113,7 @@
   "dependencies": {
     "@webex/ts-events": "^1.1.0",
     "@webex/web-capabilities": "^1.1.0",
-    "@webex/web-media-effects": "2.18.1",
+    "@webex/web-media-effects": "2.28.2",
     "events": "^3.3.0",
     "js-logger": "^1.6.1",
     "typed-emitter": "^2.1.0",
