@@ -1,3 +1,10 @@
+## [2.13.2](https://github.com/webex/webrtc-core/compare/v2.13.1...v2.13.2) (2025-06-30)
+
+
+### Bug Fixes
+
+* update web-capabilities version ([#91](https://github.com/webex/webrtc-core/issues/91)) ([7e1eefa](https://github.com/webex/webrtc-core/commit/7e1eefadb8673eff3f584268026fe6d963a501eb))
+
 ## [2.13.1](https://github.com/webex/webrtc-core/compare/v2.13.0...v2.13.1) (2025-06-26)
 
 
