@@ -2634,10 +2634,10 @@
     events "^3.3.0"
     typed-emitter "^2.1.0"
 
-"@webex/web-capabilities@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.1.0.tgz#7e0e7c8b67ee9cb6b795fecf099ff748ef7d13c6"
-  integrity sha512-Sh++KBHhy8VmEQZtSFuKrvq82SgEILNkAfWvoJGWpCpV9+VirEpUdCYxwBv03V+DF2EcxmOcRt/n8bzjIG1b/A==
+"@webex/web-capabilities@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.6.0.tgz#beef0ae8c78511b4a96b2b97471c094f577290f6"
+  integrity sha512-GiBAVmZQh9KpOLKw4gSUIgamT5MIhr4NCft7E6ZWteC8q7HnM5OaUF49+TFSMMGZLMfkiZCV8gVHqbMljT1w7g==
   dependencies:
     bowser "^2.11.0"
 
