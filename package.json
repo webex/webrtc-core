@@ -19,7 +19,7 @@
   "repository": "https://github.com/webex/webrtc-core.git",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=18.18.0",
     "npm": "please-use-yarn",
     "yarn": ">=1.22.0"
   },
