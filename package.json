@@ -19,7 +19,7 @@
   "repository": "https://github.com/webex/webrtc-core.git",
   "license": "MIT",
   "engines": {
-    "node": ">=22.0.0",
+    "node": ">=18.18.0",
     "npm": "please-use-yarn",
     "yarn": ">=1.22.0"
   },
@@ -111,8 +111,8 @@
     "watch": "rollup -c ./rollup.config.js -w"
   },
   "dependencies": {
-    "@webex/ts-events": "^1.1.0",
-    "@webex/web-capabilities": "^1.6.0",
+    "@webex/ts-events": "^1.2.1",
+    "@webex/web-capabilities": "^1.6.1",
     "@webex/web-media-effects": "2.28.2",
     "events": "^3.3.0",
     "js-logger": "^1.6.1",

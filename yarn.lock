@@ -2626,18 +2626,18 @@
   optionalDependencies:
     "@rollup/rollup-linux-x64-gnu" "4.36.0"
 
-"@webex/ts-events@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@webex/ts-events/-/ts-events-1.1.0.tgz#c96ceefc7f2c9fefd87bb1ccf101d7ffc335f5cc"
-  integrity sha512-ZjG87HeUXPyyPMq6q9nvwvMoIBDAa8s0axgnd6lle566te6fS8cq1a6nUY/FgAdJBIvQMRrwOM+aVC0qA60AWA==
+"@webex/ts-events@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@webex/ts-events/-/ts-events-1.2.1.tgz#f86afb11f4004a98909c214f07fb4170b9b7fd5c"
+  integrity sha512-VvQxZIdYOBJzvI0L9RBI0PKA4RrNduiQrAbXaf237CV3Id4mf3yfFhMznw8IlsmliNeOx9rIvuskKQb4PIRqnQ==
   dependencies:
     events "^3.3.0"
     typed-emitter "^2.1.0"
 
-"@webex/web-capabilities@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.6.0.tgz#beef0ae8c78511b4a96b2b97471c094f577290f6"
-  integrity sha512-GiBAVmZQh9KpOLKw4gSUIgamT5MIhr4NCft7E6ZWteC8q7HnM5OaUF49+TFSMMGZLMfkiZCV8gVHqbMljT1w7g==
+"@webex/web-capabilities@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.6.1.tgz#4a7ed2a45ae0366e1e04a88ec69a268ef9c35548"
+  integrity sha512-KoR6c8i2fYvS8PcVXrzjL2wM8u5o0/vshVwo8AwrwOfVS5kzc1UQCj1HGWxTrtO8i6PzgMaa7NZCyyfU5Je7GA==
   dependencies:
     bowser "^2.11.0"
 
