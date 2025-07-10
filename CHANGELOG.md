@@ -1,3 +1,10 @@
+## [2.13.3](https://github.com/webex/webrtc-core/compare/v2.13.2...v2.13.3) (2025-07-10)
+
+
+### Bug Fixes
+
+* node engines ([#92](https://github.com/webex/webrtc-core/issues/92)) ([0df6de3](https://github.com/webex/webrtc-core/commit/0df6de3eb16d30c60d18e0ae421cae0f5a8650c9))
+
 ## [2.13.2](https://github.com/webex/webrtc-core/compare/v2.13.1...v2.13.2) (2025-06-30)
 
 
