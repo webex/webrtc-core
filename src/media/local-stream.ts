@@ -1,5 +1,5 @@
 import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
-import { BaseEffect, EffectEvent } from '@webex/web-media-effects';
+import { BaseEffect, EffectEvent } from '@webex/web-media-effects-types';
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
 import { logger } from '../util/logger';
 import { Stream, StreamEventNames } from './stream';
@@ -272,15 +272,12 @@ abstract class _LocalStream extends Stream {
      * effect.
      */
     const handleEffectDisposed = () => {
-      effect.off('track-updated' as EffectEvent, handleEffectTrackUpdated);
-      effect.off('disposed' as EffectEvent, handleEffectDisposed);
+      effect.off(EffectEvent.TrackUpdated, handleEffectTrackUpdated);
+      effect.off(EffectEvent.Disposed, handleEffectDisposed);
     };
 
-    // TODO: using EffectEvent.TrackUpdated or EffectEvent.Disposed will cause the entire
-    // web-media-effects lib to be rebuilt and inflates the size of the webrtc-core build, so
-    // we use type assertion here as a temporary workaround.
-    effect.on('track-updated' as EffectEvent, handleEffectTrackUpdated);
-    effect.on('disposed' as EffectEvent, handleEffectDisposed);
+    effect.on(EffectEvent.TrackUpdated, handleEffectTrackUpdated);
+    effect.on(EffectEvent.Disposed, handleEffectDisposed);
 
     // Add the effect to the effects list. If an effect of the same kind has already been added,
     // dispose the existing effect and replace it with the new effect. If the existing effect was

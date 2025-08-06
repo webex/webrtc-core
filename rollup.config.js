@@ -19,6 +19,7 @@ const plugins = [
 export default [
   {
     input: 'src/index.ts',
+    external: ['@webex/web-media-effects-types'],
     output: [
       {
         format: 'esm',
@@ -33,6 +34,7 @@ export default [
   // NOTE: Currently only building ES module when running `yarn dev` to speed up re-builds.
   {
     input: 'src/index.ts',
+    external: ['@webex/web-media-effects-types'],
     output: [
       {
         format: 'cjs',
@@ -44,6 +46,9 @@ export default [
         indent: '\t',
         name: 'Build',
         sourcemap: !production,
+        globals: {
+          '@webex/web-media-effects-types': 'webMediaEffectsTypes',
+        },
       },
       {
         format: 'umd',
@@ -52,6 +57,9 @@ export default [
         name: 'Build',
         sourcemap: !production,
         plugins: [terser()],
+        globals: {
+          '@webex/web-media-effects-types': 'webMediaEffectsTypes',
+        },
       },
     ],
     plugins,
