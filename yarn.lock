@@ -2619,10 +2619,12 @@
   dependencies:
     "@wdio/logger" "6.10.10"
 
-"@webex/ladon-ts@^5.7.1":
-  version "5.7.1"
-  resolved "https://registry.yarnpkg.com/@webex/ladon-ts/-/ladon-ts-5.7.1.tgz#ba02125d0101e2571025f1eb31921ca2bbf1a91d"
-  integrity sha512-h96NY4cEHN3LYwWPDq89QcX0E3IN3u6YlLz3QCI4522qXdF1S1YU+jzaGJ4JSMo+I8YW7U3yXtKH8W39zzV1kw==
+"@webex/ladon-ts@^5.10.0":
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/@webex/ladon-ts/-/ladon-ts-5.10.0.tgz#4781a3e6488efc81c72d6838fc272cc7426e38db"
+  integrity sha512-l2LSzTQVoZxYi4456BuvyrohKq+TPWxCCCdvk3PpFi4dTSG6XfF8A/o+fhC/txtfdngZBpWQnFQY4tUirodUmw==
+  dependencies:
+    js-logger "^1.6.1"
   optionalDependencies:
     "@rollup/rollup-linux-x64-gnu" "4.36.0"
 
@@ -2641,12 +2643,12 @@
   dependencies:
     bowser "^2.11.0"
 
-"@webex/web-media-effects@2.28.2":
-  version "2.28.2"
-  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.28.2.tgz#c9361feb6b315245dc4c89bd313c07421767ad75"
-  integrity sha512-JbzczWYhuppKh/MQxbROrrYuZyFYi7Tz7kTYXyU7hUncVUzUxVXsD2mKO3HPFnvPMKKYCMOxYFJb+7BR8GITgQ==
+"@webex/web-media-effects@2.32.1":
+  version "2.32.1"
+  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.32.1.tgz#79cc42ea27ca3508d6138787343e5faf8ca9f2c5"
+  integrity sha512-4F2VaPSsF0zp35iJ96z59GMOUWMP702FvpyEPEmv0/JuoZAMLwrVCyZCIGX7/DHC1FFvzOXP1qM8/v5cbs8fqA==
   dependencies:
-    "@webex/ladon-ts" "^5.7.1"
+    "@webex/ladon-ts" "^5.10.0"
     events "^3.3.0"
     js-logger "^1.6.1"
     typed-emitter "^1.4.0"
