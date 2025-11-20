@@ -13,7 +13,6 @@
 ## I certify that...
 - [ ] All relevant unit and integration tests have passed and/or have been updated according to this change.
 
-
 ## Generative AI (GAI) Usage Disclosure
 [Reference: Cisco GAI Coding Guidelines](https://cisco.sharepoint.com/sites/AIML/SitePages/Practice-Guide---GAI-Coding.aspx)
 
