@@ -1,3 +1,4 @@
+import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
 import { logger } from '../util/logger';
 import { LocalStream, LocalStreamEventNames } from './local-stream';
 
@@ -12,10 +13,24 @@ export type AppliableVideoConstraints = Pick<
  */
 export type VideoContentHint = 'motion' | 'detail' | 'text' | '';
 
+export enum LocalVideoStreamEventNames {
+  ContentHintChange = 'content-hint-change',
+}
+
+interface LocalVideoStreamEvents {
+  [LocalVideoStreamEventNames.ContentHintChange]: TypedEvent<
+    (contentHint: VideoContentHint) => void
+  >;
+}
+
 /**
  * A video LocalStream.
  */
-export class LocalVideoStream extends LocalStream {
+class _LocalVideoStream extends LocalStream {
+  [LocalVideoStreamEventNames.ContentHintChange] = new TypedEvent<
+    (contentHint: VideoContentHint) => void
+  >();
+
   /**
    * Apply constraints to the stream.
    *
@@ -44,7 +59,10 @@ export class LocalVideoStream extends LocalStream {
    * @param hint - The content hint to set.
    */
   set contentHint(hint: VideoContentHint) {
-    this.inputTrack.contentHint = hint;
+    if (this.inputTrack.contentHint !== hint) {
+      this.inputTrack.contentHint = hint;
+      this[LocalVideoStreamEventNames.ContentHintChange].emit(hint);
+    }
   }
 
   /**
@@ -65,3 +83,9 @@ export class LocalVideoStream extends LocalStream {
     return activeSimulcastLayersNumber;
   }
 }
+
+export const LocalVideoStream = AddEvents<typeof _LocalVideoStream, LocalVideoStreamEvents>(
+  _LocalVideoStream
+);
+
+export type LocalVideoStream = _LocalVideoStream & WithEventsDummyType<LocalVideoStreamEvents>;
