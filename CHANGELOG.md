@@ -1,3 +1,10 @@
+## [2.13.7](https://github.com/webex/webrtc-core/compare/v2.13.6...v2.13.7) (2026-03-31)
+
+
+### Bug Fixes
+
+* update web-media-effects version ([#98](https://github.com/webex/webrtc-core/issues/98)) ([b39f8f9](https://github.com/webex/webrtc-core/commit/b39f8f9d178a526a92bddea6b3980afa92c6737e))
+
 ## [2.13.6](https://github.com/webex/webrtc-core/compare/v2.13.5...v2.13.6) (2026-03-26)
 
 
