@@ -1,6 +1,7 @@
 import { AddEvents, TypedEvent, WithEventsDummyType } from '@webex/ts-events';
 import { BaseEffect, EffectEvent } from '@webex/web-media-effects';
 import { WebrtcCoreError, WebrtcCoreErrorType } from '../errors';
+import { getUserMedia } from '.';
 import { logger } from '../util/logger';
 import { Stream, StreamEventNames } from './stream';
 
@@ -268,11 +269,55 @@ abstract class _LocalStream extends Stream {
     };
 
     /**
+     * Handle when an effect requests specific constraints on the input track.
+     *
+     * Re-acquires the mic track via getUserMedia with the desired constraints,
+     * since MediaStreamTrack.applyConstraints() is silently ignored by Chrome
+     * for audio processing constraints.
+     * See https://issues.chromium.org/issues/40555809.
+     *
+     * @param constraints - The constraints requested by the effect.
+     */
+    const handleConstraintsRequired = async (constraints: MediaTrackConstraints) => {
+      logger.log(`Effect ${effect.id} constraints required:`, constraints);
+
+      try {
+        const oldTrack = this.inputTrack;
+        const oldSettings = oldTrack.getSettings();
+
+        const newStream = await getUserMedia({
+          audio: {
+            ...oldSettings,
+            deviceId: oldSettings.deviceId ? { exact: oldSettings.deviceId } : undefined,
+            ...constraints,
+          },
+        });
+        const [newTrack] = newStream.getAudioTracks();
+
+        this.removeTrackHandlers(oldTrack);
+        this.inputStream.removeTrack(oldTrack);
+        this.inputStream.addTrack(newTrack);
+        this.addTrackHandlers(newTrack);
+
+        if (this.effects.length > 0) {
+          await this.effects[0].replaceInputTrack(newTrack);
+        }
+
+        oldTrack.stop();
+        this[LocalStreamEventNames.ConstraintsChange].emit();
+        logger.log(`Effect constraints applied via track re-acquisition.`);
+      } catch (err: unknown) {
+        logger.error(`Failed to re-acquire track with required constraints:`, err);
+      }
+    };
+
+    /**
      * Handle when the effect has been disposed. This will remove all event listeners from the
      * effect.
      */
     const handleEffectDisposed = () => {
       effect.off('track-updated' as EffectEvent, handleEffectTrackUpdated);
+      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired as never);
       effect.off('disposed' as EffectEvent, handleEffectDisposed);
     };
 
@@ -280,6 +325,7 @@ abstract class _LocalStream extends Stream {
     // web-media-effects lib to be rebuilt and inflates the size of the webrtc-core build, so
     // we use type assertion here as a temporary workaround.
     effect.on('track-updated' as EffectEvent, handleEffectTrackUpdated);
+    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired as never);
     effect.on('disposed' as EffectEvent, handleEffectDisposed);
 
     // Add the effect to the effects list. If an effect of the same kind has already been added,
