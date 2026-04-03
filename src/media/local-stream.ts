@@ -269,11 +269,24 @@ abstract class _LocalStream extends Stream {
     };
 
     /**
+     * Track settings saved before the effect changed them, keyed by constraint
+     * property name. Used to restore the user's original values when the effect
+     * emits empty constraints (disable / dispose / model switch to one with no
+     * special requirements).
+     */
+    let savedConstraints: Record<string, MediaTrackConstraints[keyof MediaTrackConstraints]> = {};
+
+    /**
      * Handle when an effect requests specific constraints on the input track.
      *
-     * Re-acquires the mic track via getUserMedia with the desired constraints,
-     * since MediaStreamTrack.applyConstraints() is silently ignored by Chrome
-     * for audio processing constraints.
+     * Non-empty constraints: save the current values for those properties, then
+     * re-acquire the mic track with the requested constraints.
+     *
+     * Empty constraints ({}): restore the previously saved values so the track
+     * returns to the user's original settings.
+     *
+     * Re-acquires via getUserMedia because MediaStreamTrack.applyConstraints()
+     * is silently ignored by Chrome for audio processing constraints.
      * See https://issues.chromium.org/issues/40555809.
      *
      * @param constraints - The constraints requested by the effect.
@@ -282,19 +295,54 @@ abstract class _LocalStream extends Stream {
       logger.log(`Effect ${effect.id} constraints required:`, constraints);
 
       try {
+        const isEmptyConstraints = !Object.keys(constraints).length;
+
+        let constraintsToApply: MediaTrackConstraints;
+
+        if (isEmptyConstraints) {
+          if (!Object.keys(savedConstraints).length) {
+            logger.log(`No constraints to restore, skipping re-acquisition.`);
+            return;
+          }
+          constraintsToApply = { ...savedConstraints } as MediaTrackConstraints;
+          savedConstraints = {};
+          logger.log(`Restoring saved constraints:`, constraintsToApply);
+        } else {
+          constraintsToApply = constraints;
+        }
+
         const oldTrack = this.inputTrack;
         const oldSettings = oldTrack.getSettings();
+
+        const entriesToApply = Object.entries(constraintsToApply);
+        const alreadySatisfied = entriesToApply.every(
+          ([key, value]) => oldSettings[key as keyof MediaTrackSettings] === value
+        );
+        if (alreadySatisfied) {
+          logger.log(`Effect constraints already satisfied, skipping re-acquisition.`);
+          return;
+        }
+
+        if (!isEmptyConstraints) {
+          Object.keys(constraints).forEach((key) => {
+            if (!(key in savedConstraints)) {
+              savedConstraints[key] = oldSettings[key as keyof MediaTrackSettings];
+            }
+          });
+        }
+
+        this.removeTrackHandlers(oldTrack);
+        oldTrack.stop();
 
         const newStream = await getUserMedia({
           audio: {
             ...oldSettings,
+            ...constraintsToApply,
             deviceId: oldSettings.deviceId ? { exact: oldSettings.deviceId } : undefined,
-            ...constraints,
           },
         });
         const [newTrack] = newStream.getAudioTracks();
 
-        this.removeTrackHandlers(oldTrack);
         this.inputStream.removeTrack(oldTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
@@ -302,8 +350,6 @@ abstract class _LocalStream extends Stream {
         if (this.effects.length > 0) {
           await this.effects[0].replaceInputTrack(newTrack);
         }
-
-        oldTrack.stop();
         this[LocalStreamEventNames.ConstraintsChange].emit();
         logger.log(`Effect constraints applied via track re-acquisition.`);
       } catch (err: unknown) {

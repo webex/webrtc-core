@@ -256,22 +256,63 @@ describe('LocalStream', () => {
       });
     });
 
-    it('should call getUserMedia with old settings when constraints are empty', async () => {
+    it('should skip re-acquisition when constraints are empty and nothing saved', async () => {
       expect.hasAssertions();
 
       await constraintsHandler({});
 
+      expect(getUserMediaSpy).not.toHaveBeenCalled();
+    });
+
+    it('should skip re-acquisition when constraints are already satisfied', async () => {
+      expect.hasAssertions();
+
+      await constraintsHandler({ autoGainControl: true, noiseSuppression: true });
+
+      expect(getUserMediaSpy).not.toHaveBeenCalled();
+    });
+
+    it('should restore saved user constraints when empty constraints are received', async () => {
+      expect.hasAssertions();
+
+      await constraintsHandler({ autoGainControl: false, noiseSuppression: false });
+      getUserMediaSpy.mockClear();
+
+      (mockStream.getTracks as jest.Mock).mockReturnValue([newAudioTrack]);
+      jest.spyOn(newAudioTrack, 'getSettings').mockReturnValue({
+        ...audioSettings,
+        autoGainControl: false,
+        noiseSuppression: false,
+      });
+
+      await constraintsHandler({});
+
       expect(getUserMediaSpy).toHaveBeenCalledWith({
-        audio: {
-          deviceId: { exact: 'test-device-id' },
-          sampleRate: 48000,
-          channelCount: 1,
-          sampleSize: 16,
-          echoCancellation: true,
+        audio: expect.objectContaining({
           autoGainControl: true,
           noiseSuppression: true,
-        },
+        }),
       });
+    });
+
+    it('should not restore a second time after saved constraints are cleared', async () => {
+      expect.hasAssertions();
+
+      await constraintsHandler({ autoGainControl: false });
+      getUserMediaSpy.mockClear();
+
+      (mockStream.getTracks as jest.Mock).mockReturnValue([newAudioTrack]);
+      jest.spyOn(newAudioTrack, 'getSettings').mockReturnValue({
+        ...audioSettings,
+        autoGainControl: false,
+      });
+
+      await constraintsHandler({});
+      getUserMediaSpy.mockClear();
+
+      await constraintsHandler({});
+
+      expect(getUserMediaSpy).not.toHaveBeenCalled();
     });
 
     it('should replace the input track on the first effect', async () => {
@@ -291,6 +332,48 @@ describe('LocalStream', () => {
       await constraintsHandler({ autoGainControl: false });
 
       expect(stopSpy).toHaveBeenCalledWith();
+    });
+
+    it('should remove track handlers before stopping the old track', async () => {
+      expect.hasAssertions();
+
+      const oldTrack = mockStream.getTracks()[0];
+      const callOrder: string[] = [];
+
+      jest.spyOn(oldTrack, 'removeEventListener').mockImplementation(() => {
+        callOrder.push('removeEventListener');
+      });
+      jest.spyOn(oldTrack, 'stop').mockImplementation(() => {
+        callOrder.push('stop');
+      });
+
+      await constraintsHandler({ autoGainControl: false });
+
+      const firstRemove = callOrder.indexOf('removeEventListener');
+      const firstStop = callOrder.indexOf('stop');
+      expect(firstRemove).toBeGreaterThanOrEqual(0);
+      expect(firstStop).toBeGreaterThan(firstRemove);
+    });
+
+    it('should stop the old track before calling getUserMedia', async () => {
+      expect.hasAssertions();
+
+      const oldTrack = mockStream.getTracks()[0];
+      const callOrder: string[] = [];
+
+      jest.spyOn(oldTrack, 'stop').mockImplementation(() => {
+        callOrder.push('stop');
+      });
+      getUserMediaSpy.mockImplementation(async () => {
+        callOrder.push('getUserMedia');
+        const stream = createMockedStream();
+        (stream.getAudioTracks as jest.Mock).mockReturnValue(stream.getTracks());
+        return stream;
+      });
+
+      await constraintsHandler({ autoGainControl: false });
+
+      expect(callOrder).toStrictEqual(['stop', 'getUserMedia']);
     });
   });
 
