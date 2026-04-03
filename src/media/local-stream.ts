@@ -334,14 +334,31 @@ abstract class _LocalStream extends Stream {
         this.removeTrackHandlers(oldTrack);
         oldTrack.stop();
 
-        const newStream = await getUserMedia({
-          audio: {
-            ...oldSettings,
-            ...constraintsToApply,
-            deviceId: oldSettings.deviceId ? { exact: oldSettings.deviceId } : undefined,
-          },
-        });
-        const [newTrack] = newStream.getAudioTracks();
+        let newTrack: MediaStreamTrack;
+
+        try {
+          const newStream = await getUserMedia({
+            audio: {
+              ...oldSettings,
+              ...constraintsToApply,
+              deviceId: oldSettings.deviceId ? { exact: oldSettings.deviceId } : undefined,
+            },
+          });
+          [newTrack] = newStream.getAudioTracks();
+        } catch (acquireErr) {
+          logger.warn(
+            `Failed to re-acquire track with effect constraints, recovering:`,
+            acquireErr
+          );
+          const recoveryStream = await getUserMedia({
+            audio: {
+              ...oldSettings,
+              deviceId: oldSettings.deviceId ? { exact: oldSettings.deviceId } : undefined,
+            },
+          });
+          [newTrack] = recoveryStream.getAudioTracks();
+          savedConstraints = {};
+        }
 
         this.inputStream.removeTrack(oldTrack);
         this.inputStream.addTrack(newTrack);
@@ -353,7 +370,9 @@ abstract class _LocalStream extends Stream {
         this[LocalStreamEventNames.ConstraintsChange].emit();
         logger.log(`Effect constraints applied via track re-acquisition.`);
       } catch (err: unknown) {
-        logger.error(`Failed to re-acquire track with required constraints:`, err);
+        logger.error(`Failed to re-acquire track after constraint change:`, err);
+        savedConstraints = {};
+        this[StreamEventNames.Ended].emit();
       }
     };
 
