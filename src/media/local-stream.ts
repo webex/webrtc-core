@@ -292,6 +292,11 @@ abstract class _LocalStream extends Stream {
      * @param constraints - The constraints requested by the effect.
      */
     const handleConstraintsRequired = async (constraints: MediaTrackConstraints) => {
+      if (!this.effects.includes(effect)) {
+        logger.log(`Effect ${effect.id} is no longer active, ignoring constraints-required.`);
+        return;
+      }
+
       logger.log(`Effect ${effect.id} constraints required:`, constraints);
 
       try {
@@ -313,6 +318,7 @@ abstract class _LocalStream extends Stream {
 
         const oldTrack = this.inputTrack;
         const oldSettings = oldTrack.getSettings();
+        const wasEnabled = oldTrack.enabled;
 
         const entriesToApply = Object.entries(constraintsToApply);
         const alreadySatisfied = entriesToApply.every(
@@ -360,6 +366,7 @@ abstract class _LocalStream extends Stream {
           savedConstraints = {};
         }
 
+        newTrack.enabled = wasEnabled;
         this.inputStream.removeTrack(oldTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
