@@ -408,6 +408,17 @@ describe('LocalStream', () => {
       expect(endedSpy).toHaveBeenCalledWith();
     });
 
+    it('should skip re-acquisition when the track is already ended', async () => {
+      expect.hasAssertions();
+
+      const currentTrack = audioStream.getTracks()[0];
+      (currentTrack as { readyState: string }).readyState = 'ended';
+
+      await constraintsHandler({ autoGainControl: false });
+
+      expect(getUserMediaSpy).not.toHaveBeenCalled();
+    });
+
     it('should not register constraints-required handler for video tracks', async () => {
       expect.hasAssertions();
 

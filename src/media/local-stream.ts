@@ -297,6 +297,11 @@ abstract class _LocalStream extends Stream {
         return;
       }
 
+      if (this.inputTrack.readyState === 'ended') {
+        logger.log(`Track already ended, ignoring constraints-required.`);
+        return;
+      }
+
       logger.log(`Effect ${effect.id} constraints required:`, constraints);
 
       try {
