@@ -274,13 +274,13 @@ abstract class _LocalStream extends Stream {
      * emits empty constraints (disable / dispose / model switch to one with no
      * special requirements).
      */
-    let savedConstraints: Record<string, MediaTrackConstraints[keyof MediaTrackConstraints]> = {};
+    let savedTrackSettings: MediaTrackSettings = {};
 
     /**
-     * Handle when an effect requests specific constraints on the input track.
+     * Handle when an audio effect requests specific constraints on the input track.
      *
      * Non-empty constraints: save the current values for those properties, then
-     * re-acquire the mic track with the requested constraints.
+     * re-acquire the audio track with the requested constraints.
      *
      * Empty constraints ({}): restore the previously saved values so the track
      * returns to the user's original settings.
@@ -293,7 +293,7 @@ abstract class _LocalStream extends Stream {
      */
     const handleConstraintsRequired = async (constraints: MediaTrackConstraints) => {
       if (!this.effects.includes(effect)) {
-        logger.log(`Effect ${effect.id} is no longer active, ignoring constraints-required.`);
+        logger.log(`Effect ${effect.id} not in effects list, ignoring constraints-required.`);
         return;
       }
 
@@ -305,69 +305,63 @@ abstract class _LocalStream extends Stream {
         let constraintsToApply: MediaTrackConstraints;
 
         if (isEmptyConstraints) {
-          if (!Object.keys(savedConstraints).length) {
-            logger.log(`No constraints to restore, skipping re-acquisition.`);
+          if (!Object.keys(savedTrackSettings).length) {
+            logger.log(`No settings to restore, skipping re-acquisition.`);
             return;
           }
-          constraintsToApply = { ...savedConstraints } as MediaTrackConstraints;
-          savedConstraints = {};
-          logger.log(`Restoring saved constraints:`, constraintsToApply);
+          constraintsToApply = { ...savedTrackSettings };
+          savedTrackSettings = {};
+          logger.log(`Restoring saved settings:`, constraintsToApply);
         } else {
           constraintsToApply = constraints;
         }
 
-        const oldTrack = this.inputTrack;
-        const oldSettings = oldTrack.getSettings();
-        const wasEnabled = oldTrack.enabled;
+        const currentTrack = this.inputTrack;
+        const currentSettings = currentTrack.getSettings();
+        const isEnabled = currentTrack.enabled;
 
-        const entriesToApply = Object.entries(constraintsToApply);
-        const alreadySatisfied = entriesToApply.every(
-          ([key, value]) => oldSettings[key as keyof MediaTrackSettings] === value
+        const constraintEntries = Object.entries(constraintsToApply);
+        const isAlreadySatisfied = constraintEntries.every(
+          ([key, value]) => currentSettings[key as keyof MediaTrackSettings] === value
         );
-        if (alreadySatisfied) {
+        if (isAlreadySatisfied) {
           logger.log(`Effect constraints already satisfied, skipping re-acquisition.`);
           return;
         }
 
         if (!isEmptyConstraints) {
           Object.keys(constraints).forEach((key) => {
-            if (!(key in savedConstraints)) {
-              savedConstraints[key] = oldSettings[key as keyof MediaTrackSettings];
+            if (!(key in savedTrackSettings)) {
+              Object.assign(savedTrackSettings, {
+                [key]: currentSettings[key as keyof MediaTrackSettings],
+              });
             }
           });
         }
 
-        this.removeTrackHandlers(oldTrack);
-        oldTrack.stop();
+        this.removeTrackHandlers(currentTrack);
+        currentTrack.stop();
 
-        let newTrack: MediaStreamTrack;
+        const deviceId = currentSettings.deviceId ? { exact: currentSettings.deviceId } : undefined;
 
-        try {
-          const newStream = await getUserMedia({
-            audio: {
-              ...oldSettings,
-              ...constraintsToApply,
-              deviceId: oldSettings.deviceId ? { exact: oldSettings.deviceId } : undefined,
-            },
+        let newStream = await getUserMedia({
+          audio: { ...currentSettings, ...constraintsToApply, deviceId },
+        }).catch((err) => {
+          logger.warn(`Failed to re-acquire track with effect constraints, recovering:`, err);
+          return null;
+        });
+
+        if (!newStream) {
+          newStream = await getUserMedia({
+            audio: { ...currentSettings, deviceId },
           });
-          [newTrack] = newStream.getAudioTracks();
-        } catch (acquireErr) {
-          logger.warn(
-            `Failed to re-acquire track with effect constraints, recovering:`,
-            acquireErr
-          );
-          const recoveryStream = await getUserMedia({
-            audio: {
-              ...oldSettings,
-              deviceId: oldSettings.deviceId ? { exact: oldSettings.deviceId } : undefined,
-            },
-          });
-          [newTrack] = recoveryStream.getAudioTracks();
-          savedConstraints = {};
+          savedTrackSettings = {};
         }
 
-        newTrack.enabled = wasEnabled;
-        this.inputStream.removeTrack(oldTrack);
+        const [newTrack] = newStream.getAudioTracks();
+
+        newTrack.enabled = isEnabled;
+        this.inputStream.removeTrack(currentTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
 
@@ -378,7 +372,7 @@ abstract class _LocalStream extends Stream {
         logger.log(`Effect constraints applied via track re-acquisition.`);
       } catch (err: unknown) {
         logger.error(`Failed to re-acquire track after constraint change:`, err);
-        savedConstraints = {};
+        savedTrackSettings = {};
         this[StreamEventNames.Ended].emit();
       }
     };
@@ -388,17 +382,21 @@ abstract class _LocalStream extends Stream {
      * effect.
      */
     const handleEffectDisposed = () => {
-      effect.off('track-updated' as EffectEvent, handleEffectTrackUpdated);
-      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired as never);
-      effect.off('disposed' as EffectEvent, handleEffectDisposed);
+      effect.off(EffectEvent.TrackUpdated, handleEffectTrackUpdated);
+      if (this.outputTrack.kind === 'audio') {
+        effect.off(EffectEvent.ConstraintsRequired, handleConstraintsRequired);
+      }
+      effect.off(EffectEvent.Disposed, handleEffectDisposed);
     };
 
     // TODO: using EffectEvent.TrackUpdated or EffectEvent.Disposed will cause the entire
     // web-media-effects lib to be rebuilt and inflates the size of the webrtc-core build, so
     // we use type assertion here as a temporary workaround.
-    effect.on('track-updated' as EffectEvent, handleEffectTrackUpdated);
-    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired as never);
-    effect.on('disposed' as EffectEvent, handleEffectDisposed);
+    effect.on(EffectEvent.TrackUpdated, handleEffectTrackUpdated);
+    if (this.outputTrack.kind === 'audio') {
+      effect.on(EffectEvent.ConstraintsRequired, handleConstraintsRequired);
+    }
+    effect.on(EffectEvent.Disposed, handleEffectDisposed);
 
     // Add the effect to the effects list. If an effect of the same kind has already been added,
     // dispose the existing effect and replace it with the new effect. If the existing effect was

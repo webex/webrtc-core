@@ -1,7 +1,8 @@
 import { WebrtcCoreError } from '../errors';
 import * as media from '.';
-import { createMockedStream } from '../util/test-utils';
+import { createMockedAudioStream, createMockedStream } from '../util/test-utils';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
+import { StreamEventNames } from './stream';
 
 /**
  * A dummy LocalStream implementation, so we can instantiate it for testing.
@@ -199,13 +200,18 @@ describe('LocalStream', () => {
       noiseSuppression: true,
     };
 
+    let audioStream: MediaStream;
+    let audioLocalStream: LocalStream;
     let effect: TrackEffect;
     let constraintsHandler: (constraints: MediaTrackConstraints) => Promise<void>;
     let getUserMediaSpy: jest.SpyInstance;
     let newAudioTrack: MediaStreamTrack;
 
     beforeEach(async () => {
-      const inputTrack = mockStream.getTracks()[0];
+      audioStream = createMockedAudioStream();
+      audioLocalStream = new TestLocalStream(audioStream);
+
+      const inputTrack = audioStream.getTracks()[0];
       jest.spyOn(inputTrack, 'getSettings').mockReturnValue(audioSettings);
 
       const eventHandlers = new Map<string, (...args: unknown[]) => void>();
@@ -222,13 +228,13 @@ describe('LocalStream', () => {
         off: jest.fn(),
       } as unknown as TrackEffect;
 
-      const newMockStream = createMockedStream();
+      const newMockStream = createMockedAudioStream();
       [newAudioTrack] = newMockStream.getTracks();
       (newMockStream.getAudioTracks as jest.Mock).mockReturnValue([newAudioTrack]);
 
       getUserMediaSpy = jest.spyOn(media, 'getUserMedia').mockResolvedValue(newMockStream);
 
-      await localStream.addEffect(effect);
+      await audioLocalStream.addEffect(effect);
       constraintsHandler = eventHandlers.get('constraints-required') as (
         constraints: MediaTrackConstraints
       ) => Promise<void>;
@@ -238,7 +244,7 @@ describe('LocalStream', () => {
       getUserMediaSpy.mockRestore();
     });
 
-    it('should call getUserMedia with old settings and effect constraints', async () => {
+    it('should call getUserMedia with current settings and effect constraints', async () => {
       expect.hasAssertions();
 
       await constraintsHandler({ autoGainControl: false, noiseSuppression: false });
@@ -278,7 +284,7 @@ describe('LocalStream', () => {
       await constraintsHandler({ autoGainControl: false, noiseSuppression: false });
       getUserMediaSpy.mockClear();
 
-      (mockStream.getTracks as jest.Mock).mockReturnValue([newAudioTrack]);
+      (audioStream.getTracks as jest.Mock).mockReturnValue([newAudioTrack]);
       jest.spyOn(newAudioTrack, 'getSettings').mockReturnValue({
         ...audioSettings,
         autoGainControl: false,
@@ -301,7 +307,7 @@ describe('LocalStream', () => {
       await constraintsHandler({ autoGainControl: false });
       getUserMediaSpy.mockClear();
 
-      (mockStream.getTracks as jest.Mock).mockReturnValue([newAudioTrack]);
+      (audioStream.getTracks as jest.Mock).mockReturnValue([newAudioTrack]);
       jest.spyOn(newAudioTrack, 'getSettings').mockReturnValue({
         ...audioSettings,
         autoGainControl: false,
@@ -323,27 +329,16 @@ describe('LocalStream', () => {
       expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
     });
 
-    it('should stop the old track', async () => {
+    it('should remove track handlers before stopping the current track', async () => {
       expect.hasAssertions();
 
-      const oldTrack = mockStream.getTracks()[0];
-      const stopSpy = jest.spyOn(oldTrack, 'stop');
-
-      await constraintsHandler({ autoGainControl: false });
-
-      expect(stopSpy).toHaveBeenCalledWith();
-    });
-
-    it('should remove track handlers before stopping the old track', async () => {
-      expect.hasAssertions();
-
-      const oldTrack = mockStream.getTracks()[0];
+      const currentTrack = audioStream.getTracks()[0];
       const callOrder: string[] = [];
 
-      jest.spyOn(oldTrack, 'removeEventListener').mockImplementation(() => {
+      jest.spyOn(currentTrack, 'removeEventListener').mockImplementation(() => {
         callOrder.push('removeEventListener');
       });
-      jest.spyOn(oldTrack, 'stop').mockImplementation(() => {
+      jest.spyOn(currentTrack, 'stop').mockImplementation(() => {
         callOrder.push('stop');
       });
 
@@ -355,25 +350,88 @@ describe('LocalStream', () => {
       expect(firstStop).toBeGreaterThan(firstRemove);
     });
 
-    it('should stop the old track before calling getUserMedia', async () => {
+    it('should stop the current track before calling getUserMedia', async () => {
       expect.hasAssertions();
 
-      const oldTrack = mockStream.getTracks()[0];
+      const currentTrack = audioStream.getTracks()[0];
       const callOrder: string[] = [];
 
-      jest.spyOn(oldTrack, 'stop').mockImplementation(() => {
+      jest.spyOn(currentTrack, 'stop').mockImplementation(() => {
         callOrder.push('stop');
       });
       getUserMediaSpy.mockImplementation(async () => {
         callOrder.push('getUserMedia');
-        const stream = createMockedStream();
-        (stream.getAudioTracks as jest.Mock).mockReturnValue(stream.getTracks());
-        return stream;
+        return createMockedAudioStream();
       });
 
       await constraintsHandler({ autoGainControl: false });
 
       expect(callOrder).toStrictEqual(['stop', 'getUserMedia']);
+    });
+
+    it('should fall back to getUserMedia without effect constraints when first call fails', async () => {
+      expect.hasAssertions();
+
+      const fallbackStream = createMockedAudioStream();
+      getUserMediaSpy
+        .mockRejectedValueOnce(new Error('OverconstrainedError'))
+        .mockResolvedValueOnce(fallbackStream);
+
+      await constraintsHandler({ autoGainControl: false });
+
+      expect(getUserMediaSpy).toHaveBeenCalledTimes(2);
+      expect(getUserMediaSpy).toHaveBeenLastCalledWith({
+        audio: {
+          deviceId: { exact: 'test-device-id' },
+          sampleRate: 48000,
+          channelCount: 1,
+          sampleSize: 16,
+          echoCancellation: true,
+          autoGainControl: true,
+          noiseSuppression: true,
+        },
+      });
+    });
+
+    it('should emit Ended when both getUserMedia calls fail', async () => {
+      expect.hasAssertions();
+
+      const endedSpy = jest.spyOn(audioLocalStream[StreamEventNames.Ended], 'emit');
+
+      getUserMediaSpy
+        .mockRejectedValueOnce(new Error('OverconstrainedError'))
+        .mockRejectedValueOnce(new Error('NotFoundError'));
+
+      await constraintsHandler({ autoGainControl: false });
+
+      expect(getUserMediaSpy).toHaveBeenCalledTimes(2);
+      expect(endedSpy).toHaveBeenCalledWith();
+    });
+
+    it('should not register constraints-required handler for video tracks', async () => {
+      expect.hasAssertions();
+
+      const videoStream = createMockedStream();
+      const videoLocalStream = new TestLocalStream(videoStream);
+
+      const videoEventHandlers = new Map<string, (...args: unknown[]) => void>();
+      const videoEffect = {
+        id: 'video-effect',
+        kind: 'video-kind',
+        isEnabled: false,
+        dispose: jest.fn().mockResolvedValue(undefined),
+        load: jest.fn().mockResolvedValue(undefined),
+        on: jest.fn().mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
+          videoEventHandlers.set(event, handler);
+        }),
+        off: jest.fn(),
+      } as unknown as TrackEffect;
+
+      await videoLocalStream.addEffect(videoEffect);
+
+      expect(videoEventHandlers.has('constraints-required')).toBe(false);
+      expect(videoEventHandlers.has('track-updated')).toBe(true);
+      expect(videoEventHandlers.has('disposed')).toBe(true);
     });
   });
 
