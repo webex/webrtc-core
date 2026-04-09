@@ -408,6 +408,17 @@ describe('LocalStream', () => {
       expect(endedSpy).toHaveBeenCalledWith();
     });
 
+    it('should preserve the enabled state of the track after re-acquisition', async () => {
+      expect.hasAssertions();
+
+      const currentTrack = audioStream.getTracks()[0];
+      currentTrack.enabled = false;
+
+      await constraintsHandler({ autoGainControl: false });
+
+      expect(newAudioTrack.enabled).toBe(false);
+    });
+
     it('should skip re-acquisition when the track is already ended', async () => {
       expect.hasAssertions();
 
