@@ -189,7 +189,7 @@ describe('LocalStream', () => {
     });
   });
 
-  describe('handleConstraintsRequired', () => {
+  describe('handleAudioConstraintsRequired', () => {
     const audioSettings: MediaTrackSettings = {
       deviceId: 'test-device-id',
       sampleRate: 48000,

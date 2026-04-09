@@ -291,7 +291,7 @@ abstract class _LocalStream extends Stream {
      *
      * @param constraints - The constraints requested by the effect.
      */
-    const handleConstraintsRequired = async (constraints: MediaTrackConstraints) => {
+    const handleAudioConstraintsRequired = async (constraints: MediaTrackConstraints) => {
       if (!this.effects.includes(effect)) {
         logger.log(`Effect ${effect.id} not in effects list, ignoring constraints-required.`);
         return;
@@ -389,7 +389,7 @@ abstract class _LocalStream extends Stream {
     const handleEffectDisposed = () => {
       effect.off(EffectEvent.TrackUpdated, handleEffectTrackUpdated);
       if (this.outputTrack.kind === 'audio') {
-        effect.off(EffectEvent.ConstraintsRequired, handleConstraintsRequired);
+        effect.off(EffectEvent.ConstraintsRequired, handleAudioConstraintsRequired);
       }
       effect.off(EffectEvent.Disposed, handleEffectDisposed);
     };
@@ -399,7 +399,7 @@ abstract class _LocalStream extends Stream {
     // we use type assertion here as a temporary workaround.
     effect.on(EffectEvent.TrackUpdated, handleEffectTrackUpdated);
     if (this.outputTrack.kind === 'audio') {
-      effect.on(EffectEvent.ConstraintsRequired, handleConstraintsRequired);
+      effect.on(EffectEvent.ConstraintsRequired, handleAudioConstraintsRequired);
     }
     effect.on(EffectEvent.Disposed, handleEffectDisposed);
 
