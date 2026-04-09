@@ -376,9 +376,15 @@ abstract class _LocalStream extends Stream {
         this[LocalStreamEventNames.ConstraintsChange].emit();
         logger.log(`Effect constraints applied via track re-acquisition.`);
       } catch (err: unknown) {
-        logger.error(`Failed to re-acquire track after constraint change:`, err);
         savedTrackSettings = {};
-        this[StreamEventNames.Ended].emit();
+
+        if (this.inputTrack.readyState === 'live') {
+          this.changeOutputTrack(this.inputTrack);
+          logger.warn(`Effect wiring failed, continuing with raw mic track:`, err);
+        } else {
+          logger.error(`Failed to re-acquire mic track, stream ended:`, err);
+          this[StreamEventNames.Ended].emit();
+        }
       }
     };
 

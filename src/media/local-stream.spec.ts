@@ -213,6 +213,9 @@ describe('LocalStream', () => {
 
       const inputTrack = audioStream.getTracks()[0];
       jest.spyOn(inputTrack, 'getSettings').mockReturnValue(audioSettings);
+      jest.spyOn(inputTrack, 'stop').mockImplementation(() => {
+        (inputTrack as { readyState: string }).readyState = 'ended';
+      });
 
       const eventHandlers = new Map<string, (...args: unknown[]) => void>();
       effect = {
@@ -397,6 +400,10 @@ describe('LocalStream', () => {
       expect.hasAssertions();
 
       const endedSpy = jest.spyOn(audioLocalStream[StreamEventNames.Ended], 'emit');
+      const outputTrackChangeSpy = jest.spyOn(
+        audioLocalStream[LocalStreamEventNames.OutputTrackChange],
+        'emit'
+      );
 
       getUserMediaSpy
         .mockRejectedValueOnce(new Error('OverconstrainedError'))
@@ -406,6 +413,28 @@ describe('LocalStream', () => {
 
       expect(getUserMediaSpy).toHaveBeenCalledTimes(2);
       expect(endedSpy).toHaveBeenCalledWith();
+      expect(outputTrackChangeSpy).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to raw mic track when replaceInputTrack fails', async () => {
+      expect.hasAssertions();
+
+      const endedSpy = jest.spyOn(audioLocalStream[StreamEventNames.Ended], 'emit');
+
+      (effect.replaceInputTrack as jest.Mock).mockRejectedValueOnce(
+        new Error('AudioContext closed')
+      );
+
+      (newAudioTrack as { readyState: string }).readyState = 'live';
+
+      (audioStream.addTrack as jest.Mock).mockImplementation((track: MediaStreamTrack) => {
+        (audioStream.getTracks as jest.Mock).mockReturnValue([track]);
+      });
+
+      await constraintsHandler({ autoGainControl: false });
+
+      expect(endedSpy).not.toHaveBeenCalled();
+      expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
     });
 
     it('should preserve the enabled state of the track after re-acquisition', async () => {
