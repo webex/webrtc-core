@@ -365,6 +365,15 @@ abstract class _LocalStream extends Stream {
 
         const [newTrack] = newStream.getAudioTracks();
 
+        // If the effect was disposed while getUserMedia was pending, stop the
+        // newly acquired track and bail out to avoid reinserting a live mic
+        // track into a stopped stream (same pattern as addEffect).
+        if (!this.effects.includes(effect)) {
+          newTrack.stop();
+          logger.log(`Effect was disposed during track re-acquisition, discarding new track.`);
+          return;
+        }
+
         newTrack.enabled = isEnabled;
         this.inputStream.removeTrack(currentTrack);
         this.inputStream.addTrack(newTrack);

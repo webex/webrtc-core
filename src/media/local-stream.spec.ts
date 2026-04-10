@@ -437,6 +437,44 @@ describe('LocalStream', () => {
       expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
     });
 
+    it('should discard new track when effect is disposed during getUserMedia', async () => {
+      expect.hasAssertions();
+
+      const endedSpy = jest.spyOn(audioLocalStream[StreamEventNames.Ended], 'emit');
+      const constraintsChangeSpy = jest.spyOn(
+        audioLocalStream[LocalStreamEventNames.ConstraintsChange],
+        'emit'
+      );
+      const newTrackStopSpy = jest.spyOn(newAudioTrack, 'stop');
+
+      // Make getUserMedia resolve only after we dispose effects, simulating
+      // the race where the user hangs up while getUserMedia is pending.
+      // eslint-disable-next-line jsdoc/require-jsdoc, @typescript-eslint/no-empty-function
+      let resolveGetUserMedia: (stream: MediaStream) => void = () => {};
+      getUserMediaSpy.mockReturnValueOnce(
+        new Promise<MediaStream>((resolve) => {
+          resolveGetUserMedia = resolve;
+        })
+      );
+
+      const handlerPromise = constraintsHandler({ autoGainControl: false });
+
+      // Dispose effects while getUserMedia is pending
+      await audioLocalStream.disposeEffects();
+
+      // Now let getUserMedia resolve with the new track
+      const newMockStream = createMockedAudioStream();
+      (newMockStream.getAudioTracks as jest.Mock).mockReturnValue([newAudioTrack]);
+      resolveGetUserMedia(newMockStream);
+
+      await handlerPromise;
+
+      expect(newTrackStopSpy).toHaveBeenCalledWith();
+      expect(endedSpy).not.toHaveBeenCalled();
+      expect(constraintsChangeSpy).not.toHaveBeenCalled();
+      expect(effect.replaceInputTrack).not.toHaveBeenCalled();
+    });
+
     it('should preserve the enabled state of the track after re-acquisition', async () => {
       expect.hasAssertions();
 
