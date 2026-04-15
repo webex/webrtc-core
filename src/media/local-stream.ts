@@ -288,7 +288,7 @@ abstract class _LocalStream extends Stream {
       constraintsToApply: MediaTrackConstraints
     ): Promise<void> => {
       if (!this.effects.includes(effect)) {
-        logger.log(`Effect ${effect.id} not in effects list, ignoring constraints change.`);
+        logger.log(`Effect ${effect.id} was replaced or disposed, skipping constraint handling.`);
         return;
       }
 
@@ -310,9 +310,6 @@ abstract class _LocalStream extends Stream {
       }
 
       try {
-        this.removeTrackHandlers(currentTrack);
-        currentTrack.stop();
-
         const deviceId = currentSettings.deviceId ? { exact: currentSettings.deviceId } : undefined;
 
         let newStream = await getUserMedia({
@@ -331,14 +328,19 @@ abstract class _LocalStream extends Stream {
 
         const [newTrack] = newStream.getAudioTracks();
 
-        // If the effect was disposed while getUserMedia was pending, stop the
-        // newly acquired track and bail out to avoid reinserting a live mic
-        // track into a stopped stream (same pattern as addEffect).
-        if (!this.effects.includes(effect)) {
+        // Skip if the effect or stream became inactive while
+        // getUserMedia was pending (e.g. effect replaced, user hung up).
+        if (!this.effects.includes(effect) || currentTrack.readyState === 'ended') {
           newTrack.stop();
+          savedTrackSettings = {};
           logger.log(`Effect was disposed during track re-acquisition, discarding new track.`);
           return;
         }
+
+        // Stop the old track only after we confirmed the effect is still
+        // active and the replacement track is ready.
+        this.removeTrackHandlers(currentTrack);
+        currentTrack.stop();
 
         newTrack.enabled = isEnabled;
         this.inputStream.removeTrack(currentTrack);

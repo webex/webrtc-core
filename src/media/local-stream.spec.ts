@@ -352,7 +352,7 @@ describe('LocalStream', () => {
       expect(firstStop).toBeGreaterThan(firstRemove);
     });
 
-    it('should stop the current track before calling getUserMedia', async () => {
+    it('should stop the current track after getUserMedia succeeds', async () => {
       expect.hasAssertions();
 
       const currentTrack = audioStream.getTracks()[0];
@@ -368,7 +368,7 @@ describe('LocalStream', () => {
 
       await constraintsRequiredHandler({ autoGainControl: false });
 
-      expect(callOrder).toStrictEqual(['stop', 'getUserMedia']);
+      expect(callOrder).toStrictEqual(['getUserMedia', 'stop']);
     });
 
     it('should fall back to getUserMedia without effect constraints when first call fails', async () => {
@@ -451,6 +451,41 @@ describe('LocalStream', () => {
 
       expect(newTrackStopSpy).toHaveBeenCalledWith();
       expect(endedSpy).not.toHaveBeenCalled();
+      expect(constraintsChangeSpy).not.toHaveBeenCalled();
+      expect(effect.replaceInputTrack).not.toHaveBeenCalled();
+    });
+
+    it('should discard new track when stream is stopped during getUserMedia', async () => {
+      expect.hasAssertions();
+
+      const constraintsChangeSpy = jest.spyOn(
+        audioLocalStream[LocalStreamEventNames.ConstraintsChange],
+        'emit'
+      );
+      const newTrackStopSpy = jest.spyOn(newAudioTrack, 'stop');
+
+      // eslint-disable-next-line jsdoc/require-jsdoc, @typescript-eslint/no-empty-function
+      let resolveGetUserMedia: (stream: MediaStream) => void = () => {};
+      getUserMediaSpy.mockReturnValueOnce(
+        new Promise<MediaStream>((resolve) => {
+          resolveGetUserMedia = resolve;
+        })
+      );
+
+      const handlerPromise = constraintsRequiredHandler({ autoGainControl: false });
+
+      // Simulate the user stopping the stream while getUserMedia is pending.
+      // This stops the track but disposeEffects hasn't cleared this.effects yet.
+      const currentTrack = audioStream.getTracks()[0];
+      (currentTrack as { readyState: string }).readyState = 'ended';
+
+      const newMockStream = createMockedAudioStream();
+      (newMockStream.getAudioTracks as jest.Mock).mockReturnValue([newAudioTrack]);
+      resolveGetUserMedia(newMockStream);
+
+      await handlerPromise;
+
+      expect(newTrackStopSpy).toHaveBeenCalledWith();
       expect(constraintsChangeSpy).not.toHaveBeenCalled();
       expect(effect.replaceInputTrack).not.toHaveBeenCalled();
     });
