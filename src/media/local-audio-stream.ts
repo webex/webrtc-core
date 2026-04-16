@@ -18,8 +18,11 @@ export class LocalAudioStream extends LocalStream {
    * @inheritdoc
    */
   async addEffect(effect: TrackEffect): Promise<void> {
-    await super.addEffect(effect);
+    if (this.effects.some((e) => e.id === effect.id)) {
+      return;
+    }
     this.addConstraintHandlers(effect);
+    await super.addEffect(effect);
   }
 
   /**
@@ -186,13 +189,13 @@ export class LocalAudioStream extends LocalStream {
      * The base class handles its own listener cleanup separately.
      */
     const removeConstraintHandlers = () => {
-      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired);
-      effect.off('constraints-released' as EffectEvent, handleConstraintsReleased);
-      effect.off('disposed' as EffectEvent, removeConstraintHandlers);
+      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired as never);
+      effect.off('constraints-released' as EffectEvent, handleConstraintsReleased as never);
+      effect.off('disposed' as EffectEvent, removeConstraintHandlers as never);
     };
 
-    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired);
-    effect.on('constraints-released' as EffectEvent, handleConstraintsReleased);
-    effect.on('disposed' as EffectEvent, removeConstraintHandlers);
+    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired as never);
+    effect.on('constraints-released' as EffectEvent, handleConstraintsReleased as never);
+    effect.on('disposed' as EffectEvent, removeConstraintHandlers as never);
   }
 }

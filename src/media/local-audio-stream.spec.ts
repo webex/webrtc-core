@@ -310,6 +310,23 @@ describe('LocalAudioStream', () => {
       expect(effect.replaceInputTrack).not.toHaveBeenCalled();
     });
 
+    it('should not register duplicate constraint handlers when addEffect is called with the same effect', async () => {
+      expect.hasAssertions();
+
+      const onCalls = (effect.on as jest.Mock).mock.calls;
+      const initialConstraintsRequiredCount = onCalls.filter(
+        ([event]: [string]) => event === 'constraints-required'
+      ).length;
+
+      await audioLocalStream.addEffect(effect);
+
+      const afterConstraintsRequiredCount = onCalls.filter(
+        ([event]: [string]) => event === 'constraints-required'
+      ).length;
+
+      expect(afterConstraintsRequiredCount).toBe(initialConstraintsRequiredCount);
+    });
+
     it('should not register audio constraint handlers for video tracks', async () => {
       expect.hasAssertions();
 
