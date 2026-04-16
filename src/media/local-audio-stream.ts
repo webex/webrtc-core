@@ -21,8 +21,8 @@ export class LocalAudioStream extends LocalStream {
     if (this.effects.some((e) => e.id === effect.id)) {
       return;
     }
-    this.addConstraintHandlers(effect);
     await super.addEffect(effect);
+    this.addConstraintHandlers(effect);
   }
 
   /**
