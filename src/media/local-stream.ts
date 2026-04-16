@@ -272,15 +272,15 @@ abstract class _LocalStream extends Stream {
      * effect.
      */
     const handleEffectDisposed = () => {
-      effect.off('track-updated' as EffectEvent, handleEffectTrackUpdated as never);
-      effect.off('disposed' as EffectEvent, handleEffectDisposed as never);
+      effect.off('track-updated' as EffectEvent, handleEffectTrackUpdated);
+      effect.off('disposed' as EffectEvent, handleEffectDisposed);
     };
 
     // TODO: using EffectEvent.TrackUpdated or EffectEvent.Disposed will cause the entire
     // web-media-effects lib to be rebuilt and inflates the size of the webrtc-core build, so
     // we use type assertion here as a temporary workaround.
-    effect.on('track-updated' as EffectEvent, handleEffectTrackUpdated as never);
-    effect.on('disposed' as EffectEvent, handleEffectDisposed as never);
+    effect.on('track-updated' as EffectEvent, handleEffectTrackUpdated);
+    effect.on('disposed' as EffectEvent, handleEffectDisposed);
 
     // Add the effect to the effects list. If an effect of the same kind has already been added,
     // dispose the existing effect and replace it with the new effect. If the existing effect was
