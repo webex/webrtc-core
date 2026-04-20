@@ -126,7 +126,6 @@ export class LocalAudioStream extends LocalStream {
         // the microphone open in the background.
         if (!this.effects.includes(effect) || currentTrack.readyState === 'ended') {
           newTrack.stop();
-          savedTrackSettings = {};
           logger.log(`Effect was disposed during track re-acquisition, discarding new track.`);
           return;
         }
@@ -216,13 +215,13 @@ export class LocalAudioStream extends LocalStream {
      * The base class handles its own listener cleanup separately.
      */
     const removeConstraintHandlers = () => {
-      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired);
-      effect.off('constraints-released' as EffectEvent, handleConstraintsReleased);
-      effect.off('disposed' as EffectEvent, removeConstraintHandlers);
+      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired as never);
+      effect.off('constraints-released' as EffectEvent, handleConstraintsReleased as never);
+      effect.off('disposed' as EffectEvent, removeConstraintHandlers as never);
     };
 
-    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired);
-    effect.on('constraints-released' as EffectEvent, handleConstraintsReleased);
-    effect.on('disposed' as EffectEvent, removeConstraintHandlers);
+    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired as never);
+    effect.on('constraints-released' as EffectEvent, handleConstraintsReleased as never);
+    effect.on('disposed' as EffectEvent, removeConstraintHandlers as never);
   }
 }
