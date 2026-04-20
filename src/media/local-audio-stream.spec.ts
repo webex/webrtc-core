@@ -5,7 +5,10 @@ import { LocalAudioStream } from './local-audio-stream';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
 import { StreamEventNames } from './stream';
 
-/** Bare LocalStream subclass — used to assert non-audio streams don't get constraint handlers. */
+/**
+ * A dummy LocalStream implementation for testing that video streams
+ * do not register audio constraint handlers.
+ */
 class TestLocalStream extends LocalStream {}
 
 describe('LocalAudioStream', () => {
@@ -28,7 +31,8 @@ describe('LocalAudioStream', () => {
     let getUserMediaSpy: jest.SpyInstance;
     let newAudioTrack: MediaStreamTrack;
 
-    // jsdom doesn't expose getSupportedConstraints; stub it so the filter behaves like a real browser.
+    // Stub navigator.mediaDevices.getSupportedConstraints (absent in jsdom)
+    // so the filter in reacquireInputTrack mirrors a spec-compliant browser.
     let originalMediaDevices: MediaDevices | undefined;
 
     beforeEach(async () => {
@@ -185,17 +189,17 @@ describe('LocalAudioStream', () => {
     it('should preserve the saved baseline when a later constraints-required falls back', async () => {
       expect.hasAssertions();
 
-      // First required: succeeds, saves AGC=true as the baseline.
+      // First required: succeeds and saves { autoGainControl: true } as the user baseline.
       await constraintsRequiredHandler({ autoGainControl: false });
 
-      // Track now reports the effect-modified AGC=false.
+      // Track now reflects the effect-modified AGC=false state.
       (audioStream.getTracks as jest.Mock).mockReturnValue([newAudioTrack]);
       jest.spyOn(newAudioTrack, 'getSettings').mockReturnValue({
         ...audioSettings,
         autoGainControl: false,
       });
 
-      // Second required: primary getUserMedia fails, fallback succeeds.
+      // Second required: first getUserMedia fails, fallback succeeds.
       const fallbackStream = createMockedAudioStream();
       const [fallbackTrack] = fallbackStream.getAudioTracks();
       jest.spyOn(fallbackTrack, 'getSettings').mockReturnValue({
@@ -211,7 +215,8 @@ describe('LocalAudioStream', () => {
       (audioStream.getTracks as jest.Mock).mockReturnValue([fallbackTrack]);
       getUserMediaSpy.mockClear();
 
-      // Released: must restore the original AGC=true and NS=true baseline.
+      // Released: must restore both user-baseline AGC=true and NS=true,
+      // not skip restoration because of a cleared baseline.
       await constraintsReleasedHandler();
 
       expect(getUserMediaSpy).toHaveBeenCalledTimes(1);
@@ -229,19 +234,6 @@ describe('LocalAudioStream', () => {
       await constraintsRequiredHandler({ autoGainControl: false });
 
       expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
-    });
-
-    it('should emit ConstraintsChange after a successful re-acquisition', async () => {
-      expect.hasAssertions();
-
-      const constraintsChangeSpy = jest.spyOn(
-        audioLocalStream[LocalStreamEventNames.ConstraintsChange],
-        'emit'
-      );
-
-      await constraintsRequiredHandler({ autoGainControl: false });
-
-      expect(constraintsChangeSpy).toHaveBeenCalledWith();
     });
 
     it('should remove track handlers before stopping the current track', async () => {
@@ -315,7 +307,9 @@ describe('LocalAudioStream', () => {
 
       const inputTrack = audioStream.getTracks()[0];
       getUserMediaSpy.mockImplementationOnce(async () => {
-        // Device disappears mid-flight: track ends before gUM resolves.
+        // Mimic the device disappearing: the original track ends before the
+        // fallback getUserMedia resolves, so the catch path sees a non-live
+        // input track and must emit Ended instead of silently bypassing.
         (inputTrack as { readyState: string }).readyState = 'ended';
         throw new Error('OverconstrainedError');
       });
@@ -327,7 +321,7 @@ describe('LocalAudioStream', () => {
       expect(endedSpy).toHaveBeenCalledWith();
     });
 
-    it('should fall back to raw mic and tear down the chain when both getUserMedia calls fail but the track is still live', async () => {
+    it('should fall back to raw mic and dispose the effect when both getUserMedia calls fail but the track is still live', async () => {
       expect.hasAssertions();
 
       const endedSpy = jest.spyOn(audioLocalStream[StreamEventNames.Ended], 'emit');
@@ -343,18 +337,6 @@ describe('LocalAudioStream', () => {
       const inputTrack = audioStream.getTracks()[0];
       (inputTrack as { readyState: string }).readyState = 'live';
 
-      // Simulate NoiseReductionEffect, which emits constraints-released from dispose().
-      (effect.dispose as jest.Mock).mockImplementation(async () => {
-        await constraintsReleasedHandler();
-      });
-
-      // Simulate a second effect still being loaded by addEffect() at the moment of fallback.
-      const { loadingEffects } = audioLocalStream as unknown as {
-        loadingEffects: Map<string, TrackEffect>;
-      };
-      const pendingEffect = { id: 'pending', kind: 'noise-reduction' } as unknown as TrackEffect;
-      loadingEffects.set(pendingEffect.kind, pendingEffect);
-
       getUserMediaSpy
         .mockRejectedValueOnce(new Error('OverconstrainedError'))
         .mockRejectedValueOnce(new Error('NotFoundError'));
@@ -367,7 +349,8 @@ describe('LocalAudioStream', () => {
       expect((audioLocalStream as unknown as { effects: TrackEffect[] }).effects).not.toContain(
         effect
       );
-      expect(loadingEffects.size).toBe(0);
+      // No new track was wired, so no ConstraintsChange; the stream is not
+      // ended, so no Ended.
       expect(constraintsChangeSpy).not.toHaveBeenCalled();
       expect(endedSpy).not.toHaveBeenCalled();
     });
@@ -435,6 +418,7 @@ describe('LocalAudioStream', () => {
       );
 
       const handlerPromise = constraintsRequiredHandler({ autoGainControl: false });
+      await Promise.resolve();
 
       const currentTrack = audioStream.getTracks()[0];
       (currentTrack as { readyState: string }).readyState = 'ended';

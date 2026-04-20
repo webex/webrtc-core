@@ -77,18 +77,19 @@ export class LocalAudioStream extends LocalStream {
      * applying the given constraints on top of the current settings.
      *
      * @param constraintsToApply - Constraints to merge into the current settings.
+     * @returns Whether constraints were applied (or already satisfied).
      */
     const reacquireInputTrack = async (
       constraintsToApply: MediaTrackConstraints
-    ): Promise<void> => {
+    ): Promise<boolean> => {
       if (!this.effects.includes(effect)) {
         logger.log(`Effect ${effect.id} is no longer active, skipping constraint handling.`);
-        return;
+        return false;
       }
 
       if (this.inputTrack.readyState === 'ended') {
         logger.log(`Track already ended, ignoring constraints change.`);
-        return;
+        return false;
       }
 
       const currentTrack = this.inputTrack;
@@ -99,7 +100,7 @@ export class LocalAudioStream extends LocalStream {
       );
       if (isAlreadySatisfied) {
         logger.log(`Constraints already satisfied, skipping re-acquisition.`);
-        return;
+        return true;
       }
 
       try {
@@ -120,6 +121,10 @@ export class LocalAudioStream extends LocalStream {
         }
 
         const [newTrack] = newStream.getAudioTracks();
+        if (!newTrack) {
+          logger.warn(`Re-acquire returned no audio track, skipping replacement.`);
+          return false;
+        }
 
         // The effect may have been removed or the track may have ended while
         // getUserMedia was running. Discard the new track so it doesn't keep
@@ -127,7 +132,7 @@ export class LocalAudioStream extends LocalStream {
         if (!this.effects.includes(effect) || currentTrack.readyState === 'ended') {
           newTrack.stop();
           logger.log(`Effect was disposed during track re-acquisition, discarding new track.`);
-          return;
+          return false;
         }
 
         this.removeTrackHandlers(currentTrack);
@@ -139,13 +144,14 @@ export class LocalAudioStream extends LocalStream {
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
 
-        await this.effects[0].replaceInputTrack(newTrack);
+        await effect.replaceInputTrack(newTrack);
         this[LocalStreamEventNames.ConstraintsChange].emit();
         logger.log(`Constraints applied via track re-acquisition.`);
+        return true;
       } catch (err: unknown) {
         if (!this.effects.includes(effect)) {
           logger.log(`Effect was disposed during constraint handling, ignoring error.`);
-          return;
+          return false;
         }
 
         if (this.inputTrack.readyState === 'live') {
@@ -170,6 +176,7 @@ export class LocalAudioStream extends LocalStream {
           logger.error(`Failed to re-acquire mic track, stream ended:`, err);
           this[StreamEventNames.Ended].emit();
         }
+        return false;
       }
     };
 
@@ -212,8 +219,10 @@ export class LocalAudioStream extends LocalStream {
       }
 
       const toRestore = { ...savedTrackSettings };
-      savedTrackSettings = {};
-      await reacquireInputTrack(toRestore);
+      const restored = await reacquireInputTrack(toRestore);
+      if (restored) {
+        savedTrackSettings = {};
+      }
     };
 
     /**
@@ -225,7 +234,6 @@ export class LocalAudioStream extends LocalStream {
       effect.off('constraints-released' as EffectEvent, handleConstraintsReleased as never);
       effect.off('disposed' as EffectEvent, removeConstraintHandlers as never);
     };
-
     effect.on('constraints-required' as EffectEvent, handleConstraintsRequired as never);
     effect.on('constraints-released' as EffectEvent, handleConstraintsReleased as never);
     effect.on('disposed' as EffectEvent, removeConstraintHandlers as never);
