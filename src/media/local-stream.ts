@@ -38,7 +38,7 @@ abstract class _LocalStream extends Stream {
 
   protected effects: TrackEffect[] = [];
 
-  private loadingEffects: Map<string, TrackEffect> = new Map();
+  protected loadingEffects: Map<string, TrackEffect> = new Map();
 
   // The output stream can change to reflect any effects that have
   // been added.  This member will always point to the MediaStream

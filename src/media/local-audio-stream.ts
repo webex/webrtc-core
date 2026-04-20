@@ -154,6 +154,9 @@ export class LocalAudioStream extends LocalStream {
           // fired from inside dispose() are skipped by the reacquire guards.
           logger.error(`Effect wiring failed, falling back to raw mic:`, err);
           this.changeOutputTrack(this.inputTrack);
+          // If another effect is still loading, drop it too so it can't
+          // slip back into the chain once we've fallen back to raw mic.
+          this.loadingEffects.clear();
           const effectsToDispose = this.effects;
           this.effects = [];
           await Promise.all(
