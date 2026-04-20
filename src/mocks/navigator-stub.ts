@@ -1,5 +1,6 @@
 import { createPermissionStatus } from './create-permission-status';
 import MediaStream from './media-stream-stub';
+import { getSupportedConstraints } from './media-track-supported-constraints';
 
 /**
  * A getUserMedia stub, returns a MediaStream with tracks according to the constraints passed in.
@@ -46,6 +47,7 @@ const permissionsQuery = async (descriptor: PermissionDescriptor): Promise<Permi
 const mediaDevices = {
   enumerateDevices,
   getDisplayMedia,
+  getSupportedConstraints,
   getUserMedia,
 };
 

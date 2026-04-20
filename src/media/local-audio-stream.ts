@@ -4,11 +4,26 @@ import { logger } from '../util/logger';
 import { StreamEventNames } from './stream';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
 
-// These are the audio constraints that can be applied via applyConstraints.
+// Subset of audio constraints that can be applied to a live track.
 export type AppliableAudioConstraints = Pick<
   MediaTrackConstraints,
   'autoGainControl' | 'echoCancellation' | 'noiseSuppression'
 >;
+
+/**
+ * Keep only the keys the browser recognizes as valid getUserMedia constraints.
+ *
+ * @param settings - Current track settings.
+ * @returns Filtered settings safe for getUserMedia.
+ */
+const filterToSupportedConstraints = (settings: MediaTrackSettings): MediaTrackConstraints => {
+  const supported = navigator.mediaDevices?.getSupportedConstraints?.() ?? {};
+  return Object.fromEntries(
+    Object.entries(settings).filter(
+      ([key]) => supported[key as keyof MediaTrackSupportedConstraints]
+    )
+  );
+};
 
 /**
  * An audio LocalStream.
@@ -26,10 +41,16 @@ export class LocalAudioStream extends LocalStream {
   }
 
   /**
-   * Apply constraints to the stream.
+   * Apply constraints to the existing input track.
+   *
+   * Note: on Chrome, `applyConstraints` silently ignores `autoGainControl`,
+   * `echoCancellation`, and `noiseSuppression` — the promise resolves but the
+   * value stays unchanged. To change those reliably, use an effect that emits
+   * {@link EffectEvent.ConstraintsRequired}.
+   * See https://issues.chromium.org/issues/40555809.
    *
    * @param constraints - The constraints to apply.
-   * @returns A promise which resolves when the constraints have been successfully applied.
+   * @returns Resolves when the browser finishes processing the request.
    */
   async applyConstraints(constraints?: AppliableAudioConstraints): Promise<void> {
     logger.log(`Applying constraints to local track:`, constraints);
@@ -39,31 +60,29 @@ export class LocalAudioStream extends LocalStream {
   }
 
   /**
-   * Wire constraint event handlers for an audio effect. When the effect emits
-   * {@link EffectEvent.ConstraintsRequired}, the input track is re-acquired via
-   * getUserMedia with the requested settings. When the effect emits
-   * {@link EffectEvent.ConstraintsReleased}, the original settings are restored.
+   * Listen for constraint events from an audio effect and re-acquire the mic
+   * track via getUserMedia when needed. Restores original settings when the
+   * effect releases its constraints.
    *
-   * Re-acquisition is needed because Chrome ignores applyConstraints for audio
-   * processing properties (https://issues.chromium.org/issues/40555809).
+   * This is a workaround for Chrome ignoring `applyConstraints` on audio
+   * processing properties: https://issues.chromium.org/issues/40555809.
    *
-   * @param effect - The effect to add handlers for.
+   * @param effect - The effect to listen to.
    */
   private addConstraintHandlers(effect: TrackEffect): void {
     let savedTrackSettings: MediaTrackSettings = {};
 
     /**
-     * Re-acquire the audio input track with the given constraints via
-     * getUserMedia, since Chrome ignores applyConstraints for audio
-     * processing properties.
+     * Replace the current mic track with a new one obtained via getUserMedia,
+     * applying the given constraints on top of the current settings.
      *
-     * @param constraintsToApply - The constraints to apply to the new track.
+     * @param constraintsToApply - Constraints to merge into the current settings.
      */
     const reacquireInputTrack = async (
       constraintsToApply: MediaTrackConstraints
     ): Promise<void> => {
       if (!this.effects.includes(effect)) {
-        logger.log(`Effect ${effect.id} was replaced or disposed, skipping constraint handling.`);
+        logger.log(`Effect ${effect.id} is no longer active, skipping constraint handling.`);
         return;
       }
 
@@ -74,7 +93,6 @@ export class LocalAudioStream extends LocalStream {
 
       const currentTrack = this.inputTrack;
       const currentSettings = currentTrack.getSettings();
-      const isEnabled = currentTrack.enabled;
 
       const isAlreadySatisfied = Object.entries(constraintsToApply).every(
         ([key, value]) => currentSettings[key as keyof MediaTrackSettings] === value
@@ -86,9 +104,10 @@ export class LocalAudioStream extends LocalStream {
 
       try {
         const deviceId = currentSettings.deviceId ? { exact: currentSettings.deviceId } : undefined;
+        const baselineConstraints = filterToSupportedConstraints(currentSettings);
 
         let newStream = await getUserMedia({
-          audio: { ...currentSettings, ...constraintsToApply, deviceId },
+          audio: { ...baselineConstraints, ...constraintsToApply, deviceId },
         }).catch((err) => {
           logger.warn(`Failed to re-acquire track with effect constraints, recovering:`, err);
           return null;
@@ -96,15 +115,15 @@ export class LocalAudioStream extends LocalStream {
 
         if (!newStream) {
           newStream = await getUserMedia({
-            audio: { ...currentSettings, deviceId },
+            audio: { ...baselineConstraints, deviceId },
           });
-          savedTrackSettings = {};
         }
 
         const [newTrack] = newStream.getAudioTracks();
 
-        // Skip if the effect or stream became inactive while
-        // getUserMedia was pending (e.g. effect replaced, user hung up).
+        // The effect may have been removed or the track may have ended while
+        // getUserMedia was running. Discard the new track so it doesn't keep
+        // the microphone open in the background.
         if (!this.effects.includes(effect) || currentTrack.readyState === 'ended') {
           newTrack.stop();
           savedTrackSettings = {};
@@ -112,32 +131,36 @@ export class LocalAudioStream extends LocalStream {
           return;
         }
 
-        // Stop the old track only after we confirmed the effect is still
-        // active and the replacement track is ready.
         this.removeTrackHandlers(currentTrack);
         currentTrack.stop();
 
-        newTrack.enabled = isEnabled;
+        // Preserve the mute state across the track swap.
+        newTrack.enabled = currentTrack.enabled;
         this.inputStream.removeTrack(currentTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
 
-        if (this.effects.length > 0) {
-          await this.effects[0].replaceInputTrack(newTrack);
-        }
+        await this.effects[0].replaceInputTrack(newTrack);
         this[LocalStreamEventNames.ConstraintsChange].emit();
         logger.log(`Constraints applied via track re-acquisition.`);
       } catch (err: unknown) {
-        savedTrackSettings = {};
-
         if (!this.effects.includes(effect)) {
           logger.log(`Effect was disposed during constraint handling, ignoring error.`);
           return;
         }
 
         if (this.inputTrack.readyState === 'live') {
+          // Both getUserMedia attempts failed but the original mic is still alive.
+          // Bypass the effect and send audio straight from the mic.
+          logger.error(`Effect wiring failed, disposing effect and continuing with raw mic:`, err);
           this.changeOutputTrack(this.inputTrack);
-          logger.warn(`Effect wiring failed, continuing with raw mic track:`, err);
+          const index = this.effects.indexOf(effect);
+          if (index >= 0) {
+            this.effects.splice(index, 1);
+          }
+          await effect.dispose().catch((disposeErr) => {
+            logger.error(`Failed to dispose effect after constraint failure:`, disposeErr);
+          });
         } else {
           logger.error(`Failed to re-acquire mic track, stream ended:`, err);
           this[StreamEventNames.Ended].emit();
@@ -146,30 +169,34 @@ export class LocalAudioStream extends LocalStream {
     };
 
     /**
-     * Handle when an audio effect requests specific constraints on the input
-     * track. Saves the current values for the requested properties so they can
-     * be restored later, then re-acquires the track with the new constraints.
+     * Called when the effect needs specific audio constraints. Saves the
+     * current values (so they can be restored later) and re-acquires the track.
+     * Only saves each key once — later events won't overwrite the original baseline.
      *
-     * @param constraints - The constraints requested by the effect.
+     * @param constraints - The constraints the effect needs.
      */
     const handleConstraintsRequired = async (constraints: MediaTrackConstraints): Promise<void> => {
       logger.log(`Effect ${effect.id} constraints required:`, constraints);
 
       const currentSettings = this.inputTrack.getSettings();
-      Object.keys(constraints).forEach((key) => {
-        if (!(key in savedTrackSettings)) {
-          Object.assign(savedTrackSettings, {
-            [key]: currentSettings[key as keyof MediaTrackSettings],
-          });
+      /**
+       * Save a single setting if not already saved.
+       *
+       * @param key - The setting key to save.
+       */
+      const snapshot = <K extends keyof MediaTrackSettings>(key: K): void => {
+        if (!(key in savedTrackSettings) && key in currentSettings) {
+          savedTrackSettings[key] = currentSettings[key];
         }
-      });
+      };
+      (Object.keys(constraints) as Array<keyof MediaTrackSettings>).forEach(snapshot);
 
       await reacquireInputTrack(constraints);
     };
 
     /**
-     * Handle when an audio effect releases its constraint requirements.
-     * Restores the previously saved track settings.
+     * Called when the effect no longer needs its constraints.
+     * Restores the settings that were saved by handleConstraintsRequired.
      */
     const handleConstraintsReleased = async (): Promise<void> => {
       logger.log(`Effect ${effect.id} constraints released.`);
@@ -189,13 +216,13 @@ export class LocalAudioStream extends LocalStream {
      * The base class handles its own listener cleanup separately.
      */
     const removeConstraintHandlers = () => {
-      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired as never);
-      effect.off('constraints-released' as EffectEvent, handleConstraintsReleased as never);
-      effect.off('disposed' as EffectEvent, removeConstraintHandlers as never);
+      effect.off('constraints-required' as EffectEvent, handleConstraintsRequired);
+      effect.off('constraints-released' as EffectEvent, handleConstraintsReleased);
+      effect.off('disposed' as EffectEvent, removeConstraintHandlers);
     };
 
-    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired as never);
-    effect.on('constraints-released' as EffectEvent, handleConstraintsReleased as never);
-    effect.on('disposed' as EffectEvent, removeConstraintHandlers as never);
+    effect.on('constraints-required' as EffectEvent, handleConstraintsRequired);
+    effect.on('constraints-released' as EffectEvent, handleConstraintsReleased);
+    effect.on('disposed' as EffectEvent, removeConstraintHandlers);
   }
 }
