@@ -149,16 +149,12 @@ export class LocalAudioStream extends LocalStream {
         }
 
         if (this.inputTrack.readyState === 'live') {
-          // Both getUserMedia attempts failed but the original mic is still alive.
-          // Bypass the effect and send audio straight from the mic.
-          logger.error(`Effect wiring failed, disposing effect and continuing with raw mic:`, err);
-          this.changeOutputTrack(this.inputTrack);
-          const index = this.effects.indexOf(effect);
-          if (index >= 0) {
-            this.effects.splice(index, 1);
-          }
-          await effect.dispose().catch((disposeErr) => {
-            logger.error(`Failed to dispose effect after constraint failure:`, disposeErr);
+          // Mic is still live but the effect chain is broken. Tear down all
+          // effects so the raw mic plays through and getEffects() matches the
+          // actual audio path.
+          logger.error(`Effect wiring failed, falling back to raw mic:`, err);
+          await this.disposeEffects().catch((disposeErr) => {
+            logger.error(`Failed to dispose effects after fallback:`, disposeErr);
           });
         } else {
           logger.error(`Failed to re-acquire mic track, stream ended:`, err);
