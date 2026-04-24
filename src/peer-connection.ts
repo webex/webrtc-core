@@ -173,6 +173,15 @@ class PeerConnection extends EventEmitter<PeerConnectionEventHandlers> {
   }
 
   /**
+   * Sets the current configuration of the underlying RTCPeerConnection.
+   *
+   * @param configuration - An RTCConfiguration object which provides the options to be set.
+   */
+  setConfiguration(configuration: RTCConfiguration): void {
+    this.pc.setConfiguration(configuration);
+  }
+
+  /**
    * Adds a new media track to the set of tracks which will be transmitted to the other peer.
    *
    * @param track - A MediaStreamTrack object representing the media track to add to the peer connection.
