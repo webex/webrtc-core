@@ -4,10 +4,15 @@ import { logger } from '../util/logger';
 import { StreamEventNames } from './stream';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
 
-// Subset of audio constraints that can be applied to a live track.
+// Audio constraints that can be applied via applyConstraints.
 export type AppliableAudioConstraints = Pick<
   MediaTrackConstraints,
-  'autoGainControl' | 'echoCancellation' | 'noiseSuppression'
+  | 'autoGainControl'
+  | 'echoCancellation'
+  | 'noiseSuppression'
+  | 'sampleRate'
+  | 'sampleSize'
+  | 'channelCount'
 >;
 
 /**
@@ -107,18 +112,9 @@ export class LocalAudioStream extends LocalStream {
         const deviceId = currentSettings.deviceId ? { exact: currentSettings.deviceId } : undefined;
         const baselineConstraints = filterToSupportedConstraints(currentSettings);
 
-        let newStream = await getUserMedia({
+        const newStream = await getUserMedia({
           audio: { ...baselineConstraints, ...constraintsToApply, deviceId },
-        }).catch((err) => {
-          logger.warn(`Failed to re-acquire track with effect constraints, recovering:`, err);
-          return null;
         });
-
-        if (!newStream) {
-          newStream = await getUserMedia({
-            audio: { ...baselineConstraints, deviceId },
-          });
-        }
 
         const [newTrack] = newStream.getAudioTracks();
         if (!newTrack) {
@@ -126,12 +122,16 @@ export class LocalAudioStream extends LocalStream {
           return false;
         }
 
-        // The effect may have been removed or the track may have ended while
-        // getUserMedia was running. Discard the new track so it doesn't keep
-        // the microphone open in the background.
+        // The effect may have been disposed or the track may have ended while
+        // we were awaiting getUserMedia. Discard the new track immediately so
+        // it doesn't hold the microphone open in the background.
         if (!this.effects.includes(effect) || currentTrack.readyState === 'ended') {
           newTrack.stop();
-          logger.log(`Effect was disposed during track re-acquisition, discarding new track.`);
+          logger.log(
+            `Discarding new track: effect disposed=${!this.effects.includes(effect)}, track ended=${
+              currentTrack.readyState === 'ended'
+            }.`
+          );
           return false;
         }
 
