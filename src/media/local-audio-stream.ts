@@ -135,6 +135,9 @@ export class LocalAudioStream extends LocalStream {
           return false;
         }
 
+        // Preserve the mute state before the effect receives the new track.
+        newTrack.enabled = currentTrack.enabled;
+
         // Try wiring the effect before committing the stream swap. If this
         // fails, close the unused new track and let the outer catch fall back
         // to the still-live current track.
@@ -148,8 +151,6 @@ export class LocalAudioStream extends LocalStream {
         this.removeTrackHandlers(currentTrack);
         currentTrack.stop();
 
-        // Preserve the mute state across the track swap.
-        newTrack.enabled = currentTrack.enabled;
         this.inputStream.removeTrack(currentTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
