@@ -323,6 +323,32 @@ describe('LocalAudioStream', () => {
       expect(endedSpy).not.toHaveBeenCalled();
     });
 
+    it('should stop the new track and fall back to raw mic when effect wiring fails', async () => {
+      expect.hasAssertions();
+
+      const currentTrack = audioStream.getTracks()[0];
+      (currentTrack as { readyState: string }).readyState = 'live';
+      const newTrackStopSpy = jest.spyOn(newAudioTrack, 'stop');
+      const constraintsChangeSpy = jest.spyOn(
+        audioLocalStream[LocalStreamEventNames.ConstraintsChange],
+        'emit'
+      );
+      const changeOutputTrackSpy = jest.spyOn(
+        audioLocalStream as unknown as { changeOutputTrack: (t: MediaStreamTrack) => void },
+        'changeOutputTrack'
+      );
+
+      (effect.replaceInputTrack as jest.Mock).mockRejectedValueOnce(new Error('wiring failed'));
+
+      await constraintsRequiredHandler({ autoGainControl: false });
+
+      expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
+      expect(newTrackStopSpy).toHaveBeenCalledWith();
+      expect(changeOutputTrackSpy).toHaveBeenCalledWith(currentTrack);
+      expect(effect.dispose).toHaveBeenCalledWith();
+      expect(constraintsChangeSpy).not.toHaveBeenCalled();
+    });
+
     it('should skip re-acquisition when the track is already ended', async () => {
       expect.hasAssertions();
 
@@ -344,8 +370,7 @@ describe('LocalAudioStream', () => {
       );
       const newTrackStopSpy = jest.spyOn(newAudioTrack, 'stop');
 
-      // eslint-disable-next-line jsdoc/require-jsdoc, @typescript-eslint/no-empty-function
-      let resolveGetUserMedia: (stream: MediaStream) => void = () => {};
+      let resolveGetUserMedia!: (stream: MediaStream) => void;
       getUserMediaSpy.mockReturnValueOnce(
         new Promise<MediaStream>((resolve) => {
           resolveGetUserMedia = resolve;
@@ -377,8 +402,7 @@ describe('LocalAudioStream', () => {
       );
       const newTrackStopSpy = jest.spyOn(newAudioTrack, 'stop');
 
-      // eslint-disable-next-line jsdoc/require-jsdoc, @typescript-eslint/no-empty-function
-      let resolveGetUserMedia: (stream: MediaStream) => void = () => {};
+      let resolveGetUserMedia!: (stream: MediaStream) => void;
       getUserMediaSpy.mockReturnValueOnce(
         new Promise<MediaStream>((resolve) => {
           resolveGetUserMedia = resolve;

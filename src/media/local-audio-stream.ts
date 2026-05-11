@@ -135,6 +135,16 @@ export class LocalAudioStream extends LocalStream {
           return false;
         }
 
+        // Try wiring the effect before committing the stream swap. If this
+        // fails, close the unused new track and let the outer catch fall back
+        // to the still-live current track.
+        try {
+          await effect.replaceInputTrack(newTrack);
+        } catch (wireErr) {
+          newTrack.stop();
+          throw wireErr;
+        }
+
         this.removeTrackHandlers(currentTrack);
         currentTrack.stop();
 
@@ -144,7 +154,6 @@ export class LocalAudioStream extends LocalStream {
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
 
-        await effect.replaceInputTrack(newTrack);
         this[LocalStreamEventNames.ConstraintsChange].emit();
         logger.log(`Constraints applied via track re-acquisition.`);
         return true;
