@@ -74,6 +74,7 @@ const createMockedVideoTrack = (width: number, height: number): MediaStreamTrack
 const createMockedAudioTrack = (): MediaStreamTrack => {
   const track = mocked(new MediaStreamTrackStub());
   track.kind = MediaStreamTrackKind.Audio;
+  track.getSettings.mockReturnValue({});
   return track as unknown as MediaStreamTrack;
 };
 

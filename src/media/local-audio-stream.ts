@@ -58,7 +58,6 @@ export class LocalAudioStream extends LocalStream {
    * @returns Resolves when the browser finishes processing the request.
    */
   async applyConstraints(constraints?: AppliableAudioConstraints): Promise<void> {
-    logger.log(`Applying constraints to local track:`, constraints);
     return this.inputTrack.applyConstraints(constraints).then(() => {
       this[LocalStreamEventNames.ConstraintsChange].emit();
     });
@@ -108,9 +107,12 @@ export class LocalAudioStream extends LocalStream {
         return true;
       }
 
+      const deviceId = currentSettings.deviceId ? { exact: currentSettings.deviceId } : undefined;
+      const baselineConstraints = filterToSupportedConstraints(currentSettings);
+
       try {
-        const deviceId = currentSettings.deviceId ? { exact: currentSettings.deviceId } : undefined;
-        const baselineConstraints = filterToSupportedConstraints(currentSettings);
+        this.removeTrackHandlers(currentTrack);
+        currentTrack.stop();
 
         const newStream = await getUserMedia({
           audio: { ...baselineConstraints, ...constraintsToApply, deviceId },
@@ -118,29 +120,18 @@ export class LocalAudioStream extends LocalStream {
 
         const [newTrack] = newStream.getAudioTracks();
         if (!newTrack) {
-          logger.warn(`Re-acquire returned no audio track, skipping replacement.`);
-          return false;
+          throw new Error('getUserMedia returned a stream with no audio tracks.');
         }
 
-        // The effect may have been disposed or the track may have ended while
-        // we were awaiting getUserMedia. Discard the new track immediately so
-        // it doesn't hold the microphone open in the background.
-        if (!this.effects.includes(effect) || currentTrack.readyState === 'ended') {
+        if (!this.effects.includes(effect)) {
           newTrack.stop();
-          logger.log(
-            `Discarding new track: effect disposed=${!this.effects.includes(effect)}, track ended=${
-              currentTrack.readyState === 'ended'
-            }.`
-          );
+          logger.log(`Effect was disposed during getUserMedia, emitting Ended.`);
+          this[StreamEventNames.Ended].emit();
           return false;
         }
 
-        // Preserve the mute state before the effect receives the new track.
         newTrack.enabled = currentTrack.enabled;
 
-        // Try wiring the effect before committing the stream swap. If this
-        // fails, close the unused new track and let the outer catch fall back
-        // to the still-live current track.
         try {
           await effect.replaceInputTrack(newTrack);
         } catch (wireErr) {
@@ -148,44 +139,33 @@ export class LocalAudioStream extends LocalStream {
           throw wireErr;
         }
 
-        this.removeTrackHandlers(currentTrack);
-        currentTrack.stop();
-
         this.inputStream.removeTrack(currentTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
 
         this[LocalStreamEventNames.ConstraintsChange].emit();
-        logger.log(`Constraints applied via track re-acquisition.`);
+        logger.log(
+          `Constraints applied via track re-acquisition. Settings:`,
+          newTrack.getSettings()
+        );
         return true;
       } catch (err: unknown) {
         if (!this.effects.includes(effect)) {
-          logger.log(`Effect was disposed during constraint handling, ignoring error.`);
           return false;
         }
 
-        if (this.inputTrack.readyState === 'live') {
-          // Mic is still live but the effect chain is broken — fall back to raw audio.
-          // Clear this.effects before disposing so any constraints-released events
-          // fired from inside dispose() are skipped by the reacquire guards.
-          logger.error(`Effect wiring failed, falling back to raw mic:`, err);
-          this.changeOutputTrack(this.inputTrack);
-          // If another effect is still loading, drop it too so it can't
-          // slip back into the chain once we've fallen back to raw mic.
-          this.loadingEffects.clear();
-          const effectsToDispose = this.effects;
-          this.effects = [];
-          await Promise.all(
-            effectsToDispose.map((e) =>
-              e.dispose().catch((disposeErr) => {
-                logger.error(`Failed to dispose effect after fallback:`, disposeErr);
-              })
-            )
-          );
-        } else {
-          logger.error(`Failed to re-acquire mic track, stream ended:`, err);
-          this[StreamEventNames.Ended].emit();
-        }
+        logger.error(`Track re-acquisition failed, stream ended:`, err);
+        this.loadingEffects.clear();
+        const effectsToDispose = this.effects;
+        this.effects = [];
+        await Promise.all(
+          effectsToDispose.map((e) =>
+            e.dispose().catch((disposeErr) => {
+              logger.error(`Failed to dispose effect after stream ended:`, disposeErr);
+            })
+          )
+        );
+        this[StreamEventNames.Ended].emit();
         return false;
       }
     };
