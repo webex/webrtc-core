@@ -27,6 +27,7 @@ class RTCPeerConnectionStub {
   ): Promise<void> {
     return new Promise(() => {});
   }
+  setConfiguration(configuration?: RTCConfiguration): void {}
   onconnectionstatechange: () => void = () => {};
   oniceconnectionstatechange: () => void = () => {};
   onicecandidate: (event: RTCPeerConnectionIceEvent) => void = () => {};
