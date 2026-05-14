@@ -58,6 +58,7 @@ export class LocalAudioStream extends LocalStream {
    * @returns Resolves when the browser finishes processing the request.
    */
   async applyConstraints(constraints?: AppliableAudioConstraints): Promise<void> {
+    logger.log(`Applying constraints to local track:`, constraints);
     return this.inputTrack.applyConstraints(constraints).then(() => {
       this[LocalStreamEventNames.ConstraintsChange].emit();
     });
