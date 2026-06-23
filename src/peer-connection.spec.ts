@@ -478,6 +478,27 @@ describe('PeerConnection', () => {
     });
   });
 
+  describe('setConfiguration', () => {
+    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let pc: PeerConnection;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockPc = mocked(new RTCPeerConnectionStub(), true);
+      mockCreateRTCPeerConnection.mockReturnValueOnce(mockPc as unknown as RTCPeerConnection);
+      pc = new PeerConnection();
+    });
+
+    it('should call setConfiguration on the underlying peer connection', () => {
+      expect.hasAssertions();
+      const configuration: RTCConfiguration = {
+        iceServers: [{ urls: 'stun:stun.example.com' }],
+      };
+      pc.setConfiguration(configuration);
+      expect(mockPc.setConfiguration).toHaveBeenCalledWith(configuration);
+    });
+  });
+
   describe('setRemoteDescription', () => {
     let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
     let setRemoteDescriptionSpy: jest.SpyInstance;

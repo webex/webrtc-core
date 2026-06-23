@@ -1,3 +1,10 @@
+# [2.14.0](https://github.com/webex/webrtc-core/compare/v2.13.7...v2.14.0) (2026-05-13)
+
+
+### Features
+
+* peer connection support setConfiguration api ([#100](https://github.com/webex/webrtc-core/issues/100)) ([8ce3161](https://github.com/webex/webrtc-core/commit/8ce31612201246a2567b80b7bfb7659af012774a))
+
 ## [2.13.7](https://github.com/webex/webrtc-core/compare/v2.13.6...v2.13.7) (2026-03-31)
 
 
