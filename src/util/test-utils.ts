@@ -2,6 +2,7 @@
 import MediaStreamStub from '../mocks/media-stream-stub';
 import MediaStreamTrackStub from '../mocks/media-stream-track-stub';
 import { mocked } from '../mocks/mock';
+import { MediaStreamTrackKind } from '../peer-connection';
 
 jest.mock('../mocks/media-stream-stub');
 jest.mock('../mocks/media-stream-track-stub');
@@ -72,5 +73,23 @@ const createMockedVideoTrack = (width: number, height: number): MediaStreamTrack
  */
 const createMockedAudioTrack = (): MediaStreamTrack => {
   const track = mocked(new MediaStreamTrackStub());
+  track.kind = MediaStreamTrackKind.Audio;
+  track.getSettings.mockReturnValue({});
   return track as unknown as MediaStreamTrack;
+};
+
+/**
+ * Create a mocked stream with a single audio MediaStreamTrack.
+ *
+ * @returns A Mocked MediaStreamStub type coerced to a MediaStream.
+ */
+export const createMockedAudioStream = (): MediaStream => {
+  const mockStream = mocked(new MediaStreamStub());
+  const audioTrack = createMockedAudioTrack();
+
+  mockStream.getVideoTracks.mockReturnValue([]);
+  mockStream.getAudioTracks.mockReturnValue([audioTrack]);
+  mockStream.getTracks.mockReturnValue([audioTrack]);
+
+  return mockStream as unknown as MediaStream;
 };
