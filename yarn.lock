@@ -2636,6 +2636,13 @@
     events "^3.3.0"
     typed-emitter "^2.1.0"
 
+"@webex/web-capabilities@^1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.12.0.tgz#019dab7bb30038a141def0a1187850da87dbd844"
+  integrity sha512-3tSbnFS1X7u1Ht6zPf4aVSZxh8HgTsoM6hO8/B1bPx1B/J76Ms1zWJKwrtPKP14PbuXW0Cwt3gbgdS4uVQg/CQ==
+  dependencies:
+    bowser "^2.11.0"
+
 "@webex/web-capabilities@^1.6.1":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@webex/web-capabilities/-/web-capabilities-1.6.1.tgz#4a7ed2a45ae0366e1e04a88ec69a268ef9c35548"
@@ -2643,12 +2650,13 @@
   dependencies:
     bowser "^2.11.0"
 
-"@webex/web-media-effects@2.33.5":
-  version "2.33.5"
-  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.33.5.tgz#316933f2aea8f371b1368798e407965ca472f3e4"
-  integrity sha512-N1At3oOe3wKLxQ5yIxMZpciWEdszAQoCyS6QcJ1Zk6Lr5/1UrF53Aznt/28Qk0czbnzZg48luFzTn/Wonm5icA==
+"@webex/web-media-effects@2.34.0":
+  version "2.34.0"
+  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.34.0.tgz#75e435bb60b3a327da4281662437796dd0a99b3a"
+  integrity sha512-cVipb0B/SKJwnaDtRkvN5S1AaCZqzklhADHff2qnKVrAYLQEqUziXv/mZ+7FSwJdrbxnwSchXggl3mf93OIHlg==
   dependencies:
     "@webex/ladon-ts" "^5.10.0"
+    "@webex/web-capabilities" "^1.12.0"
     events "^3.3.0"
     js-logger "^1.6.1"
     typed-emitter "^1.4.0"
