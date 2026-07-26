@@ -305,7 +305,7 @@ module.exports = (config) => {
       target: 'es2015',
       plugins: [
         esbuildPluginIstanbul({
-          filter: /\.ts$/,
+          filter: /(?:^|[/\\])[^/\\.]+\.ts$/,
           loader: 'ts',
           name: 'istanbul-loader-ts',
         }),
