@@ -6,7 +6,7 @@
     "reportTempFolder": "<projectFolder>/docs/temp/"
   },
   "compiler": {
-    "tsconfigFilePath": "./tsconfig.json"
+    "tsconfigFilePath": "./tsconfig.api-extractor.json"
   },
   "docModel": {
     "enabled": true,
