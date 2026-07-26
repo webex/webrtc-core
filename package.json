@@ -27,7 +27,7 @@
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
     "@microsoft/api-documenter": "^7.30.10",
-    "@microsoft/api-extractor": "^7.58.12",
+    "@microsoft/api-extractor": "7.52.9",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@semantic-release/changelog": "^6.0.1",
@@ -120,6 +120,10 @@
     "js-logger": "^1.6.1",
     "typed-emitter": "^2.1.0",
     "webrtc-adapter": "^8.1.2"
+  },
+  "resolutions": {
+    "**/@typescript-eslint/typescript-estree/minimatch": "9.0.5",
+    "**/@typescript-eslint/visitor-keys/eslint-visitor-keys": "4.2.1"
   },
   "lint-staged": {
     "*.ts": [
