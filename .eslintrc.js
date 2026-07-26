@@ -39,8 +39,19 @@ module.exports = {
       },
     ],
     'jest/lowercase-name': 0,
+    'jest/max-expects': 0,
+    'jest/padding-around-all': 0,
+    'jest/padding-around-before-each-blocks': 0,
+    'jest/padding-around-describe-blocks': 0,
+    'jest/padding-around-expect-groups': 0,
+    'jest/padding-around-test-blocks': 0,
+    'jest/prefer-ending-with-an-expect': 0,
+    'jest/prefer-importing-jest-globals': 0,
+    'jest/prefer-jest-mocked': 0,
     'jest/prefer-lowercase-title': 0,
+    'jest/prefer-mock-promise-shorthand': 0,
     'jest/require-hook': 0,
+    'jest/unbound-method': 0,
     'jsdoc/check-tag-names': [
       1,
       {
@@ -94,6 +105,7 @@ module.exports = {
     'no-underscore-dangle': 0,
     'no-shadow': 0,
     '@typescript-eslint/no-shadow': ['error'],
+    '@typescript-eslint/no-unused-vars': ['error', { caughtErrors: 'none' }],
   },
   settings: {
     'import/parsers': {
