@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-const typescriptTransform = require('karma-typescript-es6-transform');
+const { esbuildPluginIstanbul } = require('esbuild-plugin-istanbul');
 // eslint-disable-next-line
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
@@ -281,17 +281,18 @@ module.exports = (config) => {
     process.exit(1);
   }
 
-  const files = ['src/**/*.ts'];
+  const testPattern = config.integration ? 'src/**/*.integration-test.ts' : 'src/**/*.test.ts';
+  const files = [testPattern];
 
   const karmaConfig = {
     basePath: '.',
-    frameworks: ['mocha', 'chai', 'karma-typescript'],
+    frameworks: ['mocha', 'chai'],
     files,
     preprocessors: {
-      'src/**/*.ts': ['karma-typescript'],
+      [testPattern]: ['esbuild'],
     },
     exclude: [],
-    reporters: ['junit', 'karma-typescript', 'saucelabs', 'mocha', 'coverage'],
+    reporters: ['junit', 'saucelabs', 'mocha', 'coverage'],
     port: 9876,
     logLevel: config.DEBUG,
     autoWatch: false,
@@ -299,22 +300,16 @@ module.exports = (config) => {
     concurrency: Infinity,
     timeout,
     captureTimeout: 240000,
-    karmaTypescriptConfig: {
-      tsconfig: './tsconfig.json',
-      compilerOptions: {
-        allowJs: true,
-        module: 'commonjs',
-        resolveJsonModule: false,
-      },
-      bundlerOptions: {
-        debug: true,
-        addNodeGlobals: false,
-        entrypoints: config.integration ? /\.integration-test\.ts/i : /\.test\.ts$/i,
-        transforms: [typescriptTransform()],
-      },
-      coverageOptions: {
-        exclude: [/\.(d|spec|test)\.ts$/i],
-      },
+    esbuild: {
+      singleBundle: true,
+      target: 'es2015',
+      plugins: [
+        esbuildPluginIstanbul({
+          filter: /(?:^|[/\\])[^/\\.]+\.ts$/,
+          loader: 'ts',
+          name: 'istanbul-loader-ts',
+        }),
+      ],
     },
     sauceLabs: {
       build: buildName,

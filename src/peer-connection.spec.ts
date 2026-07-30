@@ -1,7 +1,6 @@
 import { BrowserInfo } from '@webex/web-capabilities';
-import { MockedObjectDeep } from 'ts-jest';
 import { ConnectionStateHandler } from './connection-state-handler';
-import { mocked } from './mocks/mock';
+import { MaybeMockedDeep, mocked } from './mocks/mock';
 import { RTCPeerConnectionStub } from './mocks/rtc-peer-connection-stub';
 import { PeerConnection } from './peer-connection';
 import { createRTCPeerConnection } from './rtc-peer-connection-factory';
@@ -266,7 +265,7 @@ describe('PeerConnection', () => {
   });
 
   describe('getIceCandidates', () => {
-    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let mockPc: MaybeMockedDeep<RTCPeerConnectionStub>;
     let pc: PeerConnection;
 
     beforeEach(() => {
@@ -327,7 +326,7 @@ describe('PeerConnection', () => {
   });
 
   describe('createAnswer', () => {
-    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let mockPc: MaybeMockedDeep<RTCPeerConnectionStub>;
     let createAnswerSpy: jest.SpyInstance;
     const callback = jest.fn();
     let pc: PeerConnection;
@@ -372,7 +371,7 @@ describe('PeerConnection', () => {
   });
 
   describe('createOffer', () => {
-    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let mockPc: MaybeMockedDeep<RTCPeerConnectionStub>;
     let createOfferSpy: jest.SpyInstance;
     const callback = jest.fn();
     let pc: PeerConnection;
@@ -417,7 +416,7 @@ describe('PeerConnection', () => {
   });
 
   describe('setLocalDescription', () => {
-    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let mockPc: MaybeMockedDeep<RTCPeerConnectionStub>;
     let setLocalDescriptionSpy: jest.SpyInstance;
     const callback = jest.fn();
     let pc: PeerConnection;
@@ -479,7 +478,7 @@ describe('PeerConnection', () => {
   });
 
   describe('setConfiguration', () => {
-    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let mockPc: MaybeMockedDeep<RTCPeerConnectionStub>;
     let pc: PeerConnection;
 
     beforeEach(() => {
@@ -500,7 +499,7 @@ describe('PeerConnection', () => {
   });
 
   describe('setRemoteDescription', () => {
-    let mockPc: MockedObjectDeep<RTCPeerConnectionStub>;
+    let mockPc: MaybeMockedDeep<RTCPeerConnectionStub>;
     let setRemoteDescriptionSpy: jest.SpyInstance;
     const callback = jest.fn();
     let pc: PeerConnection;

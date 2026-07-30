@@ -6,11 +6,11 @@ import { getLocalDescriptionWithIceCandidates } from './peer-connection-utils';
 
 jest.mock('./peer-connection');
 
-const dummyLocalDesc = {
+const dummyLocalDesc: RTCSessionDescription = {
   type: 'offer',
   sdp: 'sdp with candidates',
-  toJSON: () => undefined,
-} as RTCSessionDescription;
+  toJSON: () => ({ type: 'offer', sdp: 'sdp with candidates' }),
+};
 
 describe('getLocalDescriptionWithIceCandidates', () => {
   const mockPc = mocked(new PeerConnection(), true);
