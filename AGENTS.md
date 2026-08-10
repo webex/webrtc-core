@@ -1,0 +1,250 @@
+# AGENTS.md
+
+## Project Overview
+
+`@webex/webrtc-core` is an open-source TypeScript library of reusable browser WebRTC primitives. It wraps `RTCPeerConnection`, models local and remote media streams, provides device and permission helpers, and connects local streams to `@webex/web-media-effects`.
+
+In the public Webex application stack, [Webex Web Client](https://github.com/webex/webex-web-client) uses the meetings and media APIs from the [Webex JS SDK](https://github.com/webex/webex-js-sdk). The SDK reaches this library through `@webex/internal-media-core` and `@webex/web-client-media-engine` (WCME). This dependency path explains where changes are consumed; it does not make webrtc-core responsible for meeting join, multistream signaling, or SDP munging.
+
+New contributors should use this file for setup, development, testing, and contribution guidance. For the package's place in the wider media stack, start with the [knowledge base](docs/knowledge-base/README.md).
+
+## General Guidelines
+
+- Be analytical, straightforward, and technical. No fluff or overly agreeable responses.
+- Derive commands, versions, and conventions from this repository's checked-in files — do not guess.
+- For stack and onboarding questions, read the [knowledge base](docs/knowledge-base/README.md) before wide repository searches.
+- When a plan or approach is ready, present it to the user and wait for confirmation before executing large or irreversible changes.
+- When guidance conflicts, this repository's configuration, scripts, and policy files win.
+
+## Agent Rules (Interactive Sessions)
+
+These rules apply to interactive (terminal / IDE) agent sessions only.
+
+1. Statements backed by evidence should cite the source (file path, config key, stable link, or Confluence page URL) so a human can verify.
+2. Do not create Jira issues or Confluence pages via MCP. Search and update existing items only — see `.github/skills/jira-mcp/SKILL.md` and `.github/skills/confluence-mcp/SKILL.md`.
+3. Never commit secrets, credentials, `.pem` files, or decrypted `.env` values.
+4. Do not copy raw Confluence or Jira content into the repo — summarize and link.
+
+### Committing files (agents)
+
+- Never use `git add .` or `git add -A`. Stage **explicit paths** only.
+- Stage **only files you created or modified in this session**. Do not include pre-existing untracked or unrelated changes, such as local notes, keys, or scratch Markdown at the repository root.
+- Before every commit, run `git status` and confirm no `*.pem`, `.env`, keys, or credentials are staged. Use `git restore --staged <file>` if the wrong files appear.
+- Create commits **only when the user asks** (unless their tooling rules say otherwise).
+
+### Knowledge base (`docs/knowledge-base/`)
+
+**What it is:** Curated, repository-local notes for agents and contributors, including architecture summaries, dependency roles, and links to deeper sources. It is separate from generated API documentation.
+
+**When to read it (before heavy searching):**
+
+- Questions about webrtc-core’s **role in the Webex stack** or **WCME / effects** boundaries.
+- **Onboarding-style** “how does this repo fit together?” or “which module handles X?”
+- You need a **map of modules or dependencies**. Open [architecture/webrtc-core-overview.md](docs/knowledge-base/architecture/webrtc-core-overview.md) through the [knowledge base index](docs/knowledge-base/README.md).
+
+**When code wins:** Implementation details, dependency pins, and scripts live in source and `package.json`. If the knowledge base and code disagree, trust the repository and correct the knowledge base.
+
+**Optional growth:** After answering a repeatable research question, ask the user whether they want a short article under `docs/knowledge-base/architecture/` or `docs/knowledge-base/questions/`, linked from [docs/knowledge-base/README.md](docs/knowledge-base/README.md). Do not add or rewrite knowledge base files without agreement.
+
+## Maintaining this file
+
+Keep `AGENTS.md`, scoped instructions, and skills aligned with checked-in facts.
+
+**Update in the same PR when you change:** `package.json` scripts or dependency pins, `.nvmrc`, `packageManager`, ESLint, Prettier, Jest, Karma, Rollup, release configuration, `.github/workflows/`, or the public API in `src/index.ts`.
+
+**Also refresh when:** Cisco MCP policy changes or a release changes documented dependency relationships.
+
+**How:** Edit these files directly in the webrtc-core repository. Do not reference external authoring workspaces inside committed files.
+
+If this document disagrees with `package.json`, workflows, or source code, **the repository wins**. Correct this document and remove rules that no longer apply.
+
+**Last verified:** 2026-08-10.
+
+## Repository layout
+
+```
+webrtc-core/                 ← package root (@webex/webrtc-core)
+├── src/                     ← TypeScript source + co-located tests
+├── dist/                    ← build output (ESM, CJS, UMD, types)
+├── docs/knowledge-base/     ← architecture pointers for agents
+├── .github/workflows/       ← GitHub Actions (PR checks, publish)
+├── package.json
+├── tsconfig.json
+├── rollup.config.js
+├── jest.config.js
+├── karma.conf.js
+└── cspell.json
+```
+
+## Setup
+
+```bash
+nvm install           # Node version from .nvmrc
+corepack enable       # enables the package manager declared by package.json
+yarn install          # from repo root
+```
+
+Use Yarn for repository commands. The required package manager and version are defined by `engines` and `packageManager` in `package.json`.
+
+## Development commands
+
+Run from the repo root:
+
+| Command | Purpose |
+|---|---|
+| `yarn build` | Production build (clean + rollup) |
+| `yarn test` | Full local check: build, lint, Prettier, spelling, unit tests, and coverage |
+| `yarn test:unit` | Jest unit tests only |
+| `yarn test:coverage` | Jest with coverage (matches PR CI) |
+| `yarn test:lint` | ESLint on `src/` |
+| `yarn test:prettier` | Prettier check on `src/**/*.ts` |
+| `yarn test:spelling` | cspell for source and contributor documentation |
+| `yarn test:integration:chrome` | Karma integration tests (Chrome via Puppeteer) |
+| `yarn test:integration:firefox` | Karma integration tests (Firefox) |
+| `yarn test:integration:edge` | Karma integration tests (Edge) |
+| `yarn test:integration:safari` | Karma integration tests (Safari) |
+| `yarn transpile:validate` | TypeScript type check (`tsc --noEmit`) |
+| `yarn fix` | Auto-fix prettier + eslint |
+| `yarn watch` | Rollup watch mode |
+
+Reproduce PR CI locally: `yarn test:lint` and `yarn test:coverage` after `yarn install`.
+
+## Coding conventions
+
+### TypeScript
+
+- TypeScript strict mode, `noImplicitAny`, `strictNullChecks`, and `noImplicitReturns` are enabled.
+- The compilation target and module format are defined in `tsconfig.json`.
+
+### Formatting and lint
+
+- Prettier uses a 100-character print width, single quotes, two-space indentation, and ES5 trailing commas. See `.prettierrc`.
+- ESLint combines Airbnb Base, TypeScript, Jest, JSDoc, and Prettier rules. See `.eslintrc.js`.
+- Staged TypeScript files run Prettier, ESLint with zero warnings, and cspell through `lint-staged`.
+
+### Naming
+
+- Files: `kebab-case.ts`. Unit tests: `kebab-case.spec.ts` (co-located).
+- Integration tests: `*.integration-test.ts` (Karma).
+- Classes: PascalCase.
+
+### JSDoc
+
+JSDoc is enforced by ESLint on functions, classes, and methods:
+
+- Full-sentence description.
+- `@param name - description` (hyphen before param description).
+- `@returns` for return values.
+
+### Error handling
+
+- Use domain errors from `errors.ts` where applicable.
+- Never swallow errors silently without explicit, documented reason.
+
+### Events
+
+- Typed patterns via `event-emitter.ts` and `@webex/ts-events` where used.
+- Preserve event names and payloads when changing public stream or connection classes.
+
+### Imports
+
+- No file extensions in TypeScript imports (ESLint `import/extensions`).
+
+## Key dependencies
+
+`@webex/web-media-effects` is an **exact pin** in `package.json`. WCME also pins webrtc-core exactly downstream. See the [architecture overview](docs/knowledge-base/architecture/webrtc-core-overview.md) for dependency roles and delivery impact. Any exact-pin change must be intentional and called out in the pull request.
+
+## Testing
+
+- **Unit:** Jest + ts-jest, jsdom — see `package.json` and `jest.config.js`.
+- **Integration:** Karma + Mocha + `karma-typescript` — see `karma.conf.js` and `*.integration-test.ts`.
+- **Location:** Co-located specs under `src/`; mocks in `src/mocks/`.
+- **Run:** Use `yarn test:unit` for fast feedback and `yarn test` for the full non-integration check. Run the relevant `yarn test:integration:<browser>` script separately for browser integration coverage.
+
+Path-scoped detail: `.github/instructions/testing.instructions.md`.
+
+## Code review priorities
+
+1. **Correctness** — capture, track stop/replace, constraint and effects edge cases.
+2. **Exact-pin discipline** — especially `@webex/web-media-effects` and downstream WCME pins.
+3. **Public API changes** — exports in `src/index.ts` have semver impact.
+4. **Browser differences** — permissions, adapter, Safari/Firefox quirks.
+5. **Event contracts** — no silent breaking changes on streams or `PeerConnection`.
+
+Path-scoped detail: `.github/instructions/code-review.instructions.md`.
+
+## CI/CD
+
+- **Pull requests:** GitHub Actions — lint + Jest coverage (see `.github/workflows/pull-request-checks.yml`).
+- **Main:** semantic-release publish workflow (see `.github/workflows/npm-publish.yml`).
+- **Release:** semantic-release runs on `main` and derives versions from conventional commits.
+- **Registry:** npm public (`@webex/webrtc-core`).
+
+Path-scoped detail: `.github/instructions/ci-cd.instructions.md`.
+
+## PR conventions
+
+- **Branch:** Use `<username>/<short-description>`.
+- **Title:** Conventional commit format (`type(scope): subject`).
+- **Commits:** Husky **commitlint** with `@commitlint/config-conventional`.
+- **Description:** Fill `.github/pull_request_template.md` — summary, test evidence, linked **Jira** in the PR body (not in code comments). Call out **exact-pin** or **public API** changes and downstream ripple.
+- **Validation:** Run lint and unit tests before pushing. Run spelling checks when documentation changes.
+- **GAI disclosure:** Required checkbox in PR template.
+
+## Downstream impact
+
+After a release from `main`, `@webex/web-client-media-engine` must deliberately update its exact webrtc-core pin to consume the release. Changes then continue through downstream packages according to their own pins. Plan this delivery work when changing published behavior or the `@webex/web-media-effects` pin.
+
+## Security
+
+- Never commit `.pem`, `.key`, `.env`, or credential files. Remove stray keys from the working tree before staging.
+- Do not put absolute paths, tokens, customer/PII, or raw internal credentials in committed files.
+- Do not log or paste internal hostnames, tokens, or meeting identifiers into agent context files.
+- If a secret was committed locally: **do not push**; remove from history per team process, rotate the credential, and follow incident response.
+
+## Comments
+
+Comments explain *why*, not *what*:
+
+- Delete obvious comments that restate code.
+- Keep JSDoc tight: description + `@param` + `@returns`.
+- Flag counterintuitive browser or WebRTC behavior with a brief reason.
+- No ticket IDs, dates, or author names in code comments.
+- Prefer full sentences in `//` comments. Avoid semicolons to chain clauses and avoid dashes ( `-` or `—` ) mid-sentence as a pause or aside. Use two short sentences instead.
+
+## Writing for humans (README, docs, and code)
+
+These apply to people and to agents editing the repo.
+
+### README and markdown
+
+- **Lead with the reader’s goal** in one or two plain sentences.
+- **Short paragraphs and lists:** Keep one idea per bullet.
+- **Physical lines:** Keep each prose sentence, blockquote paragraph, and list item on one physical line. Start a new line only for a new structural element.
+- **Name the action:** Write “Run `yarn test` from the repository root” instead of passive phrasing.
+- **Link instead of duplicating:** Point to `AGENTS.md`, the knowledge base, or the external source for depth.
+- **Diagrams in committed Markdown:** Use [Mermaid](https://mermaid.js.org/) fenced blocks in documentation. Do not add new ASCII box diagrams.
+
+### Code comments and JSDoc
+
+- **Why, not what:** Explain constraints, browser quirks, and protocol assumptions.
+- **Complete sentences** in JSDoc descriptions.
+- **Avoid noise** — no commented-out code, no ticket IDs in comments.
+
+### Tone
+
+- Direct and professional; active voice preferred.
+- Define acronyms once when needed, then use the short form.
+
+Agents should follow the same rules when proposing README or comment edits.
+
+## Knowledge sources
+
+When researching requirements, design, or incidents:
+
+| Source | Use |
+|---|---|
+| [docs/knowledge-base/](docs/knowledge-base/README.md) | Public consumer path, dependency roles, and source module map |
+| **GitHub** | [webex/webrtc-core](https://github.com/webex/webrtc-core) |
+| **Jira** | Project `SPARK` — search for webrtc-core / WCME / media labels before updates. **Updates:** Jira wiki markup in v2 description/comments, not Markdown (see Jira MCP skill). |
+| **MCP skills** | `.github/skills/jira-mcp/SKILL.md`, `.github/skills/confluence-mcp/SKILL.md` — search/update only, never create |
