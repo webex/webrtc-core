@@ -4,7 +4,7 @@
 
 `@webex/webrtc-core` is an open-source TypeScript library of reusable browser WebRTC primitives. It wraps `RTCPeerConnection`, models local and remote media streams, provides device and permission helpers, and connects local streams to `@webex/web-media-effects`.
 
-In the public Webex application stack, [Webex Web Client](https://github.com/webex/webex-web-client) uses the meetings and media APIs from the [Webex JS SDK](https://github.com/webex/webex-js-sdk). The SDK reaches this library through `@webex/internal-media-core` and `@webex/web-client-media-engine` (WCME). This dependency path explains where changes are consumed; it does not make webrtc-core responsible for meeting join, multistream signaling, or SDP munging.
+The public [Webex JS SDK](https://github.com/webex/webex-js-sdk) exposes application-facing meetings and media APIs. Its media dependency chain reaches this library through `@webex/internal-media-core` and `@webex/web-client-media-engine` (WCME). This dependency path explains where changes are consumed; it does not make webrtc-core responsible for meeting join, multistream signaling, or SDP munging.
 
 New contributors should use this file for setup, development, testing, and contribution guidance. For the package's place in the wider media stack, start with the [knowledge base](docs/knowledge-base/README.md).
 
@@ -20,10 +20,10 @@ New contributors should use this file for setup, development, testing, and contr
 
 These rules apply to interactive (terminal / IDE) agent sessions only.
 
-1. Statements backed by evidence should cite the source (file path, config key, stable link, or Confluence page URL) so a human can verify.
+1. Statements backed by evidence should cite a repository path, config key, or stable public link so a human can verify.
 2. Do not create Jira issues or Confluence pages via MCP. Search and update existing items only — see `.github/skills/jira-mcp/SKILL.md` and `.github/skills/confluence-mcp/SKILL.md`.
 3. Never commit secrets, credentials, `.pem` files, or decrypted `.env` values.
-4. Do not copy raw Confluence or Jira content into the repo — summarize and link.
+4. Do not copy raw Confluence or Jira content, private URLs, hostnames, or page IDs into the repository. Use a sanitized summary instead.
 
 ### Committing files (agents)
 

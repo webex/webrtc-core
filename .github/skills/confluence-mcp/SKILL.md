@@ -1,9 +1,6 @@
 ---
 name: confluence-mcp
 description: Search, read, and update Cisco Confluence pages through the `confluence` MCP server — search and update only, never create pages.
-source_url: https://confluence-eng-gpk2.cisco.com/conf/pages/viewpage.action?pageId=836486519
-source_hash: 76a778ba20043ae1c056cffcb8c1c60669125354d2d7b46d995295f14c079f47
-last_verified: 2026-07-29
 ---
 
 # Confluence MCP Skill
@@ -46,5 +43,5 @@ last_verified: 2026-07-29
 - Probe the MCP only when the task needs it.
 - Stop clearly if the connector is unavailable.
 - Never copy tokens or auth details into context files.
-- Requires Cisco network/VPN access.
-- Do not copy raw page content into committed repo files — use a sanitized summary and stable link instead.
+- Requires an authenticated enterprise MCP connection.
+- Do not copy raw page content, private URLs, hostnames, or page IDs into committed repository files. Use a sanitized summary instead.

@@ -1,9 +1,6 @@
 ---
 name: jira-mcp
 description: Search, read, and update Cisco Jira issues through the `jira` MCP server — search and update only, never create issues.
-source_url: https://confluence-eng-gpk2.cisco.com/conf/spaces/webexmedia/pages/836486533/Jira+MCP
-source_hash: e0e65762072f4623998729bf065a39e43b511d170c46e604c48030a3d2202c84
-last_verified: 2026-07-29
 ---
 
 # Jira MCP Skill
@@ -54,4 +51,5 @@ last_verified: 2026-07-29
 - Probe the MCP only when the task needs it.
 - Stop clearly if the connector is unavailable.
 - Never copy tokens or auth details into context files.
-- Requires Cisco network/VPN access.
+- Requires an authenticated enterprise MCP connection.
+- Do not copy private URLs, hostnames, or internal issue content into committed repository files. Use a sanitized summary instead.

@@ -4,16 +4,15 @@
 
 ---
 
-## 1. Public use and ownership boundary
+## 1. Downstream use and ownership boundary
 
 webrtc-core packages browser WebRTC behavior for reuse instead of requiring each application to implement peer connections, stream classes, device access, and browser differences independently.
 
-[Webex Web Client](https://github.com/webex/webex-web-client) consumes `@webex/plugin-meetings` from the [Webex JS SDK](https://github.com/webex/webex-js-sdk). The SDK's meetings plugin and media helpers consume `@webex/internal-media-core`; internal-media-core consumes WCME; and WCME exact-pins webrtc-core. The middle packages explain dependency ownership, while Webex JS SDK and Webex Web Client show where this behavior reaches SDK consumers and application code.
+`@webex/web-client-media-engine` (WCME) is a direct consumer that exact-pins webrtc-core. WCME is consumed through `@webex/internal-media-core` by the public [Webex JS SDK](https://github.com/webex/webex-js-sdk). These package relationships explain where changes are consumed; they do not make webrtc-core responsible for higher-level meeting or multistream behavior.
 
 ```mermaid
 flowchart LR
-  WebClient["Webex Web Client"] --> SDK["Webex JS SDK<br/>plugin-meetings · media-helpers"]
-  SDK --> IMC["@webex/internal-media-core"]
+  SDK["Webex JS SDK"] --> IMC["@webex/internal-media-core"]
   IMC --> WCME["@webex/web-client-media-engine"]
   WCME --> Core["@webex/webrtc-core"]
   Core --> Browser["Browser WebRTC APIs"]
@@ -69,9 +68,8 @@ Treat exact-pin bumps in downstream repos as part of delivery when changing publ
 ## 5. Further reading
 
 - [Webex JS SDK](https://github.com/webex/webex-js-sdk) — public SDK that exposes meetings and media helpers
-- [Webex Web Client](https://github.com/webex/webex-web-client) — public application that consumes the SDK
-- [Web Client Media Engine](https://github.com/webex/web-client-media-engine) — direct consumer that exact-pins webrtc-core
-- [Web Media Effects](https://github.com/webex/web-media-effects) — exact-pinned effect processor dependency
+- [Web Client Media Engine on npm](https://www.npmjs.com/package/@webex/web-client-media-engine) — direct consumer that exact-pins webrtc-core
+- [Web Media Effects on npm](https://www.npmjs.com/package/@webex/web-media-effects) — exact-pinned effect processor dependency
 - [Knowledge base index](../README.md) — repository-local context index
 - [AGENTS.md](../../../AGENTS.md) — commands, conventions, Jira/MCP sources
 - [README.md](../../../README.md) — local setup and test commands
