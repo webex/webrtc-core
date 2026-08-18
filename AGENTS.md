@@ -65,7 +65,9 @@ If this document disagrees with `package.json`, workflows, or source code, **the
 webrtc-core/                 ← package root (@webex/webrtc-core)
 ├── src/                     ← TypeScript source + co-located tests
 ├── dist/                    ← build output (ESM, CJS, UMD, types)
-├── docs/knowledge-base/     ← architecture pointers for agents
+├── docs/api-reference/      ← generated API Markdown (not committed)
+├── docs/contributing/       ← maintained contribution guidance
+├── docs/knowledge-base/     ← maintained architecture context
 ├── .github/workflows/       ← GitHub Actions (PR checks, publish)
 ├── package.json
 ├── tsconfig.json
