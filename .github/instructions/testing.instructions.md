@@ -28,7 +28,7 @@ When writing or reviewing **unit** tests in `src/**/*.spec.ts`:
 - `it` blocks with descriptive scenario + expected outcome.
 - `expect.assertions(n)` for async tests when the repo already uses it in that file.
 - Mock at boundaries (`jest.mock` for factories and stubs under `src/mocks/`).
-- `clearMocks: true` in `jest.config.js` — mocks auto-reset between tests.
+- `clearMocks: true` in `jest.config.js` clears mock calls, instances, contexts, and results before each test. It does not restore changed implementations or return values; tests that replace them must restore or reset them explicitly.
 
 ## Naming
 
