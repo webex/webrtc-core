@@ -3,3 +3,5 @@ dist
 .idea/
 coverage/
 .scannerwork/
+docs/temp/
+docs/api-reference/
