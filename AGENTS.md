@@ -21,9 +21,8 @@ New contributors should use this file for setup, development, testing, and contr
 These rules apply to interactive (terminal / IDE) agent sessions only.
 
 1. Statements backed by evidence should cite a repository path, config key, or stable public link so a human can verify.
-2. Do not create Jira issues or Confluence pages via MCP. Search and update existing items only — see `.github/skills/jira-mcp/SKILL.md` and `.github/skills/confluence-mcp/SKILL.md`.
-3. Never commit secrets, credentials, `.pem` files, or decrypted `.env` values.
-4. Do not copy raw Confluence or Jira content, private URLs, hostnames, or page IDs into the repository. Use a sanitized summary instead.
+2. Never commit secrets, credentials, `.pem` files, or decrypted `.env` values.
+3. Do not copy content from private systems, private URLs, hostnames, or internal identifiers into the repository. Use a sanitized summary instead.
 
 ### Committing files (agents)
 
@@ -48,11 +47,11 @@ These rules apply to interactive (terminal / IDE) agent sessions only.
 
 ## Maintaining this file
 
-Keep `AGENTS.md`, scoped instructions, and skills aligned with checked-in facts.
+Keep `AGENTS.md` and scoped instructions aligned with checked-in facts.
 
 **Update in the same PR when you change:** `package.json` scripts or dependency pins, `.nvmrc`, `packageManager`, ESLint, Prettier, Jest, Karma, Rollup, release configuration, `.github/workflows/`, or the public API in `src/index.ts`.
 
-**Also refresh when:** Cisco MCP policy changes or a release changes documented dependency relationships.
+**Also refresh when:** A release changes documented dependency relationships.
 
 **How:** Edit these files directly in the webrtc-core repository. Do not reference external authoring workspaces inside committed files.
 
@@ -187,7 +186,7 @@ Path-scoped detail: `.github/instructions/ci-cd.instructions.md`.
 - **Branch:** Use `<username>/<short-description>`.
 - **Title:** Conventional commit format (`type(scope): subject`).
 - **Commits:** Husky **commitlint** with `@commitlint/config-conventional`.
-- **Description:** Fill `.github/pull_request_template.md` — summary, test evidence, linked **Jira** in the PR body (not in code comments). Call out **exact-pin** or **public API** changes and downstream ripple.
+- **Description:** Fill `.github/pull_request_template.md` — summary, test evidence, and a linked issue when available. Call out **exact-pin** or **public API** changes and downstream ripple.
 - **Validation:** Run lint and unit tests before pushing. Run spelling checks when documentation changes.
 - **GAI disclosure:** Required checkbox in PR template.
 
@@ -244,7 +243,5 @@ When researching requirements, design, or incidents:
 
 | Source | Use |
 |---|---|
-| [docs/knowledge-base/](docs/knowledge-base/README.md) | Public consumer path, dependency roles, and source module map |
+| [docs/knowledge-base/](docs/knowledge-base/README.md) | Downstream package path, dependency roles, and source module map |
 | **GitHub** | [webex/webrtc-core](https://github.com/webex/webrtc-core) |
-| **Jira** | Project `SPARK` — search for webrtc-core / WCME / media labels before updates. **Updates:** Jira wiki markup in v2 description/comments, not Markdown (see Jira MCP skill). |
-| **MCP skills** | `.github/skills/jira-mcp/SKILL.md`, `.github/skills/confluence-mcp/SKILL.md` — search/update only, never create |

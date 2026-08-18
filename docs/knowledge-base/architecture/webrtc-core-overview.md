@@ -71,5 +71,5 @@ Treat exact-pin bumps in downstream repos as part of delivery when changing publ
 - [Web Client Media Engine on npm](https://www.npmjs.com/package/@webex/web-client-media-engine) — direct consumer that exact-pins webrtc-core
 - [Web Media Effects on npm](https://www.npmjs.com/package/@webex/web-media-effects) — exact-pinned effect processor dependency
 - [Knowledge base index](../README.md) — repository-local context index
-- [AGENTS.md](../../../AGENTS.md) — commands, conventions, Jira/MCP sources
+- [AGENTS.md](../../../AGENTS.md) — commands and contribution conventions
 - [README.md](../../../README.md) — local setup and test commands
