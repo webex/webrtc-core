@@ -4,7 +4,7 @@
 
 `@webex/webrtc-core` is an open-source TypeScript library of reusable browser WebRTC primitives. It wraps `RTCPeerConnection`, models local and remote media streams, provides device and permission helpers, and connects local streams to `@webex/web-media-effects`.
 
-The public [Webex JS SDK](https://github.com/webex/webex-js-sdk) exposes application-facing meetings and media APIs. Its media dependency chain reaches this library through `@webex/internal-media-core` and `@webex/web-client-media-engine` (WCME). This dependency path explains where changes are consumed; it does not make webrtc-core responsible for meeting join, multistream signaling, or SDP munging.
+The public [Webex JS SDK](https://github.com/webex/webex-js-sdk) exposes application-facing meetings and media APIs. This repository documents only webrtc-core's browser primitives and direct dependencies, not private application implementation paths.
 
 New contributors should use this file for setup, development, testing, and contribution guidance. For the package's place in the wider media stack, start with the [knowledge base](docs/knowledge-base/README.md).
 
@@ -37,17 +37,17 @@ These rules apply to interactive (terminal / IDE) agent sessions only.
 
 **When to read it (before heavy searching):**
 
-- Questions about webrtc-core’s **role in the Webex stack** or **WCME / effects** boundaries.
+- Questions about webrtc-core’s **public scope** or **media-effects boundary**.
 - **Onboarding-style** “how does this repo fit together?” or “which module handles X?”
 - You need a **map of modules or dependencies**. Open [architecture/webrtc-core-overview.md](docs/knowledge-base/architecture/webrtc-core-overview.md) through the [knowledge base index](docs/knowledge-base/README.md).
 
 **When code wins:** Implementation details, dependency pins, and scripts live in source and `package.json`. If the knowledge base and code disagree, trust the repository and correct the knowledge base.
 
-**Optional growth:** After answering a repeatable research question, ask the user whether they want a short article under `docs/knowledge-base/architecture/` or `docs/knowledge-base/questions/`, linked from [docs/knowledge-base/README.md](docs/knowledge-base/README.md). Do not add or rewrite knowledge base files without agreement.
+**Optional growth:** After answering a repeatable research question, ask the user whether they want a short article under `docs/knowledge-base/architecture/`, linked from [docs/knowledge-base/README.md](docs/knowledge-base/README.md). Do not add or rewrite knowledge base files without agreement.
 
 ## Maintaining this file
 
-Keep `AGENTS.md` and scoped instructions aligned with checked-in facts.
+Keep `AGENTS.md`, scoped instructions, and repository skills aligned with checked-in facts.
 
 **Update in the same PR when you change:** `package.json` scripts or dependency pins, `.nvmrc`, `packageManager`, ESLint, Prettier, Jest, Karma, Rollup, release configuration, `.github/workflows/`, or the public API in `src/index.ts`.
 
@@ -92,16 +92,16 @@ Run from the repo root:
 | Command | Purpose |
 |---|---|
 | `yarn build` | Production build (clean + rollup) |
-| `yarn test` | Full local check: build, lint, Prettier, spelling, unit tests, and coverage |
+| `yarn test` | Sequential build plus every `test:*` script, including all four Karma integration commands |
 | `yarn test:unit` | Jest unit tests only |
 | `yarn test:coverage` | Jest with coverage (matches PR CI) |
 | `yarn test:lint` | ESLint on `src/` |
 | `yarn test:prettier` | Prettier check on `src/**/*.ts` |
 | `yarn test:spelling` | cspell for source and contributor documentation |
-| `yarn test:integration:chrome` | Karma integration tests (Chrome via Puppeteer) |
-| `yarn test:integration:firefox` | Karma integration tests (Firefox) |
-| `yarn test:integration:edge` | Karma integration tests (Edge) |
-| `yarn test:integration:safari` | Karma integration tests (Safari) |
+| `yarn test:integration:chrome` | Karma integration tests in local Chrome via Puppeteer |
+| `yarn test:integration:firefox` | Firefox matrix on Sauce Labs when `SAUCE=true`; otherwise local Chrome |
+| `yarn test:integration:edge` | Edge matrix on Sauce Labs when `SAUCE=true`; otherwise local Chrome |
+| `yarn test:integration:safari` | Safari matrix on Sauce Labs when `SAUCE=true`; otherwise local Chrome |
 | `yarn transpile:validate` | TypeScript type check (`tsc --noEmit`) |
 | `yarn fix` | Auto-fix prettier + eslint |
 | `yarn watch` | Rollup watch mode |
@@ -151,24 +151,26 @@ JSDoc is enforced by ESLint on functions, classes, and methods:
 
 ## Key dependencies
 
-`@webex/web-media-effects` is an **exact pin** in `package.json`. WCME also pins webrtc-core exactly downstream. See the [architecture overview](docs/knowledge-base/architecture/webrtc-core-overview.md) for dependency roles and delivery impact. Any exact-pin change must be intentional and called out in the pull request.
+`@webex/web-media-effects` is an **exact pin** in `package.json`. See the [architecture overview](docs/knowledge-base/architecture/webrtc-core-overview.md) for its direct role. Any version change must be intentional, compatibility-tested, and called out in the pull request.
 
 ## Testing
 
 - **Unit:** Jest + ts-jest, jsdom — see `package.json` and `jest.config.js`.
 - **Integration:** Karma + Mocha + `karma-typescript` — see `karma.conf.js` and `*.integration-test.ts`.
 - **Location:** Co-located specs under `src/`; mocks in `src/mocks/`.
-- **Run:** Use `yarn test:unit` for fast feedback and `yarn test` for the full non-integration check. Run the relevant `yarn test:integration:<browser>` script separately for browser integration coverage.
+- **Run:** Use `yarn test:unit` for fast feedback. `yarn test` expands `test:*`, so it runs lint, Prettier, spelling, unit tests, coverage, and every Karma integration script; it is not a non-integration-only check.
+- **Non-integration validation:** Run the required build, lint, Prettier, spelling, unit, or coverage scripts explicitly. There is no single non-integration aggregate script.
+- **Cross-browser:** Firefox, Edge, and Safari are selected only with `SAUCE=true` and valid Sauce Labs credentials. Without Sauce, every integration script launches local Chrome, regardless of the browser suffix.
 
 Path-scoped detail: `.github/instructions/testing.instructions.md`.
 
 ## Code review priorities
 
 1. **Correctness** — capture, track stop/replace, constraint and effects edge cases.
-2. **Exact-pin discipline** — especially `@webex/web-media-effects` and downstream WCME pins.
-3. **Public API changes** — exports in `src/index.ts` have semver impact.
-4. **Browser differences** — permissions, adapter, Safari/Firefox quirks.
-5. **Event contracts** — no silent breaking changes on streams or `PeerConnection`.
+2. **Public API changes** — exports in `src/index.ts` have semver impact.
+3. **Browser differences** — permissions, adapter, Safari/Firefox quirks.
+4. **Event contracts** — no silent breaking changes on streams or `PeerConnection`.
+5. **Media effects integration** — local stream behavior remains compatible with `@webex/web-media-effects`.
 
 Path-scoped detail: `.github/instructions/code-review.instructions.md`.
 
@@ -183,16 +185,10 @@ Path-scoped detail: `.github/instructions/ci-cd.instructions.md`.
 
 ## PR conventions
 
-- **Branch:** Use `<username>/<short-description>`.
-- **Title:** Conventional commit format (`type(scope): subject`).
-- **Commits:** Husky **commitlint** with `@commitlint/config-conventional`.
-- **Description:** Fill `.github/pull_request_template.md` — summary, test evidence, and a linked issue when available. Call out **exact-pin** or **public API** changes and downstream ripple.
-- **Validation:** Run lint and unit tests before pushing. Run spelling checks when documentation changes.
+- **Branches and commits:** Follow [docs/contributing/GIT_CONVENTIONS.md](docs/contributing/GIT_CONVENTIONS.md). Commitlint enforces Conventional Commits.
+- **Release versioning:** semantic-release on **`main`** analyzes merged commit messages, not the PR title alone.
+- **Description:** Use [.github/skills/pr-description/SKILL.md](.github/skills/pr-description/SKILL.md) to complete `.github/pull_request_template.md` from the committed diff and verified test evidence.
 - **GAI disclosure:** Required checkbox in PR template.
-
-## Downstream impact
-
-After a release from `main`, `@webex/web-client-media-engine` must deliberately update its exact webrtc-core pin to consume the release. Changes then continue through downstream packages according to their own pins. Plan this delivery work when changing published behavior or the `@webex/web-media-effects` pin.
 
 ## Security
 
@@ -243,5 +239,5 @@ When researching requirements, design, or incidents:
 
 | Source | Use |
 |---|---|
-| [docs/knowledge-base/](docs/knowledge-base/README.md) | Downstream package path, dependency roles, and source module map |
+| [docs/knowledge-base/](docs/knowledge-base/README.md) | Public scope, direct dependency roles, and source module map |
 | **GitHub** | [webex/webrtc-core](https://github.com/webex/webrtc-core) |

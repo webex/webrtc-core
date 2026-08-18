@@ -17,7 +17,9 @@ When writing or reviewing **unit** tests in `src/**/*.spec.ts`:
 ## Integration tests (Karma + Mocha)
 
 - Browser integration tests use **`*.integration-test.ts`** and Karma (`karma.conf.js`).
-- Run locally with `yarn test:integration:chrome` or the corresponding Firefox, Edge, or Safari script in `package.json`.
+- `yarn test` uses the `test:*` pattern and includes all four Karma integration scripts. Run individual test scripts when you do not want to run browser integration tests.
+- Run local integration tests with `yarn test:integration:chrome`; the local Karma configuration always launches Chrome through Puppeteer.
+- The Firefox, Edge, and Safari scripts select their named browser matrices only when `SAUCE=true` and valid Sauce Labs credentials are provided. Without Sauce, those scripts also launch local Chrome and must not be treated as validation in the named browser.
 - The checked-in pull request workflow runs Jest coverage, not Karma. Run relevant Karma tests locally when changing browser capture, permissions, or media behavior.
 
 ## Patterns
