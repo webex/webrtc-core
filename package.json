@@ -85,7 +85,7 @@
     "clean": "npm run transpile:clean && npm run docs:clean",
     "compile": "rollup -c ./rollup.config.js",
     "docs": "npm run docs:clean && npm run docs:extract && npm run docs:generate",
-    "docs:clean": "rimraf ./docs/temp ./docs/api-reference",
+    "docs:clean": "rimraf ./docs/temp ./docs/api-reference ./docs/index.md \"./docs/webrtc-core*.md\"",
     "docs:extract": "api-extractor run -c ./api-extractor.json",
     "docs:generate": "api-documenter markdown -i ./docs/temp -o ./docs/api-reference",
     "fix": "run-s fix:*",
