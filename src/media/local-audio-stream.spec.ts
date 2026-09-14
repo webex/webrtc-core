@@ -1,8 +1,9 @@
 import * as media from '.';
 import { getSupportedConstraints } from '../mocks/media-track-supported-constraints';
 import { createMockedAudioStream, createMockedStream } from '../util/test-utils';
-import { LocalAudioStream } from './local-audio-stream';
+import { LocalMicrophoneStream } from './local-microphone-stream';
 import { LocalStream, LocalStreamEventNames, TrackEffect } from './local-stream';
+import { LocalSystemAudioStream } from './local-system-audio-stream';
 import { StreamEventNames } from './stream';
 
 /**
@@ -11,7 +12,7 @@ import { StreamEventNames } from './stream';
  */
 class TestLocalStream extends LocalStream {}
 
-describe('LocalAudioStream', () => {
+describe('LocalMicrophoneStream', () => {
   describe('audio constraints handling', () => {
     const audioSettings: MediaTrackSettings = {
       deviceId: 'test-device-id',
@@ -24,7 +25,7 @@ describe('LocalAudioStream', () => {
     };
 
     let audioStream: MediaStream;
-    let audioLocalStream: LocalAudioStream;
+    let audioLocalStream: LocalMicrophoneStream;
     let effect: TrackEffect;
     let constraintsRequiredHandler: (constraints: MediaTrackConstraints) => Promise<void>;
     let constraintsReleasedHandler: () => Promise<void>;
@@ -47,7 +48,7 @@ describe('LocalAudioStream', () => {
       });
 
       audioStream = createMockedAudioStream();
-      audioLocalStream = new LocalAudioStream(audioStream);
+      audioLocalStream = new LocalMicrophoneStream(audioStream);
 
       const inputTrack = audioStream.getTracks()[0];
       jest.spyOn(inputTrack, 'getSettings').mockReturnValue(audioSettings);
@@ -417,6 +418,34 @@ describe('LocalAudioStream', () => {
       expect(videoEventHandlers.has('constraints-released')).toBe(false);
       expect(videoEventHandlers.has('track-updated')).toBe(true);
       expect(videoEventHandlers.has('disposed')).toBe(true);
+    });
+
+    it('should not register microphone constraint handlers for system audio tracks', async () => {
+      expect.hasAssertions();
+
+      const systemAudioStream = createMockedAudioStream();
+      const systemAudioTrack = systemAudioStream.getAudioTracks()[0];
+      const systemAudioTrackStopSpy = jest.spyOn(systemAudioTrack, 'stop');
+      const systemAudioLocalStream = new LocalSystemAudioStream(systemAudioStream);
+      const systemAudioEventHandlers = new Map<string, (...args: unknown[]) => void>();
+      const systemAudioEffect = {
+        id: 'system-audio-effect',
+        kind: 'noise-reduction',
+        isEnabled: false,
+        dispose: jest.fn().mockResolvedValue(undefined),
+        load: jest.fn().mockResolvedValue(undefined),
+        on: jest.fn().mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
+          systemAudioEventHandlers.set(event, handler);
+        }),
+        off: jest.fn(),
+      } as unknown as TrackEffect;
+
+      await systemAudioLocalStream.addEffect(systemAudioEffect);
+
+      expect(systemAudioEventHandlers.has('constraints-required')).toBe(false);
+      expect(systemAudioEventHandlers.has('constraints-released')).toBe(false);
+      expect(getUserMediaSpy).not.toHaveBeenCalled();
+      expect(systemAudioTrackStopSpy).not.toHaveBeenCalled();
     });
   });
 });
