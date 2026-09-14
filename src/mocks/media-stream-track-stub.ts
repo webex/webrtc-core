@@ -9,6 +9,7 @@ import { MediaStreamTrackKind } from '../peer-connection';
 class MediaStreamTrackStub {
   // default MediaStreamTrack value
   enabled = true;
+  readyState: MediaStreamTrackState = 'live';
   // Technically this should map to a list of handlers, but for now modeling a single handler should
   // be fine.
   eventListeners: Map<string, any> = new Map();
