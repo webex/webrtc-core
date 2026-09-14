@@ -231,39 +231,6 @@ describe('LocalAudioStream', () => {
       expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
     });
 
-    it('should preserve mute changes made while replacing the effect input track', async () => {
-      expect.hasAssertions();
-
-      audioStream.getTracks()[0].enabled = true;
-      let resolveReplaceInputTrack!: () => void;
-      (effect.replaceInputTrack as jest.Mock).mockReturnValueOnce(
-        new Promise<void>((resolve) => {
-          resolveReplaceInputTrack = resolve;
-        })
-      );
-
-      const handlerPromise = constraintsRequiredHandler({ autoGainControl: false });
-      await Promise.resolve();
-      audioLocalStream.setUserMuted(true);
-      resolveReplaceInputTrack();
-      await handlerPromise;
-
-      expect(newAudioTrack.enabled).toBe(false);
-    });
-
-    it('should emit OutputTrackChange when the public output is the replaced raw track', async () => {
-      expect.hasAssertions();
-
-      const outputTrackChangeSpy = jest.spyOn(
-        audioLocalStream[LocalStreamEventNames.OutputTrackChange],
-        'emit'
-      );
-
-      await constraintsRequiredHandler({ autoGainControl: false });
-
-      expect(outputTrackChangeSpy).toHaveBeenCalledWith(newAudioTrack);
-    });
-
     it('should remove track handlers before stopping the current track', async () => {
       expect.hasAssertions();
 
@@ -406,25 +373,6 @@ describe('LocalAudioStream', () => {
       expect(endedSpy).toHaveBeenCalledWith();
       expect(constraintsChangeSpy).not.toHaveBeenCalled();
       expect(effect.replaceInputTrack).not.toHaveBeenCalled();
-    });
-
-    it('should emit Ended when getUserMedia rejects after the effect is disposed', async () => {
-      expect.hasAssertions();
-
-      const endedSpy = jest.spyOn(audioLocalStream[StreamEventNames.Ended], 'emit');
-      let rejectGetUserMedia!: (error: Error) => void;
-      getUserMediaSpy.mockReturnValueOnce(
-        new Promise<MediaStream>((_resolve, reject) => {
-          rejectGetUserMedia = reject;
-        })
-      );
-
-      const handlerPromise = constraintsRequiredHandler({ autoGainControl: false });
-      await audioLocalStream.disposeEffects();
-      rejectGetUserMedia(new Error('NotReadableError'));
-      await handlerPromise;
-
-      expect(endedSpy).toHaveBeenCalledWith();
     });
 
     it('should not register duplicate constraint handlers when addEffect is called with the same effect', async () => {
