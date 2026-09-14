@@ -2643,10 +2643,10 @@
   dependencies:
     bowser "^2.11.0"
 
-"@webex/web-media-effects@2.36.1":
-  version "2.36.1"
-  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.36.1.tgz#2bdc870b330ca162c593bbea37e3dec08771ca2c"
-  integrity sha512-6e0Oh7DJDMrZYCgTfsPo4+cKq6CrI2vVQj0zwGqZZz0oJ7HW/eVKp0vqzbcqws8FzfUbnNUDwVsU7m9CT+xbeA==
+"@webex/web-media-effects@2.37.0":
+  version "2.37.0"
+  resolved "https://registry.yarnpkg.com/@webex/web-media-effects/-/web-media-effects-2.37.0.tgz#04e136f95b743777cedadc7ec96ce905e1c567b1"
+  integrity sha512-14aP6SljCHcJwuw7F7YdD8iKibPtx5wDJTnTpe2sgvW+jb/p6EM4SSYKGMcqYGfgvSNyqpdliJDKzFWRJ0EfBQ==
   dependencies:
     "@webex/ladon-ts" "^5.10.0"
     "@webex/web-capabilities" "^1.13.1"
