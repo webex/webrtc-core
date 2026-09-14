@@ -140,10 +140,19 @@ export class LocalAudioStream extends LocalStream {
           throw wireErr;
         }
 
+        // Preserve mute changes made while replaceInputTrack was pending.
+        newTrack.enabled = currentTrack.enabled;
+
+        // If the effect did not replace the public output with its processed track,
+        // inputStream and outputStream still share the raw track.
+        const outputTrackWillChange = this.outputTrack.id === currentTrack.id;
         this.inputStream.removeTrack(currentTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
 
+        if (outputTrackWillChange) {
+          this[LocalStreamEventNames.OutputTrackChange].emit(newTrack);
+        }
         this[LocalStreamEventNames.ConstraintsChange].emit();
         logger.log(
           `Constraints applied via track re-acquisition. Settings:`,
@@ -152,6 +161,11 @@ export class LocalAudioStream extends LocalStream {
         return true;
       } catch (err: unknown) {
         if (!this.effects.includes(effect)) {
+          logger.error(
+            `Track re-acquisition failed after the effect was removed, stream ended:`,
+            err
+          );
+          this[StreamEventNames.Ended].emit();
           return false;
         }
 

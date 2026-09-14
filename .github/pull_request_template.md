@@ -1,5 +1,5 @@
 ## Description
-<!-- Provide a summary of the changes you are making, including any relevant JIRAs and screenshots. -->
+<!-- Explain what changed and why. Link a relevant public issue and add verified test evidence or screenshots when applicable. -->
 
 ## This change implements...
 - [ ] A new feature

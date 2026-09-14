@@ -1,3 +1,31 @@
+## [2.14.4](https://github.com/webex/webrtc-core/compare/v2.14.3...v2.14.4) (2026-09-14)
+
+
+### Bug Fixes
+
+* **deps:** update compute-pressure and effects dependencies ([#106](https://github.com/webex/webrtc-core/issues/106)) ([510bb77](https://github.com/webex/webrtc-core/commit/510bb77c34df8d6184f0154e2d5e4a3af2eb8741))
+
+## [2.14.3](https://github.com/webex/webrtc-core/compare/v2.14.2...v2.14.3) (2026-09-08)
+
+
+### Bug Fixes
+
+* update web-media-effects version ([#105](https://github.com/webex/webrtc-core/issues/105)) ([81e95a6](https://github.com/webex/webrtc-core/commit/81e95a6048e9cbfcdcd21a23cbccfe6adf12428a))
+
+## [2.14.2](https://github.com/webex/webrtc-core/compare/v2.14.1...v2.14.2) (2026-08-26)
+
+
+### Bug Fixes
+
+* update web-media-effects version ([#104](https://github.com/webex/webrtc-core/issues/104)) ([06826f8](https://github.com/webex/webrtc-core/commit/06826f8c601f273e8f04df6d0e03c4e399910072))
+
+## [2.14.1](https://github.com/webex/webrtc-core/compare/v2.14.0...v2.14.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* update web-media-effects version ([#101](https://github.com/webex/webrtc-core/issues/101)) ([8e7b6b0](https://github.com/webex/webrtc-core/commit/8e7b6b0475a0688126785b0a9ae6e8be5e5d788a))
+
 # [2.14.0](https://github.com/webex/webrtc-core/compare/v2.13.7...v2.14.0) (2026-05-13)
 
 
