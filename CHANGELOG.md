@@ -1,3 +1,10 @@
+## [2.14.4](https://github.com/webex/webrtc-core/compare/v2.14.3...v2.14.4) (2026-09-14)
+
+
+### Bug Fixes
+
+* **deps:** update compute-pressure and effects dependencies ([#106](https://github.com/webex/webrtc-core/issues/106)) ([510bb77](https://github.com/webex/webrtc-core/commit/510bb77c34df8d6184f0154e2d5e4a3af2eb8741))
+
 ## [2.14.3](https://github.com/webex/webrtc-core/compare/v2.14.2...v2.14.3) (2026-09-08)
 
 
