@@ -232,6 +232,36 @@ describe('LocalMicrophoneStream', () => {
       expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
     });
 
+    it('should preserve mute changes made while replacing the effect input track', async () => {
+      expect.hasAssertions();
+
+      const currentTrack = audioStream.getTracks()[0];
+      currentTrack.enabled = true;
+
+      let resolveReplacement!: () => void;
+      let markReplacementStarted!: () => void;
+      const replacementStarted = new Promise<void>((resolve) => {
+        markReplacementStarted = resolve;
+      });
+      const replacementPending = new Promise<void>((resolve) => {
+        resolveReplacement = resolve;
+      });
+      (effect.replaceInputTrack as jest.Mock).mockImplementationOnce(() => {
+        markReplacementStarted();
+        return replacementPending;
+      });
+
+      const handlerPromise = constraintsRequiredHandler({ autoGainControl: false });
+      await replacementStarted;
+
+      audioLocalStream.setUserMuted(true);
+      resolveReplacement();
+      await handlerPromise;
+
+      expect(newAudioTrack.enabled).toBe(false);
+      expect(audioLocalStream.userMuted).toBe(true);
+    });
+
     it('should remove track handlers before stopping the current track', async () => {
       expect.hasAssertions();
 

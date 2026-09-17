@@ -111,6 +111,9 @@ export class LocalMicrophoneStream extends LocalAudioStream {
           throw wireErr;
         }
 
+        // Preserve mute changes made while the effect was replacing its input track.
+        newTrack.enabled = currentTrack.enabled;
+
         this.inputStream.removeTrack(currentTrack);
         this.inputStream.addTrack(newTrack);
         this.addTrackHandlers(newTrack);
