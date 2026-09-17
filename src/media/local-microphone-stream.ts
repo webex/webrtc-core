@@ -106,9 +106,9 @@ export class LocalMicrophoneStream extends LocalAudioStream {
 
         try {
           await effect.replaceInputTrack(newTrack);
-        } catch (wireErr) {
+        } catch (error) {
           newTrack.stop();
-          throw wireErr;
+          throw error;
         }
 
         // Preserve mute changes made while the effect was replacing its input track.
