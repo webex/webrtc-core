@@ -116,6 +116,20 @@ describe('LocalStream', () => {
       expect(emitSpy).toHaveBeenCalledWith(effect);
     });
 
+    it('should mark effects inactive before invoking their disposal callbacks', async () => {
+      expect.hasAssertions();
+
+      await localStream.addEffect(effect);
+      (effect.dispose as jest.Mock).mockImplementationOnce(async () => {
+        expect(localStream.getEffects()).toStrictEqual([]);
+      });
+
+      await localStream.disposeEffects();
+
+      expect(effect.dispose).toHaveBeenCalledWith();
+      expect(localStream.getEffects()).toStrictEqual([]);
+    });
+
     it('should load and add multiple effects with different IDs and kinds', async () => {
       expect.hasAssertions();
 

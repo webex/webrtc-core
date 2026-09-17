@@ -377,11 +377,14 @@ abstract class _LocalStream extends Stream {
   async disposeEffects(): Promise<void> {
     this.loadingEffects.clear();
 
-    // Dispose of any effects currently in use
-    if (this.effects.length > 0) {
+    // Effects are no longer active once disposal begins. Clear them before invoking
+    // disposal callbacks so those callbacks cannot start new work on this stream.
+    const effectsToDispose = this.effects;
+    this.effects = [];
+
+    if (effectsToDispose.length > 0) {
       this.changeOutputTrack(this.inputTrack);
-      await Promise.all(this.effects.map((effect) => effect.dispose()));
-      this.effects = [];
+      await Promise.all(effectsToDispose.map((effect) => effect.dispose()));
     }
   }
 }

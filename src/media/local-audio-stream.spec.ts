@@ -373,6 +373,21 @@ describe('LocalMicrophoneStream', () => {
       expect(getUserMediaSpy).not.toHaveBeenCalled();
     });
 
+    it('should not re-acquire the microphone from a constraint release during effect disposal', async () => {
+      expect.hasAssertions();
+
+      await constraintsRequiredHandler({ autoGainControl: false });
+      getUserMediaSpy.mockClear();
+      (effect.dispose as jest.Mock).mockImplementationOnce(async () => {
+        await constraintsReleasedHandler();
+      });
+
+      await audioLocalStream.disposeEffects();
+
+      expect(getUserMediaSpy).not.toHaveBeenCalled();
+      expect(audioLocalStream.getEffects()).toStrictEqual([]);
+    });
+
     it('should discard new track when effect is disposed during getUserMedia', async () => {
       expect.hasAssertions();
 
