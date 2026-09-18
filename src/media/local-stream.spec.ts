@@ -116,7 +116,7 @@ describe('LocalStream', () => {
       expect(emitSpy).toHaveBeenCalledWith(effect);
     });
 
-    it('should mark effects inactive before invoking their disposal callbacks', async () => {
+    it('should remove effects from the active list before disposing them', async () => {
       expect.hasAssertions();
 
       await localStream.addEffect(effect);

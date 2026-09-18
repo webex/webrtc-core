@@ -232,6 +232,22 @@ describe('LocalMicrophoneStream', () => {
       expect(effect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
     });
 
+    it('should pass a disabled replacement track to the effect when already user-muted', async () => {
+      expect.hasAssertions();
+
+      const currentTrack = audioStream.getTracks()[0];
+      currentTrack.enabled = false;
+      (effect.replaceInputTrack as jest.Mock).mockImplementationOnce(
+        async (replacementTrack: MediaStreamTrack) => {
+          expect(replacementTrack.enabled).toBe(false);
+        }
+      );
+
+      await constraintsRequiredHandler({ autoGainControl: false });
+
+      expect(audioLocalStream.userMuted).toBe(true);
+    });
+
     it('should preserve mute changes made while replacing the effect input track', async () => {
       expect.hasAssertions();
 
@@ -313,6 +329,26 @@ describe('LocalMicrophoneStream', () => {
 
       expect(endedSpy).toHaveBeenCalledWith();
       expect(effect.dispose).toHaveBeenCalledWith();
+    });
+
+    it('should end the stream when getUserMedia returns no audio track', async () => {
+      expect.hasAssertions();
+
+      const streamWithoutAudioTrack = createMockedAudioStream();
+      (streamWithoutAudioTrack.getAudioTracks as jest.Mock).mockReturnValue([]);
+      const endedSpy = jest.spyOn(audioLocalStream[StreamEventNames.Ended], 'emit');
+      const constraintsChangeSpy = jest.spyOn(
+        audioLocalStream[LocalStreamEventNames.ConstraintsChange],
+        'emit'
+      );
+      getUserMediaSpy.mockResolvedValueOnce(streamWithoutAudioTrack);
+
+      await constraintsRequiredHandler({ autoGainControl: false });
+
+      expect(effect.replaceInputTrack).not.toHaveBeenCalled();
+      expect(effect.dispose).toHaveBeenCalledWith();
+      expect(endedSpy).toHaveBeenCalledWith();
+      expect(constraintsChangeSpy).not.toHaveBeenCalled();
     });
 
     it('should clear the effects array and not emit ConstraintsChange when getUserMedia fails', async () => {
