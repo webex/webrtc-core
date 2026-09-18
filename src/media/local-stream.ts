@@ -36,9 +36,9 @@ abstract class _LocalStream extends Stream {
 
   [LocalStreamEventNames.EffectAdded] = new TypedEvent<(effect: TrackEffect) => void>();
 
-  private effects: TrackEffect[] = [];
+  protected effects: TrackEffect[] = [];
 
-  private loadingEffects: Map<string, TrackEffect> = new Map();
+  protected loadingEffects: Map<string, TrackEffect> = new Map();
 
   // The output stream can change to reflect any effects that have
   // been added.  This member will always point to the MediaStream
@@ -189,7 +189,7 @@ abstract class _LocalStream extends Stream {
    *
    * @param newTrack - The track to be used in the output stream.
    */
-  private changeOutputTrack(newTrack: MediaStreamTrack): void {
+  protected changeOutputTrack(newTrack: MediaStreamTrack): void {
     if (this.outputTrack.id !== newTrack.id) {
       // If the input track and the *old* output track are currently the same, then the streams must
       // be the same too. We want to apply the new track to the output stream without affecting the
@@ -377,11 +377,14 @@ abstract class _LocalStream extends Stream {
   async disposeEffects(): Promise<void> {
     this.loadingEffects.clear();
 
-    // Dispose of any effects currently in use
-    if (this.effects.length > 0) {
+    // Effects are no longer active once disposal begins. Clear them before invoking
+    // disposal callbacks so those callbacks cannot start new work on this stream.
+    const effectsToDispose = this.effects;
+    this.effects = [];
+
+    if (effectsToDispose.length > 0) {
       this.changeOutputTrack(this.inputTrack);
-      await Promise.all(this.effects.map((effect) => effect.dispose()));
-      this.effects = [];
+      await Promise.all(effectsToDispose.map((effect) => effect.dispose()));
     }
   }
 }
