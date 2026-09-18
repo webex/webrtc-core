@@ -72,16 +72,15 @@ export function setOnDeviceChangeHandler(handler: () => void): void {
 }
 
 /**
- * Finds requested input device kinds whose identifying information is not exposed by the browser.
+ * Finds requested microphones and cameras whose IDs and labels are hidden.
  *
- * Firefox can report a granted permission while still hiding device information until the current
- * document captures that media kind. Checking the enumerated devices keeps permission state
- * separate from device information exposure.
+ * Firefox may require temporary capture to show this information even when permission is granted.
  *
  * @param deviceKinds - Array of DeviceKind items.
- * @returns Input device kinds that require capture before device information can be read.
+ * @returns Device types that need temporary capture.
  */
 async function getDeviceKindsRequiringCapture(deviceKinds: DeviceKind[]): Promise<DeviceKind[]> {
+  // getUserMedia cannot request speaker devices.
   const inputDeviceKinds = deviceKinds.filter(
     (deviceKind) => deviceKind !== DeviceKind.AudioOutput
   );
@@ -101,15 +100,16 @@ async function getDeviceKindsRequiringCapture(deviceKinds: DeviceKind[]): Promis
         )
     );
   } catch {
+    // If enumeration fails, assume every requested input type needs temporary capture.
     return inputDeviceKinds;
   }
 }
 
 /**
- * Checks whether the browser exposes usable information for the requested input devices.
+ * Checks whether each requested input type has a device with a visible ID and label.
  *
  * @param deviceKinds - Array of DeviceKind items.
- * @returns True if device information is exposed, false if capture is required.
+ * @returns True if device information is visible, or false if temporary capture is needed.
  */
 export async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolean> {
   return (await getDeviceKindsRequiringCapture(deviceKinds)).length === 0;
