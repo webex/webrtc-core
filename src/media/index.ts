@@ -92,12 +92,8 @@ async function getDeviceKindsRequiringCapture(deviceKinds: DeviceKind[]): Promis
   try {
     const devices = await enumerateDevices();
 
-    return inputDeviceKinds.filter(
-      (deviceKind) =>
-        !devices.some(
-          (device) =>
-            device.kind === deviceKind && Boolean(device.deviceId) && Boolean(device.label)
-        )
+    return inputDeviceKinds.filter((deviceKind) =>
+      devices.some((device) => device.kind === deviceKind && (!device.deviceId || !device.label))
     );
   } catch {
     // If enumeration fails, assume every requested input type needs temporary capture.
@@ -106,10 +102,10 @@ async function getDeviceKindsRequiringCapture(deviceKinds: DeviceKind[]): Promis
 }
 
 /**
- * Checks whether each requested input type has a device with a visible ID and label.
+ * Checks whether any requested input device has a hidden ID or label.
  *
  * @param deviceKinds - Array of DeviceKind items.
- * @returns True if device information is visible, or false if temporary capture is needed.
+ * @returns False if temporary capture is needed. Otherwise, true.
  */
 export async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolean> {
   return (await getDeviceKindsRequiringCapture(deviceKinds)).length === 0;

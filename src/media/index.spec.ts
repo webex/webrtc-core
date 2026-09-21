@@ -3,6 +3,7 @@ import { createBrowserMock } from '../mocks/create-browser-mock';
 import { createPermissionStatus } from '../mocks/create-permission-status';
 import MediaStream from '../mocks/media-stream-stub';
 import { Navigator } from '../mocks/navigator-stub';
+import { logger } from '../util/logger';
 
 jest.mock('../mocks/navigator-stub');
 
@@ -10,17 +11,24 @@ jest.mock('../mocks/navigator-stub');
  * Create example MediaDeviceInfo objects to be used in mocks.
  *
  * @param kind - MediaDeviceKind.
- * @param hasDeviceInfo - True if identifying device information should be exposed.
+ * @param deviceInfo - Device information overrides.
  * @returns An example MediaDeviceInfo.
  */
-const createDeviceInfo = (kind: MediaDeviceKind, hasDeviceInfo: boolean): MediaDeviceInfo => ({
-  kind,
-  deviceId: hasDeviceInfo ? 'example-device-id' : '',
-  groupId: hasDeviceInfo ? 'example-group-id' : '',
-  label: hasDeviceInfo ? 'example-label' : '',
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, jsdoc/require-jsdoc
-  toJSON: () => {},
-});
+const createDeviceInfo = (
+  kind: MediaDeviceKind,
+  deviceInfo: Partial<Pick<MediaDeviceInfo, 'deviceId' | 'label'>> = {}
+): MediaDeviceInfo => {
+  const deviceId = deviceInfo.deviceId ?? 'example-device-id';
+
+  return {
+    kind,
+    deviceId,
+    groupId: deviceId ? 'example-group-id' : '',
+    label: deviceInfo.label ?? 'example-label',
+    // eslint-disable-next-line @typescript-eslint/no-empty-function, jsdoc/require-jsdoc
+    toJSON: () => {},
+  };
+};
 
 describe('getUserMedia', () => {
   it('should return a MediaStream from getUserMedia', async () => {
@@ -66,11 +74,11 @@ describe('checkDevicePermissions', () => {
     mockedNavigatorStub.permissions.query.mockReset();
   });
 
-  it('should return true when requested device identifiers are exposed', async () => {
+  it('should return true when requested device information is visible', async () => {
     expect.assertions(2);
     mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue([
-      createDeviceInfo(media.DeviceKind.AudioInput, true),
-      createDeviceInfo(media.DeviceKind.VideoInput, true),
+      createDeviceInfo(media.DeviceKind.AudioInput),
+      createDeviceInfo(media.DeviceKind.VideoInput),
     ]);
 
     await expect(
@@ -79,11 +87,29 @@ describe('checkDevicePermissions', () => {
     expect(mockedNavigatorStub.permissions.query).not.toHaveBeenCalled();
   });
 
-  it('should return false when permission is granted but device identifiers are hidden', async () => {
+  it('should return false when permission is granted but device information is hidden', async () => {
     expect.assertions(1);
     mockedNavigatorStub.permissions.query.mockResolvedValue(createPermissionStatus('granted'));
     mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue([
-      createDeviceInfo(media.DeviceKind.AudioInput, false),
+      createDeviceInfo(media.DeviceKind.AudioInput, { deviceId: '', label: '' }),
+    ]);
+
+    await expect(media.checkDevicePermissions([media.DeviceKind.AudioInput])).resolves.toBe(false);
+  });
+
+  it('should return false when a device ID is hidden', async () => {
+    expect.assertions(1);
+    mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue([
+      createDeviceInfo(media.DeviceKind.AudioInput, { deviceId: '' }),
+    ]);
+
+    await expect(media.checkDevicePermissions([media.DeviceKind.AudioInput])).resolves.toBe(false);
+  });
+
+  it('should return false when a device label is hidden', async () => {
+    expect.assertions(1);
+    mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue([
+      createDeviceInfo(media.DeviceKind.AudioInput, { label: '' }),
     ]);
 
     await expect(media.checkDevicePermissions([media.DeviceKind.AudioInput])).resolves.toBe(false);
@@ -99,11 +125,15 @@ describe('ensureDevicePermissions', () => {
     mockedNavigatorStub.permissions.query.mockReset();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should use exposed devices without starting a temporary capture', async () => {
     expect.assertions(3);
     const exposedDevices = [
-      createDeviceInfo(media.DeviceKind.AudioInput, true),
-      createDeviceInfo(media.DeviceKind.VideoInput, true),
+      createDeviceInfo(media.DeviceKind.AudioInput),
+      createDeviceInfo(media.DeviceKind.VideoInput),
     ];
     mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue(exposedDevices);
 
@@ -117,21 +147,21 @@ describe('ensureDevicePermissions', () => {
     expect(mockedNavigatorStub.mediaDevices.getUserMedia).not.toHaveBeenCalled();
   });
 
-  it('should capture when permission is granted but device identifiers are hidden', async () => {
+  it('should capture when permission is granted but device information is hidden', async () => {
     expect.assertions(4);
     const track = new MediaStreamTrack();
     const stop = jest.spyOn(track, 'stop');
     const stream = new MediaStream([track]);
     const exposedDevices = [
-      createDeviceInfo(media.DeviceKind.AudioInput, true),
-      createDeviceInfo(media.DeviceKind.VideoInput, true),
+      createDeviceInfo(media.DeviceKind.AudioInput),
+      createDeviceInfo(media.DeviceKind.VideoInput),
     ];
 
     mockedNavigatorStub.permissions.query.mockResolvedValue(createPermissionStatus('granted'));
     mockedNavigatorStub.mediaDevices.enumerateDevices
       .mockResolvedValueOnce([
-        createDeviceInfo(media.DeviceKind.AudioInput, false),
-        createDeviceInfo(media.DeviceKind.VideoInput, false),
+        createDeviceInfo(media.DeviceKind.AudioInput, { deviceId: '', label: '' }),
+        createDeviceInfo(media.DeviceKind.VideoInput, { deviceId: '', label: '' }),
       ])
       .mockResolvedValueOnce(exposedDevices);
     mockedNavigatorStub.mediaDevices.getUserMedia.mockResolvedValue(stream);
@@ -151,11 +181,11 @@ describe('ensureDevicePermissions', () => {
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
-  it('should capture only the device kind whose identifier is hidden', async () => {
+  it('should capture only the device kind whose information is hidden', async () => {
     expect.assertions(1);
     mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue([
-      createDeviceInfo(media.DeviceKind.AudioInput, true),
-      createDeviceInfo(media.DeviceKind.VideoInput, false),
+      createDeviceInfo(media.DeviceKind.AudioInput),
+      createDeviceInfo(media.DeviceKind.VideoInput, { deviceId: '', label: '' }),
     ]);
     mockedNavigatorStub.mediaDevices.getUserMedia.mockResolvedValue(new MediaStream());
 
@@ -168,6 +198,21 @@ describe('ensureDevicePermissions', () => {
       audio: false,
       video: true,
     });
+  });
+
+  it('should not capture a requested device kind that is absent', async () => {
+    expect.assertions(3);
+    const availableDevices = [createDeviceInfo(media.DeviceKind.AudioInput)];
+    mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue(availableDevices);
+
+    await expect(
+      media.ensureDevicePermissions(
+        [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
+        media.enumerateDevices
+      )
+    ).resolves.toStrictEqual(availableDevices);
+    expect(mockedNavigatorStub.mediaDevices.enumerateDevices).toHaveBeenCalledTimes(2);
+    expect(mockedNavigatorStub.mediaDevices.getUserMedia).not.toHaveBeenCalled();
   });
 
   it('should attempt capture when device enumeration fails', async () => {
@@ -187,22 +232,25 @@ describe('ensureDevicePermissions', () => {
   });
 
   it('should stop temporary tracks when the callback fails', async () => {
-    expect.assertions(2);
+    expect.assertions(3);
     const track = new MediaStreamTrack();
     const stop = jest.spyOn(track, 'stop');
     const stream = new MediaStream([track]);
+    const callbackError = new Error('callback error');
+    const loggerError = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 
     mockedNavigatorStub.mediaDevices.enumerateDevices.mockResolvedValue([
-      createDeviceInfo(media.DeviceKind.AudioInput, false),
+      createDeviceInfo(media.DeviceKind.AudioInput, { deviceId: '', label: '' }),
     ]);
     mockedNavigatorStub.mediaDevices.getUserMedia.mockResolvedValue(stream);
 
     await expect(
       media.ensureDevicePermissions([media.DeviceKind.AudioInput], () =>
-        Promise.reject(new Error('callback error'))
+        Promise.reject(callbackError)
       )
     ).rejects.toThrow('Failed to ensure device permissions.');
     expect(stop).toHaveBeenCalledTimes(1);
+    expect(loggerError).toHaveBeenCalledWith(callbackError);
   });
 
   it('should not capture media when only output devices are requested', async () => {
