@@ -92,6 +92,8 @@ async function getDeviceKindsRequiringCapture(deviceKinds: DeviceKind[]): Promis
   try {
     const devices = await enumerateDevices();
 
+    // Capture only when an enumerated device has hidden details. Requesting capture for an
+    // unavailable device type would fail the entire device lookup.
     return inputDeviceKinds.filter((deviceKind) =>
       devices.some((device) => device.kind === deviceKind && (!device.deviceId || !device.label))
     );
