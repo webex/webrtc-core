@@ -1,3 +1,10 @@
+# [2.15.0](https://github.com/webex/webrtc-core/compare/v2.14.4...v2.15.0) (2026-09-23)
+
+
+### Features
+
+* re-acquire mic track when effects require specific audio constraints ([#99](https://github.com/webex/webrtc-core/issues/99)) ([c4ffa31](https://github.com/webex/webrtc-core/commit/c4ffa3112ae64e37df19ed5c62bc056f6355651c))
+
 ## [2.14.4](https://github.com/webex/webrtc-core/compare/v2.14.3...v2.14.4) (2026-09-14)
 
 
