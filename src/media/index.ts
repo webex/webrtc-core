@@ -72,54 +72,45 @@ export function setOnDeviceChangeHandler(handler: () => void): void {
 }
 
 /**
- * Checks permissions using the navigator's permissions api.
+ * Finds requested microphones and cameras whose IDs and labels are hidden.
+ *
+ * Firefox may require temporary capture to show this information even when permission is granted.
  *
  * @param deviceKinds - Array of DeviceKind items.
- * @throws An error if camera or microphone aren't available options for query() (Firefox), or if
- *    navigator.permissions is undefined (Safari and others).
- * @returns Array of Permission Status objects.
+ * @returns Device types that need temporary capture.
  */
-async function checkNavigatorPermissions(
-  deviceKinds: DeviceKind[]
-): Promise<Array<PermissionStatus>> {
-  const permissionRequests = [];
+async function getDeviceKindsRequiringCapture(deviceKinds: DeviceKind[]): Promise<DeviceKind[]> {
+  // getUserMedia cannot request speaker devices.
+  const inputDeviceKinds = deviceKinds.filter(
+    (deviceKind) => deviceKind !== DeviceKind.AudioOutput
+  );
 
-  if (deviceKinds.includes(DeviceKind.VideoInput)) {
-    permissionRequests.push(navigator.permissions.query({ name: 'camera' as PermissionName }));
+  if (inputDeviceKinds.length === 0) {
+    return [];
   }
 
-  if (deviceKinds.includes(DeviceKind.AudioInput)) {
-    permissionRequests.push(navigator.permissions.query({ name: 'microphone' as PermissionName }));
-  }
+  try {
+    const devices = await enumerateDevices();
 
-  return Promise.all(permissionRequests);
+    // Capture only when an enumerated device has hidden details. Requesting capture for an
+    // unavailable device type would fail the entire device lookup.
+    return inputDeviceKinds.filter((deviceKind) =>
+      devices.some((device) => device.kind === deviceKind && (!device.deviceId || !device.label))
+    );
+  } catch {
+    // If enumeration fails, assume every requested input type needs temporary capture.
+    return inputDeviceKinds;
+  }
 }
 
 /**
- * Check to see if the user has granted the application permission to use their devices.
+ * Checks whether any requested input device has a hidden ID or label.
  *
  * @param deviceKinds - Array of DeviceKind items.
- * @returns True if device permissions exist, false if otherwise.
+ * @returns False if temporary capture is needed. Otherwise, true.
  */
 export async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise<boolean> {
-  try {
-    const permissions = await checkNavigatorPermissions(deviceKinds);
-    if (permissions.every((permission: PermissionStatus) => permission.state === 'granted')) {
-      return true;
-    }
-    // eslint-disable-next-line no-empty
-  } catch (e: unknown) {}
-
-  try {
-    const devices: MediaDeviceInfo[] = await enumerateDevices();
-    // If permissions are granted, the MediaDeviceInfo objects will have labels.
-    return devices
-      .filter((device: MediaDeviceInfo) => deviceKinds.includes(device.kind as DeviceKind))
-      .every((device: MediaDeviceInfo) => device.label);
-    // eslint-disable-next-line no-empty
-  } catch (e: unknown) {}
-
-  return false;
+  return (await getDeviceKindsRequiringCapture(deviceKinds)).length === 0;
 }
 
 /**
@@ -135,22 +126,20 @@ export async function ensureDevicePermissions<T>(
   callback: () => Promise<T>
 ): Promise<T> {
   try {
-    const hasDevicePermissions = await checkDevicePermissions(deviceKinds);
+    const deviceKindsRequiringCapture = await getDeviceKindsRequiringCapture(deviceKinds);
 
-    if (!hasDevicePermissions) {
+    if (deviceKindsRequiringCapture.length > 0) {
       const stream = await getUserMedia({
-        audio: deviceKinds.includes(DeviceKind.AudioInput),
-        video: deviceKinds.includes(DeviceKind.VideoInput),
+        audio: deviceKindsRequiringCapture.includes(DeviceKind.AudioInput),
+        video: deviceKindsRequiringCapture.includes(DeviceKind.VideoInput),
       });
 
-      // Callback is here to call a function while an active capture exists, so that the browser
-      // (Firefox) will allow the user to access device information.
-      const callbackRes = await callback();
-
-      // Stop tracks in the stream so the browser (Safari) will know that there is not an active
-      // stream running.
-      stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-      return callbackRes;
+      try {
+        // Firefox exposes device identifiers only while this document is allowed to access them.
+        return await callback();
+      } finally {
+        stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+      }
     }
 
     return callback();
