@@ -155,7 +155,7 @@ describe('ensureDevicePermissions', () => {
     expect(mockedNavigatorStub.mediaDevices.getUserMedia).not.toHaveBeenCalled();
   });
 
-  it('should capture when permission is granted but device information is hidden', async () => {
+  it('should handle Firefox/Safari-like hidden metadata despite granted permission', async () => {
     expect.assertions(4);
     const track = new MediaStreamTrack();
     const stop = jest.spyOn(track, 'stop');
@@ -223,20 +223,26 @@ describe('ensureDevicePermissions', () => {
     expect(mockedNavigatorStub.mediaDevices.getUserMedia).not.toHaveBeenCalled();
   });
 
-  it('should request capture when device enumeration fails', async () => {
-    expect.assertions(1);
+  it('should stop temporary tracks when initial device enumeration fails', async () => {
+    expect.assertions(3);
+    const track = new MediaStreamTrack();
+    const stop = jest.spyOn(track, 'stop');
+    const callback = jest.fn(async () => true);
+
     mockedNavigatorStub.mediaDevices.enumerateDevices.mockRejectedValue(new Error('error'));
-    mockedNavigatorStub.mediaDevices.getUserMedia.mockResolvedValue(new MediaStream());
+    mockedNavigatorStub.mediaDevices.getUserMedia.mockResolvedValue(new MediaStream([track]));
 
     await media.ensureDevicePermissions(
       [media.DeviceKind.AudioInput, media.DeviceKind.VideoInput],
-      () => Promise.resolve(true)
+      callback
     );
 
     expect(mockedNavigatorStub.mediaDevices.getUserMedia).toHaveBeenCalledWith({
       audio: true,
       video: true,
     });
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(stop).toHaveBeenCalledTimes(1);
   });
 
   it('should stop temporary tracks when the callback fails', async () => {

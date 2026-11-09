@@ -74,7 +74,7 @@ export function setOnDeviceChangeHandler(handler: () => void): void {
 /**
  * Finds requested microphones and cameras whose IDs and labels are hidden.
  *
- * Firefox may require temporary capture to show this information even when permission is granted.
+ * Some browsers hide device identifiers and labels until capture permission is active.
  *
  * @param deviceKinds - Array of DeviceKind items.
  * @returns Device types that need temporary capture.
@@ -118,7 +118,7 @@ export async function checkDevicePermissions(deviceKinds: DeviceKind[]): Promise
  *
  * @param deviceKinds - Array of DeviceKind items.
  * @param callback - Function that will be executed while device permissions are granted. After this
- *    returns, permissions (for example device labels in Firefox) may not be available anymore.
+ *    returns, device identifiers and labels may not be available anymore.
  * @returns The callback's response.
  */
 export async function ensureDevicePermissions<T>(
@@ -135,7 +135,7 @@ export async function ensureDevicePermissions<T>(
       });
 
       try {
-        // Firefox exposes device identifiers only while this document is allowed to access them.
+        // Keep capture active while the callback reads metadata that some browsers otherwise hide.
         return await callback();
       } finally {
         stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
