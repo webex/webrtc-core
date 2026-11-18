@@ -1,3 +1,10 @@
+## [2.15.2](https://github.com/webex/webrtc-core/compare/v2.15.1...v2.15.2) (2026-11-18)
+
+
+### Bug Fixes
+
+* restore device enumeration in new Firefox tabs ([#108](https://github.com/webex/webrtc-core/issues/108)) ([908a707](https://github.com/webex/webrtc-core/commit/908a70719b136a187ddae266519ba3245c1335ef))
+
 ## [2.15.1](https://github.com/webex/webrtc-core/compare/v2.15.0...v2.15.1) (2026-10-12)
 
 
