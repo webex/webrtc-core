@@ -528,5 +528,219 @@ describe('LocalMicrophoneStream', () => {
       expect(getUserMediaSpy).not.toHaveBeenCalled();
       expect(systemAudioTrackStopSpy).not.toHaveBeenCalled();
     });
+
+    describe('addEffect options', () => {
+      type Listener = (...args: unknown[]) => unknown;
+
+      /**
+       * Create a stub effect that keeps its registered listeners so tests can emit effect events.
+       * Disposing the stub releases its constraints and then emits `disposed`.
+       *
+       * @param id - The effect ID.
+       * @param kind - The effect kind.
+       * @returns The stub effect and a function that emits an event to its listeners.
+       */
+      const createStubEffect = (id: string, kind: string) => {
+        const listeners = new Map<string, Set<Listener>>();
+
+        /**
+         * Invoke every listener registered for an event and wait for them to settle.
+         *
+         * @param event - The event name.
+         * @param args - The event payload.
+         */
+        const emit = async (event: string, ...args: unknown[]): Promise<void> => {
+          await Promise.all(Array.from(listeners.get(event) ?? []).map((l) => l(...args)));
+        };
+
+        const stubEffect = {
+          id,
+          kind,
+          isEnabled: false,
+          dispose: jest.fn().mockImplementation(async () => {
+            await emit('constraints-released');
+            await emit('disposed');
+          }),
+          load: jest.fn().mockResolvedValue(undefined),
+          replaceInputTrack: jest.fn().mockResolvedValue(undefined),
+          on: jest.fn().mockImplementation((event: string, listener: Listener) => {
+            const eventListeners = listeners.get(event) ?? new Set<Listener>();
+            eventListeners.add(listener);
+            listeners.set(event, eventListeners);
+          }),
+          off: jest.fn().mockImplementation((event: string, listener: Listener) => {
+            listeners.get(event)?.delete(listener);
+          }),
+        } as unknown as TrackEffect;
+
+        return { effect: stubEffect, emit };
+      };
+
+      /**
+       * Count how many times a listener was registered on an effect for an event.
+       *
+       * @param targetEffect - The stub effect.
+       * @param event - The event name.
+       * @returns The number of `on` calls for the event.
+       */
+      const countOnCalls = (targetEffect: TrackEffect, event: string): number =>
+        (targetEffect.on as jest.Mock).mock.calls.filter(([name]: [string]) => name === event)
+          .length;
+
+      it('should register constraint handlers for an effect added without options', async () => {
+        expect.hasAssertions();
+
+        const { effect: defaultEffect } = createStubEffect('default-effect', 'kind-a');
+
+        await audioLocalStream.addEffect(defaultEffect);
+
+        expect(countOnCalls(defaultEffect, 'constraints-required')).toBe(1);
+        expect(countOnCalls(defaultEffect, 'constraints-released')).toBe(1);
+        // The base class and the constraint cleanup each listen for `disposed`.
+        expect(countOnCalls(defaultEffect, 'disposed')).toBe(2);
+      });
+
+      it.each([{}, { applyRequiredConstraints: undefined }, { applyRequiredConstraints: true }])(
+        'should register constraint handlers when options are %p',
+        async (options) => {
+          expect.hasAssertions();
+
+          const { effect: optedInEffect, emit } = createStubEffect('opted-in-effect', 'kind-a');
+
+          await audioLocalStream.addEffect(optedInEffect, options);
+
+          expect(countOnCalls(optedInEffect, 'constraints-required')).toBe(1);
+          expect(countOnCalls(optedInEffect, 'constraints-released')).toBe(1);
+          expect(countOnCalls(optedInEffect, 'disposed')).toBe(2);
+
+          await emit('constraints-required', { autoGainControl: false });
+
+          expect(getUserMediaSpy).toHaveBeenCalledTimes(1);
+          expect(optedInEffect.replaceInputTrack).toHaveBeenCalledWith(newAudioTrack);
+        }
+      );
+
+      it('should add and load the effect without constraint handlers when applyRequiredConstraints is false', async () => {
+        expect.hasAssertions();
+
+        const effectAddedSpy = jest.spyOn(
+          audioLocalStream[LocalStreamEventNames.EffectAdded],
+          'emit'
+        );
+        const { effect: optedOutEffect } = createStubEffect('opted-out-effect', 'kind-a');
+
+        await audioLocalStream.addEffect(optedOutEffect, { applyRequiredConstraints: false });
+
+        expect(optedOutEffect.load).toHaveBeenCalledWith(audioStream.getTracks()[0]);
+        expect(audioLocalStream.getEffectById('opted-out-effect')).toBe(optedOutEffect);
+        expect(effectAddedSpy).toHaveBeenCalledWith(optedOutEffect);
+        expect(countOnCalls(optedOutEffect, 'constraints-required')).toBe(0);
+        expect(countOnCalls(optedOutEffect, 'constraints-released')).toBe(0);
+        expect(countOnCalls(optedOutEffect, 'track-updated')).toBe(1);
+        expect(countOnCalls(optedOutEffect, 'disposed')).toBe(1);
+      });
+
+      it('should replace an existing effect of the same kind when applyRequiredConstraints is false', async () => {
+        expect.hasAssertions();
+
+        const { effect: optedOutEffect } = createStubEffect('opted-out-nr-effect', effect.kind);
+
+        await audioLocalStream.addEffect(optedOutEffect, { applyRequiredConstraints: false });
+
+        expect(effect.dispose).toHaveBeenCalledWith();
+        expect(audioLocalStream.getEffectByKind(effect.kind)).toBe(optedOutEffect);
+        expect(audioLocalStream.getEffectById(effect.id)).toBeUndefined();
+        expect(countOnCalls(optedOutEffect, 'constraints-required')).toBe(0);
+      });
+
+      it('should not re-acquire the microphone for an opted-out effect on constraint events or disposal', async () => {
+        expect.hasAssertions();
+
+        const inputTrack = audioStream.getTracks()[0];
+        const { effect: optedOutEffect, emit } = createStubEffect('opted-out-effect', 'kind-a');
+
+        await audioLocalStream.addEffect(optedOutEffect, { applyRequiredConstraints: false });
+        await emit('constraints-required', { autoGainControl: false, noiseSuppression: false });
+        await emit('constraints-released');
+        await audioLocalStream.disposeEffects();
+
+        expect(optedOutEffect.dispose).toHaveBeenCalledWith();
+        expect(audioLocalStream.getEffects()).toStrictEqual([]);
+        expect(getUserMediaSpy).not.toHaveBeenCalled();
+        expect(optedOutEffect.replaceInputTrack).not.toHaveBeenCalled();
+        expect(inputTrack.stop).not.toHaveBeenCalled();
+        expect(audioStream.removeTrack).not.toHaveBeenCalled();
+        expect(audioStream.addTrack).not.toHaveBeenCalled();
+      });
+
+      it('should only register constraint handlers for effects added without the opt-out', async () => {
+        expect.hasAssertions();
+
+        const { effect: effectA, emit: emitA } = createStubEffect('effect-a', 'kind-a');
+        const { effect: effectB, emit: emitB } = createStubEffect('effect-b', 'kind-b');
+
+        await audioLocalStream.addEffect(effectA, { applyRequiredConstraints: false });
+        await audioLocalStream.addEffect(effectB);
+
+        expect(countOnCalls(effectA, 'constraints-required')).toBe(0);
+        expect(countOnCalls(effectA, 'constraints-released')).toBe(0);
+        expect(countOnCalls(effectB, 'constraints-required')).toBe(1);
+        expect(countOnCalls(effectB, 'constraints-released')).toBe(1);
+
+        await emitA('constraints-required', { autoGainControl: false });
+
+        expect(getUserMediaSpy).not.toHaveBeenCalled();
+
+        await emitB('constraints-required', { autoGainControl: false });
+
+        expect(getUserMediaSpy).toHaveBeenCalledTimes(1);
+        expect(getUserMediaSpy).toHaveBeenCalledWith({
+          audio: expect.objectContaining({
+            deviceId: { exact: 'test-device-id' },
+            autoGainControl: false,
+          }),
+        });
+        expect(effectA.replaceInputTrack).not.toHaveBeenCalled();
+      });
+
+      it('should keep constraint handlers when an effect is added again with applyRequiredConstraints false', async () => {
+        expect.hasAssertions();
+
+        const { effect: duplicateEffect, emit } = createStubEffect('duplicate-effect', 'kind-a');
+
+        await audioLocalStream.addEffect(duplicateEffect);
+        const onCallCountAfterFirstAdd = (duplicateEffect.on as jest.Mock).mock.calls.length;
+        await audioLocalStream.addEffect(duplicateEffect, { applyRequiredConstraints: false });
+
+        expect(duplicateEffect.load).toHaveBeenCalledTimes(1);
+        expect(duplicateEffect.on).toHaveBeenCalledTimes(onCallCountAfterFirstAdd);
+        expect(duplicateEffect.off).not.toHaveBeenCalled();
+        expect(countOnCalls(duplicateEffect, 'constraints-required')).toBe(1);
+        expect(countOnCalls(duplicateEffect, 'constraints-released')).toBe(1);
+
+        await emit('constraints-required', { autoGainControl: false });
+
+        expect(getUserMediaSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('should not register constraint handlers when an opted-out effect is added again without options', async () => {
+        expect.hasAssertions();
+
+        const { effect: duplicateEffect, emit } = createStubEffect('duplicate-effect', 'kind-a');
+
+        await audioLocalStream.addEffect(duplicateEffect, { applyRequiredConstraints: false });
+        const onCallCountAfterFirstAdd = (duplicateEffect.on as jest.Mock).mock.calls.length;
+        await audioLocalStream.addEffect(duplicateEffect);
+
+        expect(duplicateEffect.load).toHaveBeenCalledTimes(1);
+        expect(duplicateEffect.on).toHaveBeenCalledTimes(onCallCountAfterFirstAdd);
+        expect(countOnCalls(duplicateEffect, 'constraints-required')).toBe(0);
+        expect(countOnCalls(duplicateEffect, 'constraints-released')).toBe(0);
+
+        await emit('constraints-required', { autoGainControl: false });
+
+        expect(getUserMediaSpy).not.toHaveBeenCalled();
+      });
+    });
   });
 });
