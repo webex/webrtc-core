@@ -528,5 +528,61 @@ describe('LocalMicrophoneStream', () => {
       expect(getUserMediaSpy).not.toHaveBeenCalled();
       expect(systemAudioTrackStopSpy).not.toHaveBeenCalled();
     });
+
+    describe('constraintHandlers option', () => {
+      /**
+       * Create a stub effect that records the events it is subscribed to.
+       *
+       * @param id - The effect ID.
+       * @param kind - The effect kind.
+       * @returns The stub effect.
+       */
+      const createEffect = (id: string, kind: string): TrackEffect =>
+        ({
+          id,
+          kind,
+          isEnabled: false,
+          dispose: jest.fn().mockResolvedValue(undefined),
+          load: jest.fn().mockResolvedValue(undefined),
+          on: jest.fn(),
+          off: jest.fn(),
+        } as unknown as TrackEffect);
+
+      it('should skip constraint events only for the effect added with constraintHandlers false', async () => {
+        expect.hasAssertions();
+
+        const optedOutEffect = createEffect('opted-out-effect', 'kind-a');
+        const defaultEffect = createEffect('default-effect', 'kind-b');
+
+        await audioLocalStream.addEffect(optedOutEffect, { constraintHandlers: false });
+        await audioLocalStream.addEffect(defaultEffect, {});
+
+        expect(audioLocalStream.getEffectById('opted-out-effect')).toBe(optedOutEffect);
+        expect(optedOutEffect.on).not.toHaveBeenCalledWith(
+          'constraints-required',
+          expect.anything()
+        );
+        expect(optedOutEffect.on).not.toHaveBeenCalledWith(
+          'constraints-released',
+          expect.anything()
+        );
+        expect(defaultEffect.on).toHaveBeenCalledWith('constraints-required', expect.any(Function));
+        expect(defaultEffect.on).toHaveBeenCalledWith('constraints-released', expect.any(Function));
+      });
+
+      it("should keep the first call's constraintHandlers when the same effect is added again", async () => {
+        expect.hasAssertions();
+
+        const optedOutEffect = createEffect('opted-out-effect', 'kind-a');
+
+        await audioLocalStream.addEffect(optedOutEffect, { constraintHandlers: false });
+        await audioLocalStream.addEffect(optedOutEffect);
+
+        expect(optedOutEffect.on).not.toHaveBeenCalledWith(
+          'constraints-required',
+          expect.anything()
+        );
+      });
+    });
   });
 });

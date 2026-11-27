@@ -22,7 +22,7 @@ export class LocalAudioStream extends LocalStream {
    * Note: on Chrome, `applyConstraints` silently ignores `autoGainControl`,
    * `echoCancellation`, and `noiseSuppression` — the promise resolves but the
    * value stays unchanged. To change those reliably, use an effect that emits
-   * a `constraints-required` event.
+   * a `constraints-required` event. See {@link LocalMicrophoneStream.addEffect}.
    * See https://issues.chromium.org/issues/40555809.
    *
    * @param constraints - The constraints to apply.
