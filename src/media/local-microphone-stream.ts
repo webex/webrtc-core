@@ -25,11 +25,10 @@ const filterToSupportedConstraints = (settings: MediaTrackSettings): MediaTrackC
  */
 export interface MicrophoneEffectOptions {
   /**
-   * Whether the stream re-acquires the microphone track when the effect emits
-   * `constraints-required` and restores it on `constraints-released`. Only an explicit `false`
-   * opts out. Any other value keeps the default behavior.
+   * Set to `false` so the stream does not subscribe to the effect's `constraints-required` and
+   * `constraints-released` events and never re-acquires the microphone track for that effect.
    */
-  applyRequiredConstraints?: boolean;
+  constraintHandlers?: false;
 }
 
 /**
@@ -40,8 +39,8 @@ export class LocalMicrophoneStream extends LocalAudioStream {
    * Adds an effect to the microphone stream.
    *
    * By default, the stream re-acquires the microphone track when the effect requires or releases
-   * audio constraints. Applications that own getUserMedia and microphone track replacement can opt
-   * out per effect with `applyRequiredConstraints: false`. Adding an effect whose ID is already in
+   * audio constraints. Applications that own getUserMedia and microphone track replacement can turn
+   * this off per effect with `constraintHandlers: false`. Adding an effect whose ID is already in
    * the stream is a no-op, so the options of the first successful call win.
    *
    * @param effect - The effect to add.
@@ -53,7 +52,7 @@ export class LocalMicrophoneStream extends LocalAudioStream {
       return;
     }
     await super.addEffect(effect);
-    if (options?.applyRequiredConstraints === false) {
+    if (options?.constraintHandlers === false) {
       return;
     }
     this.addConstraintHandlers(effect);
